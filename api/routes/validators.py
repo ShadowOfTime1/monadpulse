@@ -16,6 +16,7 @@ async def validator_list(request: Request, period: str = Query("24h"), network: 
             "AVG(block_time_ms)::INT AS avg_block_time_ms, SUM(tx_count) AS total_tx, "
             "MIN(timestamp) AS first_seen, MAX(timestamp) AS last_seen "
             "FROM blocks WHERE network = $1 AND timestamp >= $2 "
+            "AND proposer_address != '0x0000000000000000000000000000000000000000' "
             "GROUP BY proposer_address ORDER BY blocks_proposed DESC",
             network, start,
         )
@@ -53,8 +54,8 @@ async def validator_detail(request: Request, address: str, network: str = Query(
             network, address,
         )
         geo = await conn.fetchrow(
-            "SELECT name, country, city, lat, lon, provider FROM validator_geo WHERE network = $1 AND validator_id = $2",
-            network, address,
+            "SELECT name, country, city, lat, lon, provider FROM validator_geo WHERE validator_id = $1 AND network = $2",
+            address, network,
         )
     result = {
         "address": address,

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MonadPulse — Monad Network Observatory</title>
+<meta name="description" content="Deep network intelligence for the Monad ecosystem">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse
+      <svg class="heartbeat-line" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline class="hb-trace" points="0,14 18,14 26,14 30,2 34,26 38,8 42,18 46,14 120,14"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="/" class="active">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- Hero -->
+  <section class="hero">
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring"></div>
+    <div class="pulse-ring"></div>
+    <h1>Monad <span class="grad">Network Observatory</span></h1>
+    <p class="tagline">Deep network intelligence for the Monad ecosystem</p>
+    <div class="live-dot">Live — syncing with Monad testnet</div>
+  </section>
+
+  <!-- 6 Metrics -->
+  <section class="metrics" id="metrics">
+    <div class="metric">
+      <div class="metric-val purple" id="m-block">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x25C8;</span> Latest Block</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val cyan" id="m-tps">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x26A1;</span> TPS (24h)</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="m-blocktime">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x23F1;</span> Block Time</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="m-validators">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x2726;</span> Validators</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val" id="m-blocks24">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x25A0;</span> Blocks 24h</div>
+    </div>
+    <div class="metric">
+      <div class="metric-val orange" id="m-tx24">—</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x21C4;</span> Txns 24h</div>
+    </div>
+  </section>
+
+  <!-- Epoch progress -->
+  <div class="epoch-bar" id="epoch-bar">
+    <div class="epoch-info">
+      <span class="epoch-label">Epoch</span>
+      <span class="epoch-num" id="epoch-num">—</span>
+      <span class="epoch-eta" id="epoch-eta"></span>
+    </div>
+    <div class="epoch-track">
+      <div class="epoch-fill" id="epoch-fill" style="width:0%"></div>
+      <svg class="epoch-heartbeat" viewBox="0 0 600 40" preserveAspectRatio="none">
+        <polyline class="epoch-hb-trace" points="0,20 35,20 48,20 53,3 58,37 63,12 68,25 73,20 115,20 155,20 168,20 173,3 178,37 183,12 188,25 193,20 235,20 275,20 288,20 293,3 298,37 303,12 308,25 313,20 355,20 395,20 408,20 413,3 418,37 423,12 428,25 433,20 475,20 515,20 528,20 533,3 538,37 543,12 548,25 553,20 600,20"/>
+      </svg>
+    </div>
+    <div class="epoch-pct" id="epoch-pct">—</div>
+  </div>
+
+  <!-- Upgrade tracker -->
+  <div class="upgrade-strip" id="upgrade-strip"></div>
+
+  <!-- Live blocks ticker -->
+  <section class="block-ticker" id="block-ticker-wrap">
+    <div class="section-title">Live Blocks</div>
+    <div id="block-ticker"></div>
+  </section>
+
+  <div class="flow-sep"></div>
+
+  <!-- Charts: 2 columns -->
+  <section class="chart-area">
+    <div class="section-title">Network Activity</div>
+    <div class="chart-row">
+      <div class="chart-wrap">
+        <div class="chart-label">Block Production</div>
+        <canvas id="chart-blocks"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-label">Transactions</div>
+        <canvas id="chart-tx"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <div class="flow-sep"></div>
+
+  <!-- Bottom 2 columns: Top 5 Validators | Latest 5 Blocks -->
+  <div class="chart-row">
+    <section class="data-section">
+      <div class="section-title">Top Validators — Health</div>
+      <table id="top-proposers">
+        <thead>
+          <tr><th></th><th>Validator</th><th>Score</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <a href="/validators.html" class="view-all">View all validators →</a>
+    </section>
+    <section class="data-section">
+      <div class="section-title">Latest Blocks</div>
+      <table id="recent-blocks">
+        <thead>
+          <tr><th>Block</th><th>Proposer</th><th>Txns</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <a href="/blocks.html" class="view-all">View all blocks →</a>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+  </div>
+</footer>
+
+<script src="/js/app.js"></script>
+</body>
+</html>

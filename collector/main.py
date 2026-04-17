@@ -18,7 +18,9 @@ from collector.telegram import send_alert as tg_send
 from collector.db import (
     get_pool, close_pool, insert_block, get_last_block_number,
     insert_alert, upsert_collector_state, get_collector_state,
+    insert_stake_event,
 )
+from collector.stake import decode_log as decode_stake_log
 
 logging.basicConfig(
     level=logging.INFO,
@@ -177,6 +179,7 @@ async def compute_health_scores(pool):
                 MAX(timestamp) AS last_seen
             FROM blocks
             WHERE timestamp > NOW() - INTERVAL '7 days' AND network = $1
+              AND proposer_address != '0x0000000000000000000000000000000000000000'
             GROUP BY proposer_address
             HAVING COUNT(*) >= 5
         """, NETWORK)
@@ -221,6 +224,49 @@ async def compute_health_scores(pool):
             )
 
         log.info(f"Health scores computed for {len(validators)} validators")
+
+
+STAKE_LOGS_CHUNK = 500 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 100
+STAKE_BACKFILL_BLOCKS = 200_000 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 5_000
+
+
+async def ingest_stake_events(rpc: MonadRPC, pool):
+    """Poll staking precompile logs and persist decoded events."""
+    async with pool.acquire() as conn:
+        cursor_str = await get_collector_state(conn, "last_stake_block", NETWORK)
+        chain_head = await rpc.get_block_number()
+        if cursor_str is None:
+            cursor = max(0, chain_head - STAKE_BACKFILL_BLOCKS)
+            log.info(f"Stake ingest [{NETWORK}]: first run, backfilling from {cursor}")
+        else:
+            cursor = int(cursor_str) + 1
+
+    if cursor > chain_head:
+        return
+
+    inserted_total = 0
+    current = cursor
+    while current <= chain_head:
+        end = min(current + STAKE_LOGS_CHUNK - 1, chain_head)
+        try:
+            raw = await rpc.get_stake_logs(current, end)
+        except Exception as e:
+            log.warning(f"Stake log fetch {current}-{end} failed: {e}")
+            break
+
+        decoded = [d for d in (decode_stake_log(l) for l in raw) if d]
+        if decoded:
+            async with pool.acquire() as conn:
+                for ev in decoded:
+                    await insert_stake_event(conn, ev, NETWORK)
+            inserted_total += len(decoded)
+
+        async with pool.acquire() as conn:
+            await upsert_collector_state(conn, "last_stake_block", str(end), NETWORK)
+        current = end + 1
+
+    if inserted_total:
+        log.info(f"Stake ingest [{NETWORK}]: +{inserted_total} events up to {chain_head}")
 
 
 async def detect_tps_spike(pool):
@@ -347,6 +393,7 @@ async def run():
         last_epoch_check = 0
         last_health_calc = 0
         last_tps_check = 0
+        last_stake_ingest = 0
         while not shutdown_event.is_set():
             try:
                 chain_head = await rpc.get_block_number()
@@ -390,6 +437,14 @@ async def run():
                 if now - last_tps_check > 300:
                     await detect_tps_spike(pool)
                     last_tps_check = now
+
+                # Stake event ingestion — every 60 seconds
+                if now - last_stake_ingest > 60:
+                    try:
+                        await ingest_stake_events(rpc, pool)
+                    except Exception as e:
+                        log.warning(f"Stake ingest error: {e}")
+                    last_stake_ingest = now
 
             except Exception as e:
                 log.error(f"Live loop error: {e}")

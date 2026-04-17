@@ -47,6 +47,7 @@ async def proposer_stats(request: Request, period: str = Query("24h"), network: 
             "SELECT proposer_address, COUNT(*) AS blocks_proposed, "
             "AVG(block_time_ms)::INT AS avg_block_time_ms, SUM(tx_count) AS total_tx "
             "FROM blocks WHERE network = $1 AND timestamp >= $2 AND timestamp < $3 "
+            "AND proposer_address != '0x0000000000000000000000000000000000000000' "
             "GROUP BY proposer_address ORDER BY blocks_proposed DESC",
             network, start, end,
         )

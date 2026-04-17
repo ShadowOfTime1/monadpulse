@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Block Production — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse</a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html" class="active">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Block Production</h1>
+    <p class="page-desc">Detailed view of block creation across the Monad network</p>
+  </div>
+
+  <section class="chart-area">
+    <div class="chart-row">
+      <div class="chart-wrap">
+        <div class="chart-label">Blocks per hour — 48h</div>
+        <canvas id="chart-blocks-48h"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-label">Block Time — 48h</div>
+        <canvas id="chart-blocktime"></canvas>
+      </div>
+    </div>
+    <div class="chart-row" style="margin-top:24px">
+      <div class="chart-wrap">
+        <div class="chart-label">TPS (transactions per second) — 48h</div>
+        <canvas id="chart-tps"></canvas>
+      </div>
+      <div class="chart-wrap">
+        <div class="chart-label">Gas Usage vs Limit — 48h</div>
+        <canvas id="chart-gas-usage"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <div class="flow-sep"></div>
+
+  <section class="data-section">
+    <div class="section-title">Latest Blocks</div>
+
+    <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+      <div class="search-wrap" style="max-width:220px;margin-bottom:0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="block-search" placeholder="Block number...">
+      </div>
+      <div class="proposer-dropdown" id="proposer-dropdown">
+        <button class="proposer-toggle" id="proposer-toggle">All proposers <span class="dd-arrow">&#9662;</span></button>
+        <div class="proposer-panel" id="proposer-panel">
+          <input type="text" class="proposer-search" id="proposer-search" placeholder="Search validator...">
+          <div class="proposer-list" id="proposer-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="blocks-meta" style="font-family:var(--mono,'Roboto Mono',monospace);font-size:11px;color:var(--text-dim,#6B6580);margin-bottom:12px;display:flex;gap:24px;flex-wrap:wrap"></div>
+
+    <!-- Block detail panel (hidden by default) -->
+    <div id="block-detail" style="display:none;margin-bottom:20px;padding:16px 20px;background:rgba(110,84,255,0.04);border-left:3px solid var(--purple,#6E54FF);border-radius:0 8px 8px 0;font-family:var(--mono,'Roboto Mono',monospace);font-size:12px;position:relative">
+      <button onclick="document.getElementById('block-detail').style.display='none'" style="position:absolute;top:8px;right:12px;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px">&times;</button>
+      <div id="block-detail-content"></div>
+    </div>
+
+    <div style="overflow-x:auto">
+    <table id="blocks-table">
+      <thead>
+        <tr><th>Block</th><th>Time</th><th>Proposer</th><th>Txns</th><th>Gas Used</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    </div>
+    <div id="blocks-pagination" style="display:flex;align-items:center;gap:4px;margin-top:16px;flex-wrap:wrap"></div>
+  </section>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+</body>
+</html>

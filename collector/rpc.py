@@ -69,5 +69,14 @@ class MonadRPC:
             log.warning(f"getEpoch failed: {e}")
             return None
 
+    async def get_stake_logs(self, from_block: int, to_block: int) -> list:
+        """Fetch logs from staking precompile in the given block range."""
+        result = await self._call("eth_getLogs", [{
+            "address": "0x0000000000000000000000000000000000001000",
+            "fromBlock": hex(from_block),
+            "toBlock": hex(to_block),
+        }])
+        return result or []
+
     async def close(self):
         await self._client.aclose()

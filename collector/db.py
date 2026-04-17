@@ -75,3 +75,23 @@ async def upsert_collector_state(conn, key: str, value: str, network: str = "tes
 async def get_collector_state(conn, key: str, network: str = "testnet") -> str | None:
     row = await conn.fetchrow("SELECT value FROM collector_state WHERE key = $1 AND network = $2", key, network)
     return row["value"] if row else None
+
+
+async def insert_stake_event(conn, ev: dict, network: str = "testnet"):
+    """Insert a decoded stake event; dedup on (network, tx_hash, log_index)."""
+    await conn.execute(
+        """
+        INSERT INTO stake_events (block_number, timestamp, event_type, validator_id, delegator, amount, tx_hash, log_index, network)
+        VALUES ($1, to_timestamp($2), $3, $4, $5, $6, $7, $8, $9)
+        ON CONFLICT (network, tx_hash, log_index) DO NOTHING
+        """,
+        ev["block_number"],
+        ev["block_timestamp"],
+        ev["event_type"],
+        ev["validator_id"],
+        ev["delegator"],
+        ev["amount"],
+        ev["tx_hash"],
+        ev["log_index"],
+        network,
+    )

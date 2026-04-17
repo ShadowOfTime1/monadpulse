@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+.about-content { max-width: 720px; }
+.about-content h3 {
+  font-family: var(--font, 'Inter', sans-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text, #EEEDF5);
+  margin: 48px 0 16px;
+  letter-spacing: -0.3px;
+}
+.about-content h3:first-child { margin-top: 0; }
+.about-content p {
+  color: var(--text-mid, #9994AE);
+  font-size: 14px;
+  line-height: 1.8;
+  margin-bottom: 16px;
+}
+.about-content strong { color: var(--text, #EEEDF5); }
+.about-content a { border-bottom: 1px dotted; }
+.about-content a:hover { border-bottom-style: solid; }
+
+.score-breakdown {
+  margin: 20px 0 24px;
+  font-family: var(--mono, 'Roboto Mono', monospace);
+  font-size: 13px;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(110,84,255,0.06);
+}
+.score-row:last-child { border-bottom: none; }
+.score-weight {
+  min-width: 40px;
+  font-weight: 600;
+  color: var(--purple-light, #DDD7FE);
+}
+.score-name { color: var(--text, #EEEDF5); min-width: 140px; }
+.score-desc { color: var(--text-dim, #6B6580); font-size: 12px; }
+
+.data-source {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(110,84,255,0.06);
+  font-family: var(--mono, 'Roboto Mono', monospace);
+  font-size: 12px;
+}
+.data-source:last-child { border-bottom: none; }
+.ds-icon {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--purple, #6E54FF);
+  box-shadow: 0 0 8px rgba(110,84,255,0.4);
+  margin-top: 6px;
+  flex-shrink: 0;
+}
+.ds-label { color: var(--text, #EEEDF5); font-weight: 500; min-width: 120px; }
+.ds-value { color: var(--text-dim, #6B6580); }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse
+      <svg class="heartbeat-line" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline class="hb-trace" points="0,14 18,14 26,14 30,2 34,26 38,8 42,18 46,14 120,14"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">About MonadPulse</h1>
+    <p class="page-desc">What this is, where the data comes from, and how it works</p>
+  </div>
+
+  <div class="about-content">
+
+    <h3>What is MonadPulse?</h3>
+    <p>
+      MonadPulse is an independent analytics platform for the <strong>Monad network</strong>. It shows what no standard block explorer does: validator performance patterns, health scores, block production anomalies, gas trends, and real-time alerts.
+    </p>
+    <p>
+      Built by <a href="https://shadowoftime1.github.io" target="_blank">shadowoftime</a>, an independent Monad validator based in Sydney, Australia. The platform runs on the same server as the validator node, pulling data directly from the local RPC with zero external dependencies.
+    </p>
+
+    <h3>How does Health Score work?</h3>
+    <p>
+      Each validator gets a score from <strong>0 to 100</strong> recalculated every hour. The score is a weighted composite of five factors:
+    </p>
+    <div class="score-breakdown">
+      <div class="score-row">
+        <span class="score-weight">40%</span>
+        <span class="score-name">Uptime</span>
+        <span class="score-desc">Block production rate relative to the top producer. More blocks proposed = higher score.</span>
+      </div>
+      <div class="score-row">
+        <span class="score-weight">20%</span>
+        <span class="score-name">Block Quality</span>
+        <span class="score-desc">How close avg block time is to the target (~400ms). Consistent timing = higher score.</span>
+      </div>
+      <div class="score-row">
+        <span class="score-weight">15%</span>
+        <span class="score-name">Upgrade Speed</span>
+        <span class="score-desc">How quickly the validator updates to new client versions. Will be fully active when more upgrades happen.</span>
+      </div>
+      <div class="score-row">
+        <span class="score-weight">15%</span>
+        <span class="score-name">Stake Stability</span>
+        <span class="score-desc">Whether the validator maintains or grows delegations. Will activate when staking precompile exposes more data.</span>
+      </div>
+      <div class="score-row">
+        <span class="score-weight">10%</span>
+        <span class="score-name">Age</span>
+        <span class="score-desc">How long the validator has been active. Maxes out at 30 days. Longevity signals reliability.</span>
+      </div>
+    </div>
+    <p>
+      Color coding: <strong style="color:#4ade80">green (80+)</strong> = excellent, <strong style="color:#FFAE45">orange (50-80)</strong> = moderate, <strong style="color:#FF8EE4">pink (&lt;50)</strong> = needs attention.
+    </p>
+
+    <h3>Where does the data come from?</h3>
+    <div class="score-breakdown">
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Block data</span>
+        <span class="ds-value">Local Monad node RPC (eth_getBlockByNumber) — every block, real-time</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Epoch data</span>
+        <span class="ds-value">Staking precompile (0x...1000) getEpoch() — checked every 5 minutes</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Validator names</span>
+        <span class="ds-value">github.com/monad-developers/validator-info — SECP pubkey to EVM address mapping</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Client versions</span>
+        <span class="ds-value">github.com/category-labs/monad releases API — checked hourly</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Mainnet data</span>
+        <span class="ds-value">Public RPC (rpc.monad.xyz) — rate-limited, best-effort</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Staking events</span>
+        <span class="ds-value">Staking precompile event logs via eth_getLogs — rewards, delegations</span>
+      </div>
+    </div>
+
+    <h3>What are the Alerts?</h3>
+    <p>
+      MonadPulse monitors the network and generates alerts for notable events:
+    </p>
+    <p>
+      <strong>Slow blocks</strong> (&gt;5 seconds) — something unusual happened with the proposer or network.<br>
+      <strong>New epochs</strong> — boundary block reached, validator set may have changed.<br>
+      <strong>TPS spikes</strong> — transaction volume &gt;2x the 24h average.<br>
+      <strong>New client releases</strong> — critical for VDP validators (48h update window).
+    </p>
+    <p>
+      All alerts are also sent to the public <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram channel</a>. Subscribe to get notified instantly.
+    </p>
+
+    <h3>Technical stack</h3>
+    <p>
+      <strong>Collector:</strong> Python asyncio service pulling blocks in real-time from local Monad RPC. Runs as systemd unit with rate limiting, graceful shutdown, and automatic backfill.<br>
+      <strong>Database:</strong> PostgreSQL 16 with separate tables for blocks, epochs, health scores, gas stats, and alerts. All tables have a network column for testnet/mainnet separation.<br>
+      <strong>API:</strong> FastAPI with async PostgreSQL queries. Rate-limited at nginx level (30 req/s).<br>
+      <strong>Frontend:</strong> Vanilla HTML/JS with Chart.js. No framework, no build step. Dark theme with Monad brand colors.<br>
+      <strong>Infra:</strong> OVH Advance-4, AMD EPYC 4585PX, 64GB RAM, 4x NVMe. Sydney, Australia.
+    </p>
+
+    <h3>Open source</h3>
+    <p>
+      MonadPulse is open source under the MIT license.<br>
+      <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">github.com/ShadowOfTime1/monadpulse</a>
+    </p>
+
+  </div>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+</body>
+</html>

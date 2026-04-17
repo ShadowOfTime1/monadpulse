@@ -5,7 +5,7 @@ router = APIRouter()
 
 
 @router.get("/top-earners")
-async def top_earners(request: Request, hours: int = Query(24, le=168), network: str = Query("testnet")):
+async def top_earners(request: Request, hours: int = Query(24, le=720), network: str = Query("testnet")):
     """Top validators by block production (proxy for rewards earned)."""
     now = datetime.now(timezone.utc)
     start = (now - timedelta(hours=hours)).replace(minute=0, second=0, microsecond=0)
@@ -15,6 +15,7 @@ async def top_earners(request: Request, hours: int = Query(24, le=168), network:
             "SELECT proposer_address, COUNT(*) AS blocks, SUM(tx_count) AS txns, "
             "SUM(gas_used)::NUMERIC AS total_gas "
             "FROM blocks WHERE network = $1 AND timestamp >= $2 "
+            "AND proposer_address != '0x0000000000000000000000000000000000000000' "
             "GROUP BY proposer_address ORDER BY blocks DESC LIMIT 30",
             network, start,
         )
@@ -74,7 +75,8 @@ async def stake_events(request: Request, limit: int = Query(50, le=200), network
             "type": r["event_type"],
             "validator": r["validator_id"],
             "delegator": r["delegator"],
-            "amount": float(r["amount"]),
+            # Raw amount is in wei for stake flows; commission_changed stores bps-like rate
+            "amount": float(r["amount"]) / 1e18 if r["event_type"] != "commission_changed" else float(r["amount"]),
         }
         for r in rows
     ]

@@ -17,7 +17,9 @@ async def summary(request: Request, network: str = Query("testnet")):
                 COALESCE(SUM(tx_count), 0) AS total_tx,
                 COALESCE(AVG(tx_count), 0) AS avg_tps_per_block,
                 COALESCE(AVG(block_time_ms), 0) AS avg_block_time_ms,
-                COUNT(DISTINCT proposer_address) AS active_validators
+                COUNT(DISTINCT proposer_address) FILTER (
+                    WHERE proposer_address != '0x0000000000000000000000000000000000000000'
+                ) AS active_validators
             FROM blocks
             WHERE network = $1 AND timestamp > NOW() - INTERVAL '24 hours'
         """, network)
@@ -44,13 +46,16 @@ async def summary(request: Request, network: str = Query("testnet")):
 
     if stats_24h:
         block_count = stats_24h["block_count"]
-        avg_bt = float(stats_24h["avg_block_time_ms"] or 0)
+        # Throughput-derived block time (ms per block over 24h window).
+        # More informative than AVG(block_time_ms) because RPC timestamps
+        # are 1s-granular, forcing raw diffs to be 0 or 1000 only.
+        bt_effective = (86_400_000 / block_count) if block_count > 0 else 0
         tps = float(stats_24h["total_tx"]) / 86400 if block_count > 0 else 0
         result["stats_24h"] = {
             "block_count": block_count,
             "total_tx": stats_24h["total_tx"],
             "tps": round(tps, 2),
-            "avg_block_time_ms": round(avg_bt, 1),
+            "avg_block_time_ms": round(bt_effective, 1),
             "active_validators": stats_24h["active_validators"],
         }
 
@@ -68,7 +73,10 @@ async def summary(request: Request, network: str = Query("testnet")):
         progress_blocks = bn % 50000
         progress_pct = round(progress_blocks / 50000 * 100, 1)
         remaining = 50000 - progress_blocks
-        avg_bt = float(stats_24h["avg_block_time_ms"] or 400) if stats_24h else 400
+        # Reuse throughput-derived bt if available
+        avg_bt = result["stats_24h"]["avg_block_time_ms"] if result.get("stats_24h") else 400
+        if not avg_bt:
+            avg_bt = 400
         eta_seconds = int(remaining * avg_bt / 1000) if avg_bt > 0 else 0
         result["epoch_progress"] = {
             "current_epoch": current_epoch,
