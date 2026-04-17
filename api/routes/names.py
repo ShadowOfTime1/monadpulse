@@ -1,26 +1,38 @@
 import json
 from pathlib import Path
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from fastapi.responses import JSONResponse
 
 router = APIRouter()
 
-NAMES_FILE = Path("/opt/monadpulse/validator_names.json")
 _cache = {}
-_cache_mtime = 0
+_cache_mtime = {}
+
+LEGACY = Path("/opt/monadpulse/validator_names.json")
+PER_NET = {
+    "testnet": Path("/opt/monadpulse/validator_names_testnet.json"),
+    "mainnet": Path("/opt/monadpulse/validator_names_mainnet.json"),
+}
 
 
-def _load():
+def _load(network: str) -> dict:
     global _cache, _cache_mtime
-    if not NAMES_FILE.exists():
-        return _cache
-    mtime = NAMES_FILE.stat().st_mtime
-    if mtime != _cache_mtime:
-        _cache = json.loads(NAMES_FILE.read_text())
-        _cache_mtime = mtime
-    return _cache
+    files = [PER_NET.get(network), LEGACY]
+    merged: dict = {}
+    for f in files:
+        if not f or not f.exists():
+            continue
+        key = str(f)
+        mtime = f.stat().st_mtime
+        if _cache_mtime.get(key) != mtime:
+            _cache[key] = json.loads(f.read_text())
+            _cache_mtime[key] = mtime
+        # Per-network file takes precedence; legacy fills gaps
+        for addr, name in _cache[key].items():
+            merged.setdefault(addr.lower(), name)
+    return merged
 
 
 @router.get("/map")
-async def name_map():
-    return JSONResponse(_load(), headers={"Cache-Control": "public, max-age=3600"})
+async def name_map(network: str = Query("testnet")):
+    return JSONResponse(_load(network), headers={"Cache-Control": "public, max-age=3600"})

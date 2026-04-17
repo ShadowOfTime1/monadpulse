@@ -26,7 +26,7 @@ let _namesLoaded = false;
 async function loadNames() {
   if (_namesLoaded) return;
   try {
-    const r = await fetch(API + '/names/map');
+    const r = await fetch(API + '/names/map?network=' + NETWORK);
     if (r.ok) _nameMap = await r.json();
   } catch (e) {}
   _namesLoaded = true;
@@ -1179,6 +1179,9 @@ function reloadPage() {
   _tickerBusy = false;
   const tickerEl = document.getElementById('block-ticker');
   if (tickerEl) tickerEl.innerHTML = '';
+  // Force reload of names for the new network
+  _namesLoaded = false;
+  _nameMap = {};
 
   const path = window.location.pathname;
   if (path === '/' || path === '/index.html') loadDashboard();
