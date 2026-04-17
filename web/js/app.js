@@ -857,8 +857,8 @@ function renderBlocksPage() {
 
   const tbody = document.querySelector('#blocks-table tbody');
   tbody.innerHTML = slice.map((b, i) => `
-    <tr class="fade-row block-clickable" style="animation-delay:${Math.min(i * 15, 300)}ms" data-idx="${start + i}">
-      <td>${blockLink(b.number)}</td>
+    <tr class="fade-row block-clickable" style="animation-delay:${Math.min(i * 15, 300)}ms;cursor:pointer" data-idx="${start + i}">
+      <td><span class="addr" style="color:var(--purple-light,#DDD7FE);font-weight:600">#${fmtNum(b.number)}</span></td>
       <td>${fmtTime(b.timestamp)}</td>
       <td>${validatorLink(b.proposer)}</td>
       <td>${b.tx_count}</td>
@@ -1018,9 +1018,13 @@ function renderHeatmap(data) {
     html += `<div class="heatmap-label">${days[d]}</div>`;
     for (let h = 0; h < 24; h++) {
       const cell = data.find(x => x.dow === d && x.hour === h);
-      const val = cell ? cell.avg_tx : 0;
-      const intensity = Math.min(val / maxTx, 1);
-      html += `<div class="heatmap-cell" style="background:rgba(110,84,255,${(0.05 + intensity * 0.55).toFixed(2)})" title="${days[d]} ${h}:00 — ${val} avg tx">${val||''}</div>`;
+      if (cell) {
+        const val = cell.avg_tx || 0;
+        const intensity = Math.min(val / maxTx, 1);
+        html += `<div class="heatmap-cell" style="background:rgba(110,84,255,${(0.05 + intensity * 0.55).toFixed(2)})" title="${days[d]} ${h}:00 — ${val} avg tx">${val||''}</div>`;
+      } else {
+        html += `<div class="heatmap-cell heatmap-empty" title="${days[d]} ${h}:00 — no data"></div>`;
+      }
     }
   }
   html += '</div>';

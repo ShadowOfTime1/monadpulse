@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Validator — MonadPulse</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Validator detail page with health score breakdown, blocks, and activity.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Validator — MonadPulse">
+<meta property="og:description" content="Validator detail page with health score breakdown, blocks, and activity.">
+<meta property="og:image" content="https://monadpulse.xyz/favicon.svg">
+<meta property="og:url" content="https://monadpulse.xyz/validator.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Validator — MonadPulse">
+<meta name="twitter:description" content="Validator detail page with health score breakdown, blocks, and activity.">
+<meta name="twitter:image" content="https://monadpulse.xyz/favicon.svg">
 <link rel="stylesheet" href="/css/style.css">
 <style>
   .val-hero {
@@ -148,7 +160,7 @@ async function loadValidator() {
   const [detail, healthList, allValidators] = await Promise.all([
     apiFetch('/validators/' + addr),
     apiFetch('/health/scores?limit=500'),
-    apiFetch('/validators/list?period=30d'),
+    apiFetch('/validators/list?period=24h'),
   ]);
 
   if (!detail || !detail.stats) {
