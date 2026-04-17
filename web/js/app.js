@@ -388,7 +388,10 @@ async function _loadDashboard() {
     if (s) {
       animateValue(document.getElementById('m-tps'), String(s.tps));
       animateValue(document.getElementById('m-blocktime'), s.avg_block_time_ms + ' ms');
-      animateValue(document.getElementById('m-validators'), String(s.active_validators));
+      // Prefer current-epoch valset count (updates at each epoch boundary);
+      // fall back to 24h distinct proposers if epoch data not yet recorded.
+      const valCount = summary.epoch?.validator_count || s.active_validators;
+      animateValue(document.getElementById('m-validators'), String(valCount));
       animateValue(document.getElementById('m-blocks24'), fmtNum(s.block_count));
       animateValue(document.getElementById('m-tx24'), fmtNum(s.total_tx));
     }

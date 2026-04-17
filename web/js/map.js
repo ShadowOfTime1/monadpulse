@@ -143,7 +143,7 @@ let _legendControl = null;
 async function buildMap() {
   // Get real validator count from API
   const summary = await apiFetch('/dashboard/summary');
-  const totalValidators = summary?.stats_24h?.active_validators || 200;
+  const totalValidators = summary?.epoch?.validator_count || summary?.stats_24h?.active_validators || 200;
   const known = KNOWN_VALIDATORS[NETWORK] || KNOWN_VALIDATORS.testnet;
 
   // Clear previous markers

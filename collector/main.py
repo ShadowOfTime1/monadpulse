@@ -404,6 +404,14 @@ async def run():
                     db_head = chain_head - 1
 
                 if chain_head > db_head:
+                    # Detect epoch boundary crossing: any block in [db_head+1..chain_head]
+                    # that is a multiple of 50000 → trigger immediate epoch refresh.
+                    epoch_boundary_crossed = False
+                    for bn in range(db_head + 1, chain_head + 1):
+                        if bn % 50_000 == 0:
+                            epoch_boundary_crossed = True
+                            break
+
                     for batch_start in range(db_head + 1, chain_head + 1, batch_size):
                         if shutdown_event.is_set():
                             break
@@ -414,6 +422,12 @@ async def run():
                             async with pool.acquire() as conn:
                                 await upsert_collector_state(conn, "last_block", str(batch_end), NETWORK)
 
+                    # Refresh epoch state immediately on boundary crossing
+                    if epoch_boundary_crossed:
+                        log.info(f"Epoch boundary crossed — refreshing epoch state [{NETWORK}]")
+                        await track_epoch(rpc, pool)
+                        last_epoch_check = asyncio.get_event_loop().time()
+
                 now = asyncio.get_event_loop().time()
 
                 # Hourly aggregation
@@ -421,8 +435,8 @@ async def run():
                     await aggregate_hourly(pool)
                     last_aggregate = now
 
-                # Epoch tracking — every 5 minutes
-                if now - last_epoch_check > 300:
+                # Epoch tracking — fallback every 60s (boundary detection is primary)
+                if now - last_epoch_check > 60:
                     await track_epoch(rpc, pool)
                     last_epoch_check = now
 
