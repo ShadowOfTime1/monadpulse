@@ -28,7 +28,7 @@ const KNOWN_VALIDATORS = {
     { name: 'Needlecast', city: 'Zurich', lat: 47.37, lon: 8.54, region: 'Europe' },
     { name: 'Stakecraft', city: 'Moscow', lat: 55.76, lon: 37.62, region: 'Europe' },
     { name: 'JETSTAKE', city: 'Moscow', lat: 55.76, lon: 37.62, region: 'Europe' },
-    { name: 'snoopfear|PON', city: 'Moscow', lat: 55.76, lon: 37.62, region: 'Europe' },
+    { name: 'snoopfear|PON', city: 'Warsaw', lat: 52.23, lon: 21.01, region: 'Europe' },
     { name: 'GO2Pro', city: 'Moscow', lat: 55.76, lon: 37.62, region: 'Europe' },
     { name: 'MMS', city: 'Saint Petersburg', lat: 59.93, lon: 30.32, region: 'Europe' },
     { name: 'OshVanK', city: 'Novosibirsk', lat: 55.03, lon: 82.92, region: 'Asia' },
