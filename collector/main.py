@@ -427,6 +427,17 @@ async def run():
                         log.info(f"Epoch boundary crossed — refreshing epoch state [{NETWORK}]")
                         await track_epoch(rpc, pool)
                         last_epoch_check = asyncio.get_event_loop().time()
+                        # Rebuild validator name map (fire-and-forget). Only testnet
+                        # collector triggers it — the script handles both networks.
+                        if NETWORK == "testnet":
+                            import subprocess
+                            subprocess.Popen(
+                                ["/opt/monadpulse/scripts/rebuild_validator_names.py"],
+                                stdout=subprocess.DEVNULL,
+                                stderr=subprocess.DEVNULL,
+                                start_new_session=True,
+                            )
+                            log.info("Triggered validator-names rebuild (background)")
 
                 now = asyncio.get_event_loop().time()
 
