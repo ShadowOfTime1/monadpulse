@@ -1016,7 +1016,15 @@ function renderHeatmap(data) {
   if (!container) return;
   const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const maxTx = Math.max(...data.map(d => d.avg_tx || 0), 1);
-  let html = '<div class="heatmap-grid"><div></div>';
+  const daysWithData = new Set(data.map(d => d.dow)).size;
+  let html = '';
+  if (daysWithData < 7) {
+    const missing = 7 - daysWithData;
+    html += `<div style="font-family:var(--mono);font-size:11px;color:var(--text-dim);margin-bottom:10px;letter-spacing:0.3px">
+      <span style="color:#FFAE45">◇</span> Data populating — ${daysWithData}/7 days collected, full week view available after ${missing} more day${missing>1?'s':''} of collection
+    </div>`;
+  }
+  html += '<div class="heatmap-grid"><div></div>';
   for (let h = 0; h < 24; h++) html += `<div class="heatmap-cell" style="color:var(--text-dim)">${h}</div>`;
   for (let d = 0; d < 7; d++) {
     html += `<div class="heatmap-label">${days[d]}</div>`;
