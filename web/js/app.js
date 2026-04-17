@@ -549,6 +549,8 @@ function initBlocksControls() {
 
 let _proposerList = [];
 
+const NULL_ADDR = '0x0000000000000000000000000000000000000000';
+
 function populateProposerFilter(data) {
   const list = document.getElementById('proposer-list');
   if (!list) return;
@@ -557,7 +559,9 @@ function populateProposerFilter(data) {
   _proposerList = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([addr, cnt]) => ({
     addr,
     name: valName(addr),
-    display: valName(addr) || shortAddr(addr),
+    display: addr === NULL_ADDR
+      ? 'null proposer (recovery fail)'
+      : (valName(addr) || shortAddr(addr)),
     count: cnt,
   }));
   renderProposerList(_proposerList);

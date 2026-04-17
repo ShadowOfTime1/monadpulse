@@ -155,6 +155,20 @@ async function loadValidator() {
     return;
   }
 
+  if (addr === '0x0000000000000000000000000000000000000000') {
+    loading.innerHTML = `
+      <div style="max-width:520px;margin:0 auto;padding:40px 20px;text-align:center">
+        <div style="font-size:15px;color:#FFAE45;margin-bottom:8px">⚠ Null proposer address</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px;line-height:1.7">
+          Blocks attributed to <code style="color:#FFAE45">0x0000…0000</code> represent<br>
+          proposer-recovery failures, not a real validator.<br>
+          These rows are excluded from aggregates and rankings.
+        </div>
+        <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
+      </div>`;
+    return;
+  }
+
   await loadNames();
 
   const [detail, healthList, allValidators] = await Promise.all([
@@ -278,6 +292,7 @@ async function loadValidator() {
   `;
 
   loading.style.display = 'none';
+  empty.style.display = 'none';
   content.style.display = 'block';
 }
 

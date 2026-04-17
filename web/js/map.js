@@ -374,7 +374,7 @@ function _renderMapRows() {
         if (_mapTableExpanded) {
           btn.textContent = 'Show less';
         } else {
-          btn.textContent = `Show all ${data.length} validators`;
+          btn.textContent = `Show all ${data.length} known identities`;
         }
       }
     }
