@@ -144,14 +144,25 @@ header {
   100%{ opacity: 0.15; filter: drop-shadow(0 0 2px var(--cyan)); }
 }
 
-nav{display:flex;gap:6px}
+nav {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+nav::-webkit-scrollbar { display: none; }
 nav a {
-  padding: 6px 16px;
+  padding: 6px 14px;
   border-radius: 99px;
   color: var(--text-dim);
   font-size: 13px;
   font-weight: 500;
   transition: all .25s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 nav a:hover{color:var(--text);background:rgba(110,84,255,0.08);text-decoration:none}
 nav a.active{color:#fff;background:var(--purple);text-decoration:none;box-shadow:0 0 20px rgba(110,84,255,0.3)}
