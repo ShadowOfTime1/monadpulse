@@ -174,6 +174,21 @@ def build(network: str) -> None:
     out_path.write_text(json.dumps(addr_to_name, indent=2, ensure_ascii=False))
     log(f"  → {out_path}")
 
+    # Also emit a directory for search (name / val_id / auth lookup)
+    directory = [
+        {
+            "val_id": vid,
+            "name": val_to_name.get(vid),
+            "auth": auth,
+            "secp": secp,
+        }
+        for vid, (auth, secp) in val_to_secp.items()
+    ]
+    directory.sort(key=lambda e: e["val_id"])
+    dir_path = OUT_DIR / f"validator_directory_{network}.json"
+    dir_path.write_text(json.dumps(directory, indent=2, ensure_ascii=False))
+    log(f"  → {dir_path}")
+
 
 def main() -> int:
     for net in ("testnet", "mainnet"):

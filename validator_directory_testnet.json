@@ -1,0 +1,1202 @@
+[
+  {
+    "val_id": 1,
+    "name": "Monad Foundation - cs-arn-001",
+    "auth": "0x92e8074d2db345a2215e045a55caa083c9ec023e",
+    "secp": "025f90fdc4f1ebe1a8939578d7f1ce53ecda08b18dda80aea9abe1e6a4546c3242"
+  },
+  {
+    "val_id": 2,
+    "name": "Monad Foundation - lsn-fra-005",
+    "auth": "0xc0237741649eb6dda04115479c1a1823860c4b82",
+    "secp": "02f74c8f21ef477bae2740d1ed07f650b486e0eb9e70400edd34a16d7d889630f8"
+  },
+  {
+    "val_id": 3,
+    "name": "Monad Foundation - lsn-jfk-005",
+    "auth": "0x1eef33c0a36faea1a14d5f00ec0197929a25ac43",
+    "secp": "034118a1e15e5f48b5b0aaa0b62e11a82ded8de27e83adf70b097c4de68865f41c"
+  },
+  {
+    "val_id": 4,
+    "name": "Monad Foundation - lsn-tyo-006",
+    "auth": "0x66880ab079dde801faa55639013e7335622c097e",
+    "secp": "037ca3ad118c787c0b1faf10aec8569818af8e0789fb2fe8ab1332f89e5ece406e"
+  },
+  {
+    "val_id": 5,
+    "name": "Monad Foundation - tsw-pit-001",
+    "auth": "0xa67b6ad4df4d0b535bb1e32227accae53c963be0",
+    "secp": "03c60a510f4d00852711c520e3e6eb932f703b1b5aa418a79e2b2a9720ba0cf39f"
+  },
+  {
+    "val_id": 6,
+    "name": "Monad Foundation - tsw-sgp-001",
+    "auth": "0x628d5e0c560cd8ecd6bb7b32f90c531d5549e8c7",
+    "secp": "034a836f73843e472cf369b0c015e3d5b04e1deb05343c5c69008c25ec274fc9b1"
+  },
+  {
+    "val_id": 7,
+    "name": "Monad Foundation - tsw-yvr-001",
+    "auth": "0xc83589d0b028c62737fb4073563faa9f87e2cf4c",
+    "secp": "0356cb22bdf80872ab8264bbf925b57ad40a12781252f7e8a72438aeeb58af49f8"
+  },
+  {
+    "val_id": 8,
+    "name": "Category Labs - 8",
+    "auth": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "secp": "0391ef986a09783630ea36d17ee95198a47f682b8d9ef2ee9f8343694cb5592f0a"
+  },
+  {
+    "val_id": 9,
+    "name": "Category Labs - 9",
+    "auth": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "secp": "02401e7082b38cd1cd4f0f5dcc8b1b04b163596810461cd9bf2ecb20748e85f840"
+  },
+  {
+    "val_id": 10,
+    "name": "Category Labs - 10",
+    "auth": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "secp": "02d6156380cbed7a3e51384add2935ae998038e11495081d8ee037d871b0887f65"
+  },
+  {
+    "val_id": 11,
+    "name": "Everstake",
+    "auth": "0x55c017f9086928e093cbd132d8992779a61f83f7",
+    "secp": "0252839b8f81c42f852e4fd6eec4fb94ff4215b554cc42b423c37bc6bd54b93c1e"
+  },
+  {
+    "val_id": 12,
+    "name": "Category Labs - 12",
+    "auth": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "secp": "02ad84a1e3b793ba691ca67c2bde9ba988254912c5b2ab8935cadf1292529c2c87"
+  },
+  {
+    "val_id": 13,
+    "name": "Zellic",
+    "auth": "0x2121b7d36f50e8a4dcabb8d50ddad8e4c04e2e3c",
+    "secp": "026586133c36830cf7ba7cbe7213e6fc11d435419af6d87f5355fb76070d1b278f"
+  },
+  {
+    "val_id": 14,
+    "name": "01node",
+    "auth": "0xf2fff6ced59c1d45257a7e6b316a8ceef7958293",
+    "secp": "02682d31c19c51deea0c672022dfed7744ac7e199ceebcc7adb2fc4a9e436ffc01"
+  },
+  {
+    "val_id": 15,
+    "name": "Lemniscap",
+    "auth": "0xf73d59d8fdf55e7b83e96f752d4c2c3f0dd8ada9",
+    "secp": "03c9ac0b53e3808d31e6587f79c95139ef34823c4564881ef316f57f22704af513"
+  },
+  {
+    "val_id": 16,
+    "name": "RockX",
+    "auth": "0x1b4bbbf4de70855971cc96e4fae13a12b273f506",
+    "secp": "0315ff6cd44c0dbc856b27c81cdc83e83ef4bf0412612c35cef8345facf68ce215"
+  },
+  {
+    "val_id": 17,
+    "name": "stakefish",
+    "auth": "0x8b7f496e4fc6211c9f772fd8d9e8a0d98d6566e0",
+    "secp": "02820dec310bbcaa189d3758c7fc1ec6576173d917be3f242cacad85326c0fc90e"
+  },
+  {
+    "val_id": 18,
+    "name": "DeSpread",
+    "auth": "0x9ffb12eb5aba50eda0ecb3baa6070549a622d27e",
+    "secp": "02082d3e6d753556814027037ca0b79135572a82f0e535622e70509b179c70e16d"
+  },
+  {
+    "val_id": 19,
+    "name": "NodeStake",
+    "auth": "0xc60c403d8177d5c1ebd1e7f1957906e574addfa0",
+    "secp": "034c4ea3122f0a2f9c01ebb21d60a6f00197dc7c36ef269bee9a209705c3ea8d3d"
+  },
+  {
+    "val_id": 20,
+    "name": "1XP",
+    "auth": "0xbe19f6ee6ec909e2a75c01f6086721d5a9fff242",
+    "secp": "03c99928972a0dc0254d746f47d943b2961bee90b3d241d08e61c105e748330f1d"
+  },
+  {
+    "val_id": 21,
+    "name": "STAKEME",
+    "auth": "0x71380b8f979b3811fc290ed7434d54bb4c0797d1",
+    "secp": "022a65a0d4f487cc8dde1220d9b436849417346d6fce65215255bf50d4dd57f7cb"
+  },
+  {
+    "val_id": 22,
+    "name": "Node.Monster",
+    "auth": "0x8d4f815c1f39bb4d6c441322f2e6843a2f9f2c2c",
+    "secp": "03706967402d03fee6cc18b688da6ea16fb4a128310cedfc7e73f514ed31635d41"
+  },
+  {
+    "val_id": 23,
+    "name": "Stakin by The Tie",
+    "auth": "0xd02319d3bb46584b6fe5688e4d37f8155c1f8565",
+    "secp": "02307c66a5f15c108b7a97ca8d9999858427306a389589d32eeeaeed6c81d670bd"
+  },
+  {
+    "val_id": 24,
+    "name": "P2P.org",
+    "auth": "0x712346c4445de341b61da60409368b57fd59b4a5",
+    "secp": "0240a57ec7359bfff385191edaaa5d7a94df039f66ffd2d01d0eb9d7ff73e3fafb"
+  },
+  {
+    "val_id": 25,
+    "name": "xLabs",
+    "auth": "0x1fb56db82aa69aa869b6ceb12cc61608f5d775e3",
+    "secp": "0233efded1145834851659145948bbc72764903fc34ab08cdaaeb2c939e3dc92cf"
+  },
+  {
+    "val_id": 26,
+    "name": "Figment",
+    "auth": "0xacab9f18b3ab1b221de210195998f3eabb9937e6",
+    "secp": "020f6084dbdc65909714bc54f4aea25562b2c478637d60a96b138441a42f1e946e"
+  },
+  {
+    "val_id": 27,
+    "name": "Simply Staking",
+    "auth": "0x635218a45b004cf9335e2aa70986b83ea1ba69a2",
+    "secp": "033d742f322947d89f963b28d8ca779bafb4fa5c0e6c1c11ffd99a40f74e0ba1d4"
+  },
+  {
+    "val_id": 28,
+    "name": "Ledger by P2P.org",
+    "auth": "0x71e15da23d004bca1dfbfc17016615943c0def3f",
+    "secp": "02e6a5d21dfc6e382703c516d296e384d8571ff487db4332f13f961ae6a28de165"
+  },
+  {
+    "val_id": 30,
+    "name": "Grassets Tech",
+    "auth": "0x1bddd6eb454076a791c44c5b11bb4e3cbd901855",
+    "secp": "02419e9e059d952d3f82a9e5ae558c62d724808c890cc4404af68c50b2d774f744"
+  },
+  {
+    "val_id": 31,
+    "name": "StakingCabin",
+    "auth": "0x6bfbf25817a829ff54a3992cae8de5f8c398d5d1",
+    "secp": "022a730b1ce8c182b2cfae8e652342d9677a9c47396643c747aa236d29b8657b02"
+  },
+  {
+    "val_id": 32,
+    "name": "lux8net",
+    "auth": "0x88889e20c3f1c073f7a422c728205bba70d5832b",
+    "secp": "02b456ce6531809163a39620083e89c91d78d02d187b75ad1f2b4a4058187bb339"
+  },
+  {
+    "val_id": 33,
+    "name": "Node3Tech",
+    "auth": "0x01381e61c1158c3e21752d568a9af0d1c617efcf",
+    "secp": "03f0a7333da1144cc7fdf2f683cf0e94b8a71e02486d34b3d4606373c2be7f2fe6"
+  },
+  {
+    "val_id": 34,
+    "name": "Kukis Global",
+    "auth": "0x9357b5bfde730ac973aee68cc5dbe61c26ecadd4",
+    "secp": "02348777651a20eb2cbe991ce136d81ede16c214aa1bb688141fbfd118a1d2cda2"
+  },
+  {
+    "val_id": 35,
+    "name": "DELIGHT",
+    "auth": "0x10d3a880ab77a9024f721fc5e095f97e832f00a7",
+    "secp": "0374387456d63298652242859765ddbde9acac0d7b304b699aaf0534560adbca82"
+  },
+  {
+    "val_id": 36,
+    "name": "Flipside Crypto",
+    "auth": "0x4366e6fe0d9b5611d7eed0fe52be329cafd04583",
+    "secp": "0391518f005435ce2f4378cbf7cc3c3ae18a285f1320f4a53223a9b1e60cdf72fc"
+  },
+  {
+    "val_id": 37,
+    "name": "Laminated Labs",
+    "auth": "0x6dbd2b0420d63aef1465479acf71bc534890b515",
+    "secp": "025c6b722b4f9a7ff79cbfbc82afd6030b9eeabb4af41af4822c6f1a781134a1a3"
+  },
+  {
+    "val_id": 38,
+    "name": "B-Harvest",
+    "auth": "0x765f173b41314b7753ec72f2d5aaf11f1785a208",
+    "secp": "03b597c6a105eef8888d46c1956a24233afb7b3f266f9c8fb371fda9f0a823e75c"
+  },
+  {
+    "val_id": 39,
+    "name": "The Workshop",
+    "auth": "0x34b9190d88d9923498fd15815449fc1178b3ce0c",
+    "secp": "0369bac9917d1e0955f243cee66a13a5da7dc85c3f6b02dfb520ec08e42325866a"
+  },
+  {
+    "val_id": 40,
+    "name": "Huginn",
+    "auth": "0xbf4b34f3c542e650dcc507a2048ef0145ea67f53",
+    "secp": "02e3a453c66f0a1dd964affb64e23133652f69d14770c329b5af78c649fde4c398"
+  },
+  {
+    "val_id": 41,
+    "name": "Allnodes",
+    "auth": "0x8a5a6006c238b4946fb48c9c4d872270c5c0e94d",
+    "secp": "0229df93f96e37932473abc478768fb9dcb9a3d91c9b82764b965f5690e37ed380"
+  },
+  {
+    "val_id": 42,
+    "name": "Stakely",
+    "auth": "0xaebbe9f7bc256316e911c31bb9f7ef5e24c2ead8",
+    "secp": "0254229be51549bf3da5f38c095c31614e3731caa42c9670f94862269f01980dca"
+  },
+  {
+    "val_id": 43,
+    "name": "CMS Holdings",
+    "auth": "0x29720ae911269dc2807bbed8d0af566ef012064d",
+    "secp": "025295daab8bcc0993368978218755bc82d42aeb96aaf1b510fc7acaf186eb33be"
+  },
+  {
+    "val_id": 44,
+    "name": "BlockHunters",
+    "auth": "0x23823e9364fb1ab30119b75cf429d1b92feae438",
+    "secp": "02724ac71a28d4d35d757688ae0cf2dc452d888cb567f0932a50a4382c8a636435"
+  },
+  {
+    "val_id": 46,
+    "name": "Stardust Staking",
+    "auth": "0x3cdc1ce298f992ca965cef4028615a3b44178513",
+    "secp": "02f49a00d1ad1c405af464154b3ab0c17ff5f99579227c5a6d44fe3f2c48cc347e"
+  },
+  {
+    "val_id": 47,
+    "name": "Unit 410",
+    "auth": "0x384342040e8311a6f2e8314098e95d5618c531a3",
+    "secp": "03817cba1d9076633909f9b3dfcb26d64f950815aa90eb76744f382236c392d54e"
+  },
+  {
+    "val_id": 48,
+    "name": "Synergy Nodes",
+    "auth": "0x045f4ae63318bf60d7b859551d7dc8feaf3c2569",
+    "secp": "034bde7b90f3a0f0a519f87b02e00d59c2f5d8b89098d4dad326b181f1d136a797"
+  },
+  {
+    "val_id": 49,
+    "name": "CroutonDigital",
+    "auth": "0xaf3e489ce282352a4f6ca14428fbf3768309bffb",
+    "secp": "0383f885bd0e83f132c19827689e9eb969f15ccf280f9746ab5a678332b694996b"
+  },
+  {
+    "val_id": 50,
+    "name": "Fountainhead",
+    "auth": "0xa45a0cea64045e99b969cb92a025ee4312df4173",
+    "secp": "037a09dc0f95fd9fcd383b5e41f60704940675d4e06bb10329858309c6bd5eeeea"
+  },
+  {
+    "val_id": 51,
+    "name": "FTP",
+    "auth": "0xc927ac79ee088f9349f49cb78b3018186d7c6009",
+    "secp": "034c67b6a59f9cf61d1a65ee22dfc5151d55efa26a1b8d2ac0c21ea98d64496bb4"
+  },
+  {
+    "val_id": 52,
+    "name": "SenseiNode",
+    "auth": "0x24db53d70075cd6985795e65924dc7070f201bb4",
+    "secp": "02f974b8421aed579f5a7e9cb9ad331aeb543e7642e8b8da6e1c0979e0d29ed4ca"
+  },
+  {
+    "val_id": 53,
+    "name": "CoinSummer Labs",
+    "auth": "0x51e5b38b070aa82bf4f742a3ec890bea7b242384",
+    "secp": "03cd371dce9ad7811fbf08e04ac18974148dc29a82f41d0844a9a13137264773c3"
+  },
+  {
+    "val_id": 54,
+    "name": "Forest Staking",
+    "auth": "0xd4539e18a2d1c8c59d4fbbde580478e205e618a5",
+    "secp": "02291fce9f21444d6c0533d3e52abb34f4170f9d41ea82505d54c3f71df41b0d22"
+  },
+  {
+    "val_id": 55,
+    "name": "Stakeware",
+    "auth": "0x70c3c39196f75a39adfcdf0d3073a3f850fbe533",
+    "secp": "031e538ff293759c89db8394b865c94ad88ecc925a823eb863fccf1dc8fc340314"
+  },
+  {
+    "val_id": 56,
+    "name": "Endorphine Stake",
+    "auth": "0xcd32a5406a8caf84b7f1ed161ee2785a2347fa62",
+    "secp": "039685070860b0903fa899d2880492b0b940b25f9702850d7f76b2aa122c0a8b3a"
+  },
+  {
+    "val_id": 57,
+    "name": "ContributionDAO",
+    "auth": "0x4108b9df8e0d493b3c6bea741ef64cc6c40d0b45",
+    "secp": "02d7a97fe218ff3a82abf90128f0a027eee11ef16d2013654d7da45c7fc794e484"
+  },
+  {
+    "val_id": 58,
+    "name": "PathrockNetwork",
+    "auth": "0x062f3cc428b9082c64ba3bab043ffc4569e55430",
+    "secp": "0216793a80e5ecd547487d784674f50e493b2730b2abb34e7a53f11833caba22ce"
+  },
+  {
+    "val_id": 59,
+    "name": "Provalidator",
+    "auth": "0xf85db8769e7d26f5d8bbeabd6accf29984084753",
+    "secp": "03c9f75eacbfcd51dbb160ca7a77dfe2f8c7ef253531c6b361ff2f5b06ebecae0f"
+  },
+  {
+    "val_id": 60,
+    "name": "deNodes",
+    "auth": "0x369e2def524f24cb7a4b5f40809a1cb47bbcba5e",
+    "secp": "03e905ff7d3efaf847a27a9aa31071d43cb806e41eae7606e3530f70c0394d3e6e"
+  },
+  {
+    "val_id": 61,
+    "name": "MonadVision",
+    "auth": "0x1c2f30ba19a32e63f8ae1493b99fbf815cc02b28",
+    "secp": "02e95bcfa98fa53aba5718e2717a8ef5463903c402c3a8afe293c0e47d48a4ab48"
+  },
+  {
+    "val_id": 62,
+    "name": "0xHub",
+    "auth": "0xac51cb7edb329d80446d40c2a88cff3e094c5288",
+    "secp": "0318389b67554c2933c4abc571a1e7834bce4b464800db14fe1245848356f7e002"
+  },
+  {
+    "val_id": 63,
+    "name": "StarlightNode",
+    "auth": "0x29da7befcbd23ffc0a6ba0d9190db230fb79b84a",
+    "secp": "024164da8239d8b0ef062621a70d16cadec87d5eb83add7b1ac1dd15b02bd38c9e"
+  },
+  {
+    "val_id": 64,
+    "name": "Republic",
+    "auth": "0xe72d7b6816841d2a2601646877e17c8e53aa0abf",
+    "secp": "023fb6c97c5e773289164cf744e36f7af87aed26507b6e026da77043926d60fb3f"
+  },
+  {
+    "val_id": 65,
+    "name": "CertHum",
+    "auth": "0x6a5a62cd648cf5e1a5efdbe023044374504af33e",
+    "secp": "020b41f893828e570878b72f67015cc5a83668263b89415eb521dc6a585de7b82a"
+  },
+  {
+    "val_id": 66,
+    "name": "Chainode Tech",
+    "auth": "0x185281c54a9fc3be31766ffb85169bc7f136070f",
+    "secp": "037c5430f13a4eb3baca35ec84a8ecc8ccffab00d04f5bc76a45e583c312452797"
+  },
+  {
+    "val_id": 67,
+    "name": "Unity Nodes",
+    "auth": "0xf8f521211fe5b8195d3fd80eed28473c5e9cabc6",
+    "secp": "039692d924c99c2dbe85899b49b1516078019ac921debeb76f7bb66c36d8dece01"
+  },
+  {
+    "val_id": 68,
+    "name": "Imperator.co",
+    "auth": "0xa5b820964519a83caef2928a85512b49210492cf",
+    "secp": "03e1fc3470b7282e37458ca5099e80a69d53d17d710826e0c2d8bb605aee4f8778"
+  },
+  {
+    "val_id": 69,
+    "name": "F5 Nodes",
+    "auth": "0xa4c05856b4fbc60ba8db82886390c26bc01b7786",
+    "secp": "03ab55562f9191334d9f664fd9d43790c5c8f724323f1791cd0aa3833af2525011"
+  },
+  {
+    "val_id": 70,
+    "name": "Proof Group",
+    "auth": "0xbcc48624a9e545227db5959f8a5626dbcd963228",
+    "secp": "02d1712a45e3f6436086db26d21726f87dd06abde22b2237fcd6fbfbc48cbe5605"
+  },
+  {
+    "val_id": 71,
+    "name": "Nodes.Guru",
+    "auth": "0x8dbadd3d410592fe7920aacf986c37bcf09b5202",
+    "secp": "027ef142552cec050219c04673d907f833adc7c9c1ba7cd3de98a6ff247095c158"
+  },
+  {
+    "val_id": 72,
+    "name": "Staketab",
+    "auth": "0x4f6d3930ded0fe6c1351899174b761909d7d0ab9",
+    "secp": "0358331663ee01f60498877eda0366245c3417bd65722a96e9a0e4c1fc41c76e0a"
+  },
+  {
+    "val_id": 73,
+    "name": "GO2Pro",
+    "auth": "0x6b8dfc7642732ae8d5a39fc9f64c0dde7cef46af",
+    "secp": "02062ad33b9e77584122b1d308a4fbd72f00d54e6733ba51d23b31d4758455b71c"
+  },
+  {
+    "val_id": 74,
+    "name": "Redundex",
+    "auth": "0xc3a8c7d5b3fa2558c8568c7ca28aa7a220140bbd",
+    "secp": "0274bea7769e3e8e70eed920784a5d0bbad8696c13e41ca60b7f9eabd91d2c12c3"
+  },
+  {
+    "val_id": 75,
+    "name": "ProStaking",
+    "auth": "0xffe5219a68f9e1a63b71a4c75de500ed864ae651",
+    "secp": "03b99b0a62ef3bad2c018a726e59174bf9a9c008a36d35b30c5bd085d7ada60496"
+  },
+  {
+    "val_id": 76,
+    "name": "StakeSquid",
+    "auth": "0xe094c81695520774195c211e0d3b2fba15fb1904",
+    "secp": "02e3ed7ca400eee8a706f5fe520e83473f0dbf993b970d96d7f3f9472ff3328e45"
+  },
+  {
+    "val_id": 142,
+    "name": "Pacific Meta",
+    "auth": "0x9b2926762675cf572a5f29a4617dbc334c384b1e",
+    "secp": "02c887f6001b23d4b7a4a15cba287a8abbbe244ba60235026da46d1cf306b7c7a6"
+  },
+  {
+    "val_id": 143,
+    "name": "Moonlet",
+    "auth": "0x24089889ee9dc4c20ab20c871686b03af2d204c2",
+    "secp": "028a938a76c07651a27f5a20c875f14c5d336505527ea4c89040302a4b735837ed"
+  },
+  {
+    "val_id": 144,
+    "name": "BlockPI",
+    "auth": "0x3d3a8d1c1d3d75b2f0db0eff4d892a2790584fa1",
+    "secp": "0294879eb58f3a16424e6f6861e58e7d9917e36c5b06f1d56cf1d66112b859c25c"
+  },
+  {
+    "val_id": 145,
+    "name": "node101",
+    "auth": "0x2dec2927a6099f6fdbf4696ccf759d1aa96b2f04",
+    "secp": "02e34b2e6272b9fbd0eca4677dd422ba2df4d1e91de0cb86b48b3dd92d494012cd"
+  },
+  {
+    "val_id": 146,
+    "name": "Kiln",
+    "auth": "0x794fcadf922cdbec2f476f1a63298f1c5f43492c",
+    "secp": "032ab878d87cb9f91454f18ff7c89b0bd27b97961530ef06b25012461f90717d5c"
+  },
+  {
+    "val_id": 147,
+    "name": "Chainflow",
+    "auth": "0x0ed29c8de0aa718093586ba309be2e36a49fa8b0",
+    "secp": "035026c472e7f8c398e2ccd25d5289ccdf5e0c2c1fc7dd9f8c05f04133ff1fc17a"
+  },
+  {
+    "val_id": 148,
+    "name": "Meria",
+    "auth": "0x8c1104f9166d431260a88a6d66190bbb52ab00a6",
+    "secp": "02f1c539f44ed099000d9595951a4a386b73d2ff3691bb862ec4fe4fc551680603"
+  },
+  {
+    "val_id": 149,
+    "name": "Stake Shark",
+    "auth": "0xd20a8456ebf9f90e86b899dc857745c5c57f6e76",
+    "secp": "037786259b74c50ce561689ec42e4dfc0274dbbacc9639d483e383a439c85c3c74"
+  },
+  {
+    "val_id": 150,
+    "name": "Stakecito",
+    "auth": "0x863f563aad493825bee199faa8da135509f9d63d",
+    "secp": "02bc0c86193948d7fba858cc7a2c97d7b4fdaf5da8ff2c38bd47a36b647c7a33b9"
+  },
+  {
+    "val_id": 151,
+    "name": "Kraken",
+    "auth": "0xfeeafa73d83c1e6c49df3590e767e367e502e7a9",
+    "secp": "022f7db5a4f1aacf793aac5ab68ded690084190d84da968aea4cffde8ca20873b3"
+  },
+  {
+    "val_id": 152,
+    "name": "Luganodes",
+    "auth": "0x5a4121eb3d1f5c0f882e5ffaf95d3ab4a9f5166c",
+    "secp": "036daee7750e29e46eb64d86ad1cc7b235d7f1ad9597941a3a77cdd641cead4528"
+  },
+  {
+    "val_id": 153,
+    "name": "HashKey Cloud",
+    "auth": "0x516fda4e678d683332c689e5080d34f4cb3d0058",
+    "secp": "0350c65b72c4281d9b5dc78a5ea1eeb1661a357ac23ecb8d723daebcf8bbd0b494"
+  },
+  {
+    "val_id": 154,
+    "name": "TTT VN",
+    "auth": "0xc833404089416eab548df4ef2a998599c57cd83e",
+    "secp": "0236bb5f4016cb92794d6e5c0bf8b1f359351813b9a924a665167e93d2a173705b"
+  },
+  {
+    "val_id": 155,
+    "name": "Finoa Consensus Services",
+    "auth": "0xa294a74c47912dc7035d1c8fe9f3c75244740ff4",
+    "secp": "036cc4ac39d2a751a9b1ee6c7b199fe93cf7cf06243e0782a31fb9f59e05aafdf1"
+  },
+  {
+    "val_id": 156,
+    "name": "LakeStake",
+    "auth": "0x563d8bb1503be20b0ff9ecb6d4be1b566bceeb95",
+    "secp": "032b6eda0655044acfc13e7ac87e35ec8487cbc6b31c1adbf873b9ed1b17f4822f"
+  },
+  {
+    "val_id": 157,
+    "name": "TrustedPoint",
+    "auth": "0x04a590305be1f96441026ed10440189cc8577e89",
+    "secp": "033d60ac9d9a830ded2522837e7407699e6f9aac0b8d8829f04627a39d4616af65"
+  },
+  {
+    "val_id": 158,
+    "name": "02b7d38749f27d659e6311ecec475a40bd7f13339eb309da15c4f12eb46215b71b",
+    "auth": "0x9c9401051d74ec2b2c02d8577e9df35d9ba64eaf",
+    "secp": "02b7d38749f27d659e6311ecec475a40bd7f13339eb309da15c4f12eb46215b71b"
+  },
+  {
+    "val_id": 159,
+    "name": "StakeUs",
+    "auth": "0x0c171a2d256550dd3fe0670eaa765def1d224c83",
+    "secp": "02151326669ec050aaa48c7effd9da02cac831182fff58f319a4e2a892e78818fe"
+  },
+  {
+    "val_id": 160,
+    "name": "OriginStake",
+    "auth": "0x7749a4b46c976d0bb62226ae4a581e1c1bcb1b09",
+    "secp": "03226b01cd4f0ba0d782f10ae3f4d14d36db5d1a95f31da9c792ea4c198aa584d3"
+  },
+  {
+    "val_id": 161,
+    "name": "NodesHub",
+    "auth": "0xa48c1ebfce0baf744111a02b0a092e7b4f41e789",
+    "secp": "0372f10d16ac2635c3dcd7980555365a3ffbc3b920e4d105c084c198b306776f0d"
+  },
+  {
+    "val_id": 162,
+    "name": "Coinage x DAIC",
+    "auth": "0x25fa8827ff13bf428ec5f9d3666c2a0a7439e509",
+    "secp": "03eeec13feefcecd1f4973135ea272391cf1d63a51e497438e970d30981c110dc8"
+  },
+  {
+    "val_id": 163,
+    "name": "Pier Two",
+    "auth": "0x0aa2abaf175124abc9198cac888ba768e0d8d5e5",
+    "secp": "024c7809eaec64f03d1799dba942436cc932a1b1c4d7ed2a9dd6598d5ecd129855"
+  },
+  {
+    "val_id": 164,
+    "name": "polkachu.com",
+    "auth": "0xc653e9188532238a36dd2c02d63ee1931f3e46f0",
+    "secp": "03a82063a420c8f9c97923e1c7522e020090f0c9ed048d8875347581ccd34a07e6"
+  },
+  {
+    "val_id": 165,
+    "name": "03a0f49fbaa2b2171fa59b950df2b468be4087e629a30e571633a14575e98ce8b2",
+    "auth": "0x2470d1233c023282dd51965157bf2ea297b526c1",
+    "secp": "03a0f49fbaa2b2171fa59b950df2b468be4087e629a30e571633a14575e98ce8b2"
+  },
+  {
+    "val_id": 166,
+    "name": "blockscape",
+    "auth": "0x4298ab37274dcbec0d33e24f2d9eddf7f932b17a",
+    "secp": "03c17b4aa19a0d1e5819e894cd9e2d18ff5f1f1eb8325ad5a6cf4888c0766075c3"
+  },
+  {
+    "val_id": 167,
+    "name": "Ledgerwise",
+    "auth": "0xb9613b821fa96d5962dabe2f1311385a8cb8b46f",
+    "secp": "02aae9e7ff2b97ea4b70eead70d3a146667fd1525247e658ddedcb36d7e67a110e"
+  },
+  {
+    "val_id": 168,
+    "name": "r93AX Nodes",
+    "auth": "0x568faa5eb9226a145e1908f0ab63f6a7d2d96782",
+    "secp": "028d4554eee24d21f8dfe77bc3ab292290bb315bdff922c2c1217435c4cd39d13e"
+  },
+  {
+    "val_id": 169,
+    "name": "Tessellated",
+    "auth": "0x00486f66e484705cfcbbc5a8c306f68204982581",
+    "secp": "0346f52d31b3707ca936366ac2fd094b93dcc16ba6ba0ff52ce9f0b339b9c6963c"
+  },
+  {
+    "val_id": 170,
+    "name": "Omakase",
+    "auth": "0x0ffaa5e691a30c8b5949bbb01872b5616ddb240e",
+    "secp": "02bf524b39454bda7a7b5a6f469624e4fd19a4c1daa7825239fc7e2e1ead9beb34"
+  },
+  {
+    "val_id": 171,
+    "name": "Chorus One",
+    "auth": "0xa6e539edcd5964386570f3f808b0773823a8d801",
+    "secp": "0258ea86b5b71ca6a55d04af94eb788465f3517f29e89aab47f10b75f68a0c61ae"
+  },
+  {
+    "val_id": 172,
+    "name": "Backpack",
+    "auth": "0xbb8ee00846bf924f34ba4f8a86d690ff11eed7ca",
+    "secp": "030d7f7ceb66fe645c244e93057e3f53866fef36c16d53cd2c4272ae2c455f1a4d"
+  },
+  {
+    "val_id": 173,
+    "name": "H2O Nodes",
+    "auth": "0x72ebc90f0e3457a1ff6b000dc9b1aa152ee82974",
+    "secp": "02299f78e17e2d17c1a5b97b6851d5f53b772320c8b29de748a0b3ad67580f3302"
+  },
+  {
+    "val_id": 174,
+    "name": "Goldsky",
+    "auth": "0xe127fb2de8f831852aad552554f411185dddd154",
+    "secp": "03854dfbd9c857ec25c50085841cff014939ddefcada27beb5c3e10ff0f07477ff"
+  },
+  {
+    "val_id": 175,
+    "name": "rskl",
+    "auth": "0xc1184ef5090b7b9bdc86fbbc4b04884d4327e94b",
+    "secp": "02c9817dde1a59c870c8865adededd97613538d9f399c23c3223eb1af7309f24f3"
+  },
+  {
+    "val_id": 176,
+    "name": "0235a74e1b55cbcef556dc2b6f30e872a86aa2ac027b5339992abc443ad70b4a8a",
+    "auth": "0x30c6c01c82ed8046ef7ecd510a2b5f027f18e204",
+    "secp": "0235a74e1b55cbcef556dc2b6f30e872a86aa2ac027b5339992abc443ad70b4a8a"
+  },
+  {
+    "val_id": 177,
+    "name": "GlobalStake",
+    "auth": "0x672a87d1e76391e4265c66eba160beb624a5a4df",
+    "secp": "03d95b80275720d1c93d9e83039535f58bda3acc4f4a8b7ae9a958b1ea85a86dce"
+  },
+  {
+    "val_id": 178,
+    "name": "NEXPACE",
+    "auth": "0x4c3ab8eeff2ea8de67d84063864f94f2b7c173e4",
+    "secp": "029b6cbe344b179f1184e4a37a84da072f4e4cd98e88d7ff98731bb32a9cd281d2"
+  },
+  {
+    "val_id": 179,
+    "name": "02c911111b6b7e50d5a7083de7060f7f305fa7697c010c5fa4b304d556d99e91e4",
+    "auth": "0xa1885be53967568ab28ae48d74d625f1706d6d3a",
+    "secp": "02c911111b6b7e50d5a7083de7060f7f305fa7697c010c5fa4b304d556d99e91e4"
+  },
+  {
+    "val_id": 180,
+    "name": "LootGO",
+    "auth": "0x3bff4e998466765db090f01e11e2ebf8dd341a5f",
+    "secp": "02969a5d6bb09a4117373cb9bf4e864357b5766a6d6e3bc99858c4aaeea9108305"
+  },
+  {
+    "val_id": 181,
+    "name": "Kamunagi",
+    "auth": "0x2217cb1777056e1b5dcabe56b6e949df4034eb15",
+    "secp": "03e54befad18fc8fd70e5bcf33d9b37d9ef411918e01309151b0cc391d93da7459"
+  },
+  {
+    "val_id": 182,
+    "name": "Cointelegraph Decentralization Guardians",
+    "auth": "0xafe181de33939fa1d693452f9815edaf62eb7c87",
+    "secp": "03546f8e0e3d5816c062511710c1509c5e9c216578056c37af5ed9539d9930320c"
+  },
+  {
+    "val_id": 183,
+    "name": "HusoNode",
+    "auth": "0x9af276a0d327605dc650290df4e9f1506866146e",
+    "secp": "03e5e45f82c0a2da57395c72a4cdf656fb72a5d2368aa5f908e1f9687871ef2608"
+  },
+  {
+    "val_id": 184,
+    "name": "Winsnip",
+    "auth": "0x14416ec93d7a56d8f503ff942db888ad9f05a8d1",
+    "secp": "03cb24c9b41b23d7990d57afc8786a6ddfa760b171bb4f1cb1068e5d3e26de0979"
+  },
+  {
+    "val_id": 185,
+    "name": "Blocash",
+    "auth": "0x3a0db6afa0a85642ec0bd6edf2125ce8d64434ad",
+    "secp": "03b67dab1566cc31b4fd5a819db540160f841971f8671fb579a3be6deee9285537"
+  },
+  {
+    "val_id": 186,
+    "name": "Paradise Nodes",
+    "auth": "0x2862679bebb2abec21fb73e6a241a772f5ce2d93",
+    "secp": "02b2256fb624f1aa114e8941537a873d8669a20b68c26c16eab476a4cdfae441e5"
+  },
+  {
+    "val_id": 187,
+    "name": "OshVanK",
+    "auth": "0xa91cf8bb5df24c8ded4768763148f3871a427983",
+    "secp": "03c480ab1fc0f25df146e210bbb0b83e51111389fe07e620c21a8ac74f966cd349"
+  },
+  {
+    "val_id": 188,
+    "name": "MSC-Industries",
+    "auth": "0x96415cf3532987f2849ff863bd76c24612887195",
+    "secp": "0395bbff15961131e8b64229e68f2b062a2990b617ede62727dad1627d9d98729c"
+  },
+  {
+    "val_id": 189,
+    "name": "TServices",
+    "auth": "0x129352380b7aae673677536cc56eafd99a5bcbb2",
+    "secp": "02dffcb8ecaffd9eaf85c13b10c9c8ce7d1b874543c3661daeccb34e54339a7a54"
+  },
+  {
+    "val_id": 190,
+    "name": "Starke Finance",
+    "auth": "0x35a46a843c25c078d067bcd8f438745b0c457017",
+    "secp": "02daf657701f2ce17872151b1067a5e269d02c87bca1aa11e25cf02501b277772d"
+  },
+  {
+    "val_id": 191,
+    "name": "Krews",
+    "auth": "0x24e2cdbbfa82e87eac074d674bde21923d5c3458",
+    "secp": "0396fb95c0d0fd15a7a27bfef369c03d323d1372eab8b9636e817a26492f47f8a5"
+  },
+  {
+    "val_id": 192,
+    "name": "BitCtrl",
+    "auth": "0x970666116d815a078e1f23ae6cb3975f8f3c8b1f",
+    "secp": "03c295a6bf80974717b76bd770e786d63075fa589f9c5b1615ab84fc43b0f736e8"
+  },
+  {
+    "val_id": 193,
+    "name": "pi69",
+    "auth": "0xfa7d8840d90d2c1ab8c7370ddf0bf085dc77da5a",
+    "secp": "03f7e9cb9a8224e2243efb123daacf65804e4c63f0f138f7125f622328e1b9cc0f"
+  },
+  {
+    "val_id": 194,
+    "name": "Metatarz",
+    "auth": "0xef704a2737e33760754f0e2907896f82b5e37ead",
+    "secp": "03bc9ca09da396d273b7b6c29e0f75126261f099eb6e252c90f7b392c2118449c8"
+  },
+  {
+    "val_id": 195,
+    "name": "LuckyResearch Labs",
+    "auth": "0xa2c3330ddbb1ceab502689b10c55aff05fee6c53",
+    "secp": "020c45ab0c5331a5b60b57b4186ccb9dd009d9add2856bc3ef8d1c0ea5649acbc6"
+  },
+  {
+    "val_id": 196,
+    "name": "JustANode",
+    "auth": "0x18fcc3c263244df42a18b3c6659adf7d07359897",
+    "secp": "0350c2542813b7fe3a5087d4335d4d5bda0efa7107dfde207daf5f4414bf9dea3d"
+  },
+  {
+    "val_id": 197,
+    "name": "Cosmic Validator",
+    "auth": "0x0d420faec4edc09fa8887ac9880b9f57400d1ff3",
+    "secp": "0347a74cf11740630e60166dc25eef9e9f0a0c096040a5a136b16796c26c734551"
+  },
+  {
+    "val_id": 198,
+    "name": "InfraSingularity",
+    "auth": "0xac08a9657fa41eda72648fc33d4e81f1ca57de55",
+    "secp": "03630f5d83ea4ca359b60d53df32416d6f0f833ff4e7b484fe2bb7a78644253e89"
+  },
+  {
+    "val_id": 199,
+    "name": "unityfarms",
+    "auth": "0x580d1ea3e5051c86cac03a4f06361b0a7f4768b3",
+    "secp": "036b1905b608d129464150c1a8a5a0c1e779f4c5810edea22e9516c32d6c0eca98"
+  },
+  {
+    "val_id": 200,
+    "name": "EVOS",
+    "auth": "0xcd769b0851a6363662bcade6750f802e20d52f61",
+    "secp": "03e8cbeb2d963b91fa6c760490db50988940a7480352a4dd3893b89b3662370d40"
+  },
+  {
+    "val_id": 201,
+    "name": "AiNodes",
+    "auth": "0x94fb00705411c2c07007490acd6f8e550be8817b",
+    "secp": "02ffb328e34b4314f1912e118355665a206489b8a0305c914ca7d0bd72fd6f7e70"
+  },
+  {
+    "val_id": 202,
+    "name": "Phase Stake",
+    "auth": "0x7a020aa78a7de9d1e8c952759ce08b855552eb74",
+    "secp": "022dc4f6e3309d994ce08819e4d7b786ae498b2a8cf1aa6d3e46c255d4ca3e571a"
+  },
+  {
+    "val_id": 203,
+    "name": "StakeChain",
+    "auth": "0xd838ebf4a7adfe0ad2c1dbc5f95eaf399e3d8bfd",
+    "secp": "0358f6fd184afe5544a91594ea9208a64a699ddad5a363df5293ec0fd39b339811"
+  },
+  {
+    "val_id": 204,
+    "name": "Liquify",
+    "auth": "0x0b4a128f2f50cc12def9ada1f7952bfad43e5d7f",
+    "secp": "036e9a29494a621d10ec4c80f5ec5cdb2288024c587ded91aa32d77c5b542cea25"
+  },
+  {
+    "val_id": 205,
+    "name": "medium",
+    "auth": "0x18af5f42dbede0f1cf53b3626458f8f47b570007",
+    "secp": "02654192b8489bea7aea77153fc12acf2729f892f674ae12c4a681117c69f9a0f6"
+  },
+  {
+    "val_id": 206,
+    "name": "snoopfear|PON",
+    "auth": "0x905361198ff12a83c689042162d3f1ea2c7cdfd0",
+    "secp": "0203a26b820dafdb794f1fc7117ba8e897830b184dcb08e45a44262f018deabaf3"
+  },
+  {
+    "val_id": 207,
+    "name": "BlockPro",
+    "auth": "0x6387d02728f4adc7dc3b36db5106eec3d785c963",
+    "secp": "028986e40f8e9f39bf68fa5f2f8de58514b124a150261a340e13940d286c0c7317"
+  },
+  {
+    "val_id": 208,
+    "name": "Pumpkin's Pool",
+    "auth": "0x59997634e11b3bf6733e26c48545fa84e669e7bd",
+    "secp": "03a44298eebdcdaccb5e64666e65d2d4abc8319d7387810dd59933f870bf191dbb"
+  },
+  {
+    "val_id": 209,
+    "name": "Pointgroup",
+    "auth": "0x9f4861545857d6fb3293979ec404bedab0e74eb1",
+    "secp": "02d640d6a8659a2a43e98579d552e1d9c929f8aa53b3f05d512035595fd4e0706b"
+  },
+  {
+    "val_id": 210,
+    "name": "Nodeify",
+    "auth": "0x4b7d41f4bfa1c400b524e98b6f5bf5d1f68e3ae5",
+    "secp": "02492d3794cc153ff3d6833e1cfb79ec1c0edb4b6c1d8b6324b30f860b8c6706ef"
+  },
+  {
+    "val_id": 211,
+    "name": "LinkPool",
+    "auth": "0x59654935bd87e75753e2ee09d35caf23e82ff168",
+    "secp": "039b7bfeb4b47ff9de7f1e4eb77a8480859eed79bbbbf26d2b71dcb0d11049f46f"
+  },
+  {
+    "val_id": 212,
+    "name": "wombat",
+    "auth": "0x9c9cff03e7a7542cd23e6c8c2d6605b6d5bb264c",
+    "secp": "024b07404ed2bf4e2ba0302357fac4479879666c76751a4b07c39eba3355e038eb"
+  },
+  {
+    "val_id": 213,
+    "name": "Lunar Strategy",
+    "auth": "0xfa66f47d1b2f0e982f4ae350529e2b09bf544242",
+    "secp": "02fdc3df9446cc9a8f880032eaa4e191ef7b621e3bd7ef0df4bc4db2b16860ceb4"
+  },
+  {
+    "val_id": 214,
+    "name": "Data Nexus",
+    "auth": "0x385d0c490cb15a5e8872e49288860754a03ac275",
+    "secp": "0214d264e81e38cc0e75a86e663b0ea33fd2d5772443a889018860660ddaea8494"
+  },
+  {
+    "val_id": 215,
+    "name": "Piconbello",
+    "auth": "0x5deea49b127ed42dc23dbc968a4cb46ff6e66299",
+    "secp": "03266344c4c34d74d884baef3c7d1bb0935d3007ecbc1fe234d8ecedabacf7a814"
+  },
+  {
+    "val_id": 216,
+    "name": "2xStake",
+    "auth": "0x78fe936c552317cc63d2043c12407987f0f39b7a",
+    "secp": "02f7fabc4a117fa666b663d61289401fd4cd0be404559ba06476d16b80129b31cd"
+  },
+  {
+    "val_id": 217,
+    "name": "POSTHUMAN",
+    "auth": "0xeb69059c7078d16762d8b353cf486371f3ddba1e",
+    "secp": "021dc8a76cf953e9f61abdc449cdb63f48738f6907707d8fc70e056e97acd5e29c"
+  },
+  {
+    "val_id": 218,
+    "name": null,
+    "auth": "0x724fc9b7ac82479a0d4ed7cbdc8f1b0225fd3e6b",
+    "secp": "02b9697a0de8b76f66aa22fab7d7a4079c3ea72b754e6ec5c5d2c068e2de2b91a9"
+  },
+  {
+    "val_id": 219,
+    "name": "CHAIN DIGITAL",
+    "auth": "0xbffa043d5ab7d0281e6c33547fe6df803255dcdd",
+    "secp": "02cc4fe99c47c438b17fadac0da4bdf2d643ca6c19ce140d6ca7233f00b200a048"
+  },
+  {
+    "val_id": 220,
+    "name": "badfriend",
+    "auth": "0x17d5e2b715650c316e680e415cdc051af8ece195",
+    "secp": "02d86576b2e0cc6042f6e382e53bbc30856cbc1e77974d558525404d16c872b5e4"
+  },
+  {
+    "val_id": 221,
+    "name": "VALIDEXIS",
+    "auth": "0x3069307370003f1508dabd8cb5efd03480da91be",
+    "secp": "03387106336198326c5862eddbe1cf05c94a715205094ba99164539b08607cf685"
+  },
+  {
+    "val_id": 222,
+    "name": "Asterizm",
+    "auth": "0xbebb0597b9f5e2e268ec864781a4539d645a456d",
+    "secp": "02adeacd192c9e3bd9a99eee2d2f5c0d6b0e75c6c2b660aec14d9419fed20b339c"
+  },
+  {
+    "val_id": 223,
+    "name": "Infinite Node",
+    "auth": "0x7f585961b0b0a0c25687cdcfcc963bf9f7b036aa",
+    "secp": "034829206835b631e288cac07589617bf47fa34fa50d05713d5ddd24e318806f2d"
+  },
+  {
+    "val_id": 224,
+    "name": "MictoNode",
+    "auth": "0x2d05434ec35132766d799ee97633276eab0f2688",
+    "secp": "0342dee41016773f4d958af42a065f675f31ee7986ed51cdbf2f5e7109809631b6"
+  },
+  {
+    "val_id": 225,
+    "name": "AnyValid",
+    "auth": "0x02796362409ea7164444c8e1f882bf300d76a99c",
+    "secp": "033ba2e56080613c3282856e5a7720240b4ed7566dab62ce73a3c3faebca3393b1"
+  },
+  {
+    "val_id": 226,
+    "name": "Astrosynx",
+    "auth": "0x9fde72cb243e49550dab0f7fd993f1c7b69b4eab",
+    "secp": "03ff32929b69599c9e276e05c3bfb3d4d21c770d7cf19b4cd2e88d00c1860e3787"
+  },
+  {
+    "val_id": 227,
+    "name": "Wave",
+    "auth": "0xea59cc82f33f64e6fa6f7a9204116b2e05361712",
+    "secp": "03731333ba9ed7cecfdfdd85c2a9444358215900731b3d0bd419d28502b25bc3ad"
+  },
+  {
+    "val_id": 228,
+    "name": "Decentra",
+    "auth": "0x9946d6894904737a421a21f11a10ab79bf88340d",
+    "secp": "03dbafb3434a83f2ed0b10fd54d7dfe76b148a7d8d72f61562dfc1c102315c4ef4"
+  },
+  {
+    "val_id": 229,
+    "name": "piki-nodes",
+    "auth": "0xc1c81c33689a6abaad3cee8a19724b399741fa79",
+    "secp": "027b84cd3abecdd6b0e05d99c9a2e812aa17d061531fae8fe6f609e0ab4a298a3c"
+  },
+  {
+    "val_id": 230,
+    "name": "Skyneticlabs",
+    "auth": "0xfba2313a59188be8371f7919f15362c6be7c6101",
+    "secp": "034799aeb98c40f05cfb068aa5ed17e72646932dce1c567aef43ee9873265a204e"
+  },
+  {
+    "val_id": 231,
+    "name": "OwlStake",
+    "auth": "0xf4e1c6c1c5bf6163194ac89a9772a94c160abdeb",
+    "secp": "031c2421e8e34ed6a017a40f119deb2d97c33ffb09d52d08567aff248cc4aa9a4e"
+  },
+  {
+    "val_id": 232,
+    "name": "StakeAngle",
+    "auth": "0xa849b3171098e40099d28ab2ef6b8e511279fc61",
+    "secp": "0240f2fb292dd0f600499d35b69202ae99efaf2ce9733fbd3e4066c8d1842211ce"
+  },
+  {
+    "val_id": 233,
+    "name": "Nomis",
+    "auth": "0xa68414aa0f9cd3f66474df2eba51f50cf28e2c34",
+    "secp": "03e3b16b80a4f5180fb89428176b69fd938a78e244d3f8804c8cfd9c7279a5cbb3"
+  },
+  {
+    "val_id": 234,
+    "name": "BitsMedia",
+    "auth": "0x657874394026bacd41545813266c770778caf8ce",
+    "secp": "037bcd06ca26b01cacedd99ca9e4e32f4bc1c1c1384cfc0a9a1d88734310fa0b7a"
+  },
+  {
+    "val_id": 235,
+    "name": "Crypto-Volk",
+    "auth": "0x9483db77af813c3b2460681d1cacfaae4704e088",
+    "secp": "03063a588a9b68021c4204eab0fa2d33df9cdf583df6dd537e80d35e1fe16dccc7"
+  },
+  {
+    "val_id": 236,
+    "name": "Nomadz",
+    "auth": "0xe8f7e30e939fd43a2d4755d10af0e3e1baf8554e",
+    "secp": "036156920306163816eb579ccc2c24d5190438c94b261398aa660f8d9306ca0335"
+  },
+  {
+    "val_id": 237,
+    "name": "Nova Consortium",
+    "auth": "0xf0e8f65f0e72f2136e0f387b1224e619afc943d0",
+    "secp": "0249a975a8d29f538967b49b2911d05d4781eb3e9f3ddb88250580d2c2ef2bbdf5"
+  },
+  {
+    "val_id": 238,
+    "name": "Adra",
+    "auth": "0xc395a6236cc445423d5b59bb123cd3a0a93bbb0e",
+    "secp": "033de604232680782f2400f647498c989def2a15df01b945c3690bb35b185d72cf"
+  },
+  {
+    "val_id": 239,
+    "name": "404 Labs",
+    "auth": "0x756d4c468f6131d7896aec8a897865ae92412b77",
+    "secp": "0292128b110a21ae123e2217cc8b551796a08f4c65cabba284ee2082761ba0fd7e"
+  },
+  {
+    "val_id": 240,
+    "name": "Lantern",
+    "auth": "0xbd01e9b5c1b1cf742b6b1c63fb0ede24192aac00",
+    "secp": "027a8b09cf796984881013d119251a936e14f45d21de552ba8a2c76ed8c8f80960"
+  },
+  {
+    "val_id": 241,
+    "name": "StakeUp",
+    "auth": "0x02fea10c2a9d6f30bab3c515efccb0f6e368ac85",
+    "secp": "032e8c7d6e4346c00c2126948274fd7eae2821c8fc1efb2dc6faf58164a73a4875"
+  },
+  {
+    "val_id": 242,
+    "name": "VentureLaunch",
+    "auth": "0x874ab7273e6233a13e9fb1b753f5a761ed20bcbd",
+    "secp": "03e63f77992bf3f5f5c65fc7d9469296a5e4d57f9b8b80cc5ff35a6965e916b3d3"
+  },
+  {
+    "val_id": 243,
+    "name": null,
+    "auth": "0xc2911e979f3cc080e595b38674ce34d294ecefa2",
+    "secp": "020b8a42513d0be8e378f9584f7b4cbf4da49c4b0492bec3ac892687fdc0a55183"
+  },
+  {
+    "val_id": 244,
+    "name": "Openbitlab",
+    "auth": "0x74acb1c0eab48be5eb61de26936e42af4a83035f",
+    "secp": "02d95fb49eb74e87cc6e6c95c47d3fe0b3780ab60ffeb2bdf7d6ca2e5bc69d92a8"
+  },
+  {
+    "val_id": 245,
+    "name": "kgnodes",
+    "auth": "0x7628af8e061267f26a156509135a2fe097281be8",
+    "secp": "039b55dfe39fa85fd57e0808c95d98f64fdf05c538651767d6d0d19e48119e884e"
+  },
+  {
+    "val_id": 246,
+    "name": "Punq Ops",
+    "auth": "0x2849acb4f35d3848396d001e75f627bc39490741",
+    "secp": "03d4a8aab8afb0e3052560abcdb17387022c7f995d6b4628fd29a4d0ad29e426d6"
+  },
+  {
+    "val_id": 247,
+    "name": "brutal_nodes",
+    "auth": "0x53828fceb109e25433a5317920d851d9f63e3e73",
+    "secp": "0335d8fe2bfe0f53a120f54547fca0d35e30c48e1921b15dddf0993914dbf722c2"
+  },
+  {
+    "val_id": 248,
+    "name": "KaLaMuC",
+    "auth": "0xb2f963f6069374d3ef69d2d9a8689995435b8c77",
+    "secp": "0250692ed206fd61b0f28f2369e405760662dba1a96a94b15bd22a588c34d83dc5"
+  },
+  {
+    "val_id": 249,
+    "name": "GabbexNodes",
+    "auth": "0xc286c4b42f8fd7620f0850c4ec2b7ef553eb4861",
+    "secp": "037e58c437f66f7ec752fc103680d776ca57a357a117c1da539b3914a56de8aeb6"
+  },
+  {
+    "val_id": 250,
+    "name": "Hightower",
+    "auth": "0x61bea6279fe7ca6110b0ddb8fc52c34f5f9c184f",
+    "secp": "033afb7d332c0183dc0c4ea0d0a73eae665f0cc94fcea3937957444be74f4a1306"
+  },
+  {
+    "val_id": 251,
+    "name": "Nodes Lab",
+    "auth": "0x0362a25e4ada3b1c284b4791ffeee55dea55a5e3",
+    "secp": "0248650feb5836d1cd6c78820f6c950ccce2247e0d2890ed112fbd875f7ef52ad3"
+  },
+  {
+    "val_id": 252,
+    "name": "Choplet Studios",
+    "auth": "0x26bd33098961b848517f5795c4f87e40b8462a9c",
+    "secp": "02e7d480540805f878060ff08fc42adb98802587196421106a0581296865192c6b"
+  },
+  {
+    "val_id": 253,
+    "name": null,
+    "auth": "0x973e732e5306086fa8963677ec49010ee2f3d35a",
+    "secp": "023ab08928b3c74fe9ca2ee89d3f7903ec784a6ed7250f1d63a37e62b3e04fecda"
+  },
+  {
+    "val_id": 254,
+    "name": "HazenNetworkSolutions",
+    "auth": "0x79002e61584eb70f26f73645551c5659ebeb989e",
+    "secp": "020e65b988500d9058fe38df068020353983cdc12718f1769c099f2ff256b44ddf"
+  },
+  {
+    "val_id": 255,
+    "name": "natabel",
+    "auth": "0xdcfbf01bbc75652e36a6a777107a4153c82a7b83",
+    "secp": "0238fba862e3dbab453ab17ed88d3bcd6d01e93d2fe320a3832a2cb7760d95fd8c"
+  },
+  {
+    "val_id": 256,
+    "name": "CDEF,Inc.",
+    "auth": "0xf01b49b05c02c3d89df7e44aa0775463cf8dea7f",
+    "secp": "0341317de792e1f2220e9a680e90bb7ee80e2987a92bd32596dcd0913e66123cd0"
+  },
+  {
+    "val_id": 257,
+    "name": "R1M",
+    "auth": "0x59d006afed20f71799fc3a88ff9c7a2b97475a01",
+    "secp": "023cd33f266255e6b0caba2a394db6131973b6b71bc5a1238f24baec0762843f66"
+  },
+  {
+    "val_id": 258,
+    "name": "👋 79anvi 🍀",
+    "auth": "0xef7d5843386b108d228458dc997e50c1ab881eaa",
+    "secp": "02e7e2b95bc2e3b466752e9276684c03537813fcc97b52aa562336ea6350948061"
+  },
+  {
+    "val_id": 259,
+    "name": "OnNode",
+    "auth": "0xde80953f25f5c93fef6940545c1b8766e58fc737",
+    "secp": "02ddd1ea08c6e0b4297857ac8f55f7cee0091e03d9837177848a1e94a33ff978cb"
+  },
+  {
+    "val_id": 260,
+    "name": "RootPoint",
+    "auth": "0x6562a772554c20ca2b0b8e80388896ed798c52ab",
+    "secp": "021ede88bd8eae39c79259d5991b0cc6a3551ac76db866c9ab3f6dd4cd98a6d2be"
+  },
+  {
+    "val_id": 261,
+    "name": null,
+    "auth": "0x119af7e51a606510745af94284c6b398d4d2836a",
+    "secp": "03e21de59a05302d5270c2ed21ac871198a4fdd9784c9daaf146dd8200e1c900ac"
+  },
+  {
+    "val_id": 262,
+    "name": null,
+    "auth": "0x90837fdfdf921071fc948cc02f5d0323ae914da5",
+    "secp": "024028e1910c32cac434c75d34e6957f059d5642b07de92735efb92b7e73f6aabf"
+  },
+  {
+    "val_id": 263,
+    "name": null,
+    "auth": "0x87acedf1d46400f841c4c13cc362a2c605478198",
+    "secp": "0276d5a084ee7992fc424872d4b9426fe1b8b14c503edb99a4d74031238c53d423"
+  },
+  {
+    "val_id": 264,
+    "name": "StingRay",
+    "auth": "0xbb7aebc4e743861c3b7d14c8eca2f0ece87942d1",
+    "secp": "03f8f7d37fc52c04e367f2586aae8ff99aa23c67d1dfba848fb58ef278934df413"
+  },
+  {
+    "val_id": 265,
+    "name": null,
+    "auth": "0xf0669b9bb94cf7000fab9b92f9b92bc0b42dccf0",
+    "secp": "02b49e9a3ddb6437b0c46d587e8023ef1ef519ed6ade62fd82ff502e02f0c85a18"
+  },
+  {
+    "val_id": 266,
+    "name": null,
+    "auth": "0x0516f122f787a45912ca46fce1f02963db18057c",
+    "secp": "0339c072d1a0af0731ebcd0a738433431d99ef26defadca0436cdbc6bdbf92f8b8"
+  },
+  {
+    "val_id": 267,
+    "name": null,
+    "auth": "0x92936497b6ad2ba84b3f7af22c9aff15f00b13b5",
+    "secp": "029337dc788d1dd262280524a47cefa68b7ea5651016279b54cc20305a2e1aa7b6"
+  }
+]

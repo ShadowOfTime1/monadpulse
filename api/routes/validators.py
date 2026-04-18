@@ -1,11 +1,32 @@
+import json
 import os
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import httpx
 from eth_abi import decode, encode
 from fastapi import APIRouter, HTTPException, Query, Request
 
 router = APIRouter()
+
+_DIR_CACHE: dict[str, tuple[float, list]] = {}
+
+
+def _load_directory(network: str) -> list[dict]:
+    """Return cached validator directory (refreshes on file mtime change)."""
+    path = Path(f"/opt/monadpulse/validator_directory_{network}.json")
+    if not path.exists():
+        return []
+    mtime = path.stat().st_mtime
+    cached = _DIR_CACHE.get(network)
+    if cached and cached[0] == mtime:
+        return cached[1]
+    try:
+        data = json.loads(path.read_text())
+    except Exception:
+        return []
+    _DIR_CACHE[network] = (mtime, data)
+    return data
 
 STAKING_PRECOMPILE = "0x0000000000000000000000000000000000001000"
 GET_VALIDATOR_SELECTOR = "2b6d639a"
@@ -32,6 +53,32 @@ async def _get_validator_onchain(val_id: int, network: str) -> tuple | None:
     if "error" in data or not data.get("result"):
         return None
     return decode(GET_VALIDATOR_ABI, bytes.fromhex(data["result"][2:]))
+
+
+@router.get("/search")
+async def validator_search(q: str = Query(..., min_length=1), network: str = Query("testnet"), limit: int = Query(10, le=50)):
+    """Search validator directory by name substring, val_id, auth, or SECP pubkey.
+    Backed by validator_directory_{network}.json (rebuilt per epoch)."""
+    directory = _load_directory(network)
+    q_low = q.lower().strip()
+    q_is_id = q_low.lstrip("#").isdigit()
+    q_id = int(q_low.lstrip("#")) if q_is_id else None
+    q_hex = q_low[2:] if q_low.startswith("0x") else q_low
+
+    matches = []
+    for e in directory:
+        hit = False
+        if q_is_id and e["val_id"] == q_id:
+            hit = True
+        elif e.get("name") and q_low in e["name"].lower():
+            hit = True
+        elif q_hex and len(q_hex) >= 4 and (q_hex in e["auth"].lower() or q_hex in (e.get("secp") or "").lower()):
+            hit = True
+        if hit:
+            matches.append(e)
+            if len(matches) >= limit:
+                break
+    return {"query": q, "network": network, "matches": matches}
 
 
 @router.get("/by-id/{val_id}")

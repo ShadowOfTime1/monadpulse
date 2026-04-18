@@ -262,22 +262,60 @@ function makeChart(canvasId, type, labels, datasets, opts = {}) {
 /* ═══ Validator search ═══ */
 let _allValidators = [];
 
+let _searchDebounce = null;
+
 function initSearch() {
   const input = document.getElementById('validator-search');
   if (!input) return;
   input.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
-    const tbody = document.querySelector('#validators-table tbody');
     if (!q) {
       renderValidators(_allValidators);
+      renderDirectoryMatches([], '');
       return;
     }
+    // Client-side filter of blocks-indexed validators
     const filtered = _allValidators.filter(v =>
       v.address.toLowerCase().includes(q) ||
       (valName(v.address) || '').toLowerCase().includes(q)
     );
     renderValidators(filtered);
+
+    // Debounced directory search (name / val_id / auth / secp)
+    clearTimeout(_searchDebounce);
+    _searchDebounce = setTimeout(async () => {
+      try {
+        const r = await apiFetch('/validators/search?q=' + encodeURIComponent(q) + '&limit=10');
+        if (!r || !r.matches) return;
+        // Filter out ones already in the blocks-based list
+        const knownAuths = new Set(_allValidators.map(v => v.address.toLowerCase()));
+        const extra = r.matches.filter(m => !knownAuths.has(m.auth));
+        renderDirectoryMatches(extra, q);
+      } catch (e) {}
+    }, 250);
   });
+}
+
+function renderDirectoryMatches(matches, query) {
+  let box = document.getElementById('directory-matches');
+  if (!box) {
+    const table = document.querySelector('#validators-table');
+    if (!table) return;
+    box = document.createElement('div');
+    box.id = 'directory-matches';
+    box.style.cssText = 'margin:0 0 16px;padding:12px 16px;background:rgba(110,84,255,0.04);border:1px solid rgba(110,84,255,0.15);border-radius:10px;font-family:var(--mono);font-size:12px;display:none';
+    table.parentElement.insertBefore(box, table);
+  }
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.style.display = 'block';
+  box.innerHTML = `<div style="color:var(--text-dim);margin-bottom:8px;font-size:10px;letter-spacing:1px;text-transform:uppercase">On-chain directory matches (not in block data)</div>` +
+    matches.map(m => {
+      const label = m.name ? esc(m.name) : `Validator #${m.val_id}`;
+      return `<div style="padding:6px 0;border-top:1px solid rgba(110,84,255,0.08)">
+        <a href="/validator.html?id=${m.val_id}" style="color:#a78bfa;text-decoration:none;font-weight:600">${label}</a>
+        <span style="color:var(--text-dim);margin-left:8px">id ${m.val_id} · auth ${shortAddr(m.auth)}</span>
+      </div>`;
+    }).join('');
 }
 
 function scoreColor(score) {
