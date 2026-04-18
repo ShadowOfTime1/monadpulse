@@ -367,6 +367,7 @@ async function loadValidatorById(valId, loading, content, empty) {
           <div class="q"><span class="v">${fmtNum(Math.round(consStake))} MON</span><div class="k">Consensus Stake</div></div>
           <div class="q"><span class="v">${fmtNum(Math.round(snapStake))} MON</span><div class="k">Snapshot Stake</div></div>
           <div class="q"><span class="v">${comm} %</span><div class="k">Commission</div></div>
+          <div class="q"><span class="v" id="vdp-uptime-val" style="color:var(--text-dim)">…</span><div class="k" title="Time since first Reward event / 28 days (VDP 4-week target)">VDP Uptime</div></div>
           <div class="q"><span class="v" style="color:var(--cyan,#85E6FF)">${unclaimed.toFixed(2)} MON</span><div class="k">Unclaimed (pool)</div></div>
         </div>
       </div>
@@ -396,6 +397,18 @@ async function loadValidatorById(valId, loading, content, empty) {
   loading.style.display = 'none';
   empty.style.display = 'none';
   content.style.display = 'block';
+
+  // Async VDP uptime fetch (first-active scan can take a few seconds cold)
+  apiFetch('/validators/by-id/' + valId + '/first-active').then(fa => {
+    const el = document.getElementById('vdp-uptime-val');
+    if (!el) return;
+    if (!fa || !fa.first_active_timestamp) { el.textContent = '—'; return; }
+    const VDP_TARGET_MS = 28 * 24 * 3600 * 1000;
+    const age = Date.now() - fa.first_active_timestamp * 1000;
+    const pct = Math.min(age / VDP_TARGET_MS * 100, 100);
+    el.textContent = pct.toFixed(1) + '%';
+    el.style.color = pct >= 100 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
+  }).catch(() => { const el = document.getElementById('vdp-uptime-val'); if (el) el.textContent = '—'; });
 }
 
 document.addEventListener('DOMContentLoaded', loadValidator);

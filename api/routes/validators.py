@@ -10,6 +10,87 @@ from fastapi import APIRouter, HTTPException, Query, Request
 router = APIRouter()
 
 _DIR_CACHE: dict[str, tuple[float, list]] = {}
+_FIRST_ACTIVE_CACHE: dict[tuple[str, int], tuple[int, int]] = {}
+# (network, val_id) -> (block_number, timestamp)
+
+REWARD_EVENT_SIG = "0x3a420a01486b6b28d6ae89c51f5c3bde3e0e74eecbb646a0c481ccba3aae3754"
+
+
+async def _has_reward_in_range(network: str, val_id: int, lo: int, hi: int) -> list[dict]:
+    """eth_getLogs for Reward event with topic[1]=val_id in range [lo,hi]."""
+    val_topic = "0x" + format(val_id, "064x")
+    async with httpx.AsyncClient(timeout=20) as client:
+        r = await client.post(RPC_URLS.get(network, RPC_URLS["testnet"]), json={
+            "jsonrpc": "2.0", "method": "eth_getLogs",
+            "params": [{
+                "address": STAKING_PRECOMPILE,
+                "fromBlock": hex(lo), "toBlock": hex(hi),
+                "topics": [REWARD_EVENT_SIG, val_topic],
+            }],
+            "id": 1,
+        })
+        data = r.json()
+    return data.get("result") or []
+
+
+async def _find_first_active_block(network: str, val_id: int) -> tuple[int, int] | None:
+    """Earliest block with Reward event for val_id. Single-pass backward scan in
+    chunks. Stops after EMPTY_STREAK empty chunks past the last event.
+    Returns (block_number, timestamp) or None. Cached indefinitely."""
+    key = (network, val_id)
+    if key in _FIRST_ACTIVE_CACHE:
+        return _FIRST_ACTIVE_CACHE[key]
+
+    chunk = 100 if network == "mainnet" else 1000
+    EMPTY_STREAK = 5   # 5 empty chunks × chunk blocks = stopping condition
+    HARD_CAP = 2_000_000  # don't scan more than this many blocks
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(RPC_URLS.get(network, RPC_URLS["testnet"]), json={
+            "jsonrpc": "2.0", "method": "eth_blockNumber", "params": [], "id": 1,
+        })
+        latest = int(r.json()["result"], 16)
+
+    earliest = None
+    empty_streak = 0
+    cur_hi = latest
+    total_scanned = 0
+
+    while cur_hi > 0 and total_scanned < HARD_CAP:
+        cur_lo = max(0, cur_hi - chunk + 1)
+        try:
+            logs = await _has_reward_in_range(network, val_id, cur_lo, cur_hi)
+        except Exception:
+            logs = []
+
+        if logs:
+            empty_streak = 0
+            for log in logs:
+                bn = int(log["blockNumber"], 16)
+                if earliest is None or bn < earliest:
+                    earliest = bn
+        else:
+            if earliest is not None:
+                empty_streak += 1
+                if empty_streak >= EMPTY_STREAK:
+                    break
+            # else: keep scanning, validator may just be further back
+
+        total_scanned += (cur_hi - cur_lo + 1)
+        cur_hi = cur_lo - 1
+
+    if earliest is None:
+        return None
+
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(RPC_URLS.get(network, RPC_URLS["testnet"]), json={
+            "jsonrpc": "2.0", "method": "eth_getBlockByNumber",
+            "params": [hex(earliest), False], "id": 1,
+        })
+        ts = int(r.json()["result"]["timestamp"], 16)
+
+    _FIRST_ACTIVE_CACHE[key] = (earliest, ts)
+    return earliest, ts
 
 
 def _load_directory(network: str) -> list[dict]:
@@ -95,6 +176,8 @@ async def validator_by_id(val_id: int, network: str = Query("testnet")):
     # Empty registration check: secp all zeros
     if secp == "00" * (len(secp) // 2):
         raise HTTPException(status_code=404, detail=f"validator {val_id} not registered on {network}")
+    first_active = await _find_first_active_block(val_id, network=network) if False else None
+    # Lazy fetch via separate call — keep endpoint fast, client polls /first-active
     return {
         "validator_id": val_id,
         "network": network,
@@ -110,6 +193,22 @@ async def validator_by_id(val_id: int, network: str = Query("testnet")):
         "snapshot_commission": int(v[9]),
         "secp_pubkey": secp,
         "bls_pubkey": bls,
+    }
+
+
+@router.get("/by-id/{val_id}/first-active")
+async def validator_first_active(val_id: int, network: str = Query("testnet")):
+    """Earliest block where val_id received a Reward event (≈ first active block).
+    Cached indefinitely after first lookup (may take 1-5s on cold cache)."""
+    result = await _find_first_active_block(network, val_id)
+    if result is None:
+        return {"validator_id": val_id, "network": network, "first_active_block": None, "first_active_timestamp": None}
+    block, ts = result
+    return {
+        "validator_id": val_id,
+        "network": network,
+        "first_active_block": block,
+        "first_active_timestamp": ts,
     }
 
 
