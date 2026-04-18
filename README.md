@@ -1,5 +1,10 @@
 # MonadPulse
 
+[![Live](https://img.shields.io/badge/live-monadpulse.xyz-8B5CF6?style=flat-square)](https://monadpulse.xyz)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green?style=flat-square)](./LICENSE)
+[![Telegram Alerts](https://img.shields.io/badge/telegram-alerts-26A5E4?style=flat-square&logo=telegram)](https://t.me/monadpulse_alerts)
+[![GitHub last commit](https://img.shields.io/github/last-commit/ShadowOfTime1/monadpulse?style=flat-square)](https://github.com/ShadowOfTime1/monadpulse/commits/main)
+
 **Deep network intelligence for the Monad ecosystem.**
 
 Live at [monadpulse.xyz](https://monadpulse.xyz) | Alerts on [Telegram](https://t.me/monadpulse_alerts)
