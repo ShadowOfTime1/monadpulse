@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delegation Flow — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Interactive Sankey diagram of delegator → validator stake flows on Monad.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Delegation Flow — MonadPulse">
+<meta property="og:description" content="Interactive Sankey diagram of delegator → validator stake flows on Monad.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:url" content="https://monadpulse.xyz/graph.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Delegation Flow — MonadPulse">
+<meta name="twitter:description" content="Interactive Sankey diagram of delegator → validator stake flows on Monad.">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
+<style>
+  #sankey-container { width: 100%; min-height: 720px; overflow-x: auto; }
+  #sankey-svg { display: block; margin: 0 auto; }
+  .sankey-link { fill: none; stroke-opacity: 0.25; transition: stroke-opacity 0.15s; }
+  .sankey-link:hover { stroke-opacity: 0.55; }
+  .sankey-node rect { cursor: pointer; }
+  .sankey-node text { font-family: 'JetBrains Mono', 'Roboto Mono', monospace; font-size: 10px; fill: #DDD7FE; pointer-events: none; }
+  .sankey-tooltip {
+    position: absolute; pointer-events: none; background: rgba(14,9,28,0.95);
+    border: 1px solid rgba(110,84,255,0.4); border-radius: 8px; padding: 8px 12px;
+    font-family: 'Roboto Mono', monospace; font-size: 12px; color: #EEEDF5;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6); opacity: 0; transition: opacity 0.1s;
+    z-index: 10;
+  }
+  .sankey-tooltip.visible { opacity: 1; }
+  .gctrl { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .gctrl label { color: var(--text-dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; }
+  .gctrl input { width: 60px; padding: 4px 8px; background: rgba(14,9,28,0.6); border: 1px solid rgba(110,84,255,0.3); border-radius: 6px; color: #DDD7FE; font-family: var(--mono); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse</a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Delegation Flow</h1>
+    <p class="page-desc">
+      Sankey diagram of <strong>who stakes what, to whom</strong>. Width of
+      each flow is proportional to the delegator→validator active stake.
+      Limited to top-N of each side by total stake for readability.
+    </p>
+  </div>
+
+  <div class="gctrl">
+    <label>Top delegators</label><input id="top-del" type="number" min="5" max="100" value="30">
+    <label>Top validators</label><input id="top-val" type="number" min="5" max="100" value="30">
+    <button id="apply" class="page-btn" style="padding:6px 14px">Apply</button>
+    <span id="meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-left:12px"></span>
+  </div>
+
+  <div id="sankey-container" style="position:relative">
+    <div id="sankey-loading" style="text-align:center;padding:80px;color:var(--text-dim);font-family:var(--mono)">Building graph…</div>
+    <svg id="sankey-svg" style="display:none"></svg>
+    <div class="sankey-tooltip" id="tt"></div>
+  </div>
+
+  <div style="margin-top:32px;padding:14px 18px;background:rgba(110,84,255,0.05);border:1px solid rgba(110,84,255,0.15);border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.7">
+    <span style="color:#DDD7FE">ℹ How to read</span> — left column lists top <strong>delegators</strong>, right column <strong>validators</strong>. A flow from a delegator to a validator = active stake. Hover a node for its total; hover a flow for the specific amount. Click a validator to open its detail page. Wide flows from one delegator to many validators indicate coordinated staking or Foundation redistribution.
+  </div>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+const TT = document.getElementById('tt');
+function showTT(e, html) {
+  TT.innerHTML = html;
+  TT.style.left = (e.pageX + 14) + 'px';
+  TT.style.top = (e.pageY + 10) + 'px';
+  TT.classList.add('visible');
+}
+function hideTT() { TT.classList.remove('visible'); }
+
+function colorByType(d) {
+  return d.type === 'delegator' ? '#6E54FF' : '#14b8a6';
+}
+
+async function render() {
+  const td = document.getElementById('top-del').value;
+  const tv = document.getElementById('top-val').value;
+  document.getElementById('sankey-loading').style.display = 'block';
+  document.getElementById('sankey-svg').style.display = 'none';
+
+  const data = await apiFetch('/analytics/delegation-graph?top_delegators=' + td + '&top_validators=' + tv);
+  if (!data || !data.nodes) {
+    document.getElementById('sankey-loading').innerHTML = 'No graph data — <code>rebuild_delegation_graph.py</code> has not run yet for this network.';
+    return;
+  }
+  document.getElementById('meta').textContent =
+    `${data.nodes.delegators.length}/${data.total_delegators} delegators · ${data.nodes.validators.length}/${data.total_validators} validators · ${data.edges.length} flows`;
+
+  const allNodes = [...data.nodes.delegators, ...data.nodes.validators];
+  const idx = new Map(allNodes.map((n, i) => [n.id, i]));
+  const sankeyData = {
+    nodes: allNodes.map(n => ({ ...n, name: n.label })),
+    links: data.edges.map(e => ({
+      source: idx.get(e.source),
+      target: idx.get(e.target),
+      value: e.value_mon,
+      value_wei: e.value_wei,
+    })),
+  };
+
+  const container = document.getElementById('sankey-container');
+  const width = Math.min(Math.max(container.clientWidth - 20, 900), 1400);
+  const height = 50 + Math.max(allNodes.length * 8, 600);
+
+  const svg = d3.select('#sankey-svg')
+    .attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+  svg.selectAll('*').remove();
+
+  const sankey = d3.sankey()
+    .nodeWidth(18).nodePadding(6)
+    .extent([[10, 10], [width - 10, height - 10]])
+    .nodeSort(null);
+
+  const {nodes, links} = sankey(sankeyData);
+
+  // Links
+  svg.append('g').selectAll('path')
+    .data(links).enter().append('path')
+    .attr('class', 'sankey-link')
+    .attr('d', d3.sankeyLinkHorizontal())
+    .attr('stroke', d => colorByType(d.source))
+    .attr('stroke-width', d => Math.max(1, d.width))
+    .on('mouseenter', (e, d) => showTT(e,
+      `<strong style="color:#6E54FF">${shortAddr(d.source.label)}</strong><br>` +
+      `→ <strong style="color:#14b8a6">${esc(d.target.label)}</strong><br>` +
+      `<span style="color:var(--text-dim)">stake: ${fmtNum(Math.round(d.value))} MON</span>`
+    ))
+    .on('mouseleave', hideTT);
+
+  // Nodes
+  const node = svg.append('g').selectAll('g')
+    .data(nodes).enter().append('g').attr('class', 'sankey-node');
+
+  node.append('rect')
+    .attr('x', d => d.x0).attr('y', d => d.y0)
+    .attr('height', d => d.y1 - d.y0).attr('width', d => d.x1 - d.x0)
+    .attr('fill', colorByType)
+    .on('mouseenter', (e, d) => showTT(e,
+      `<strong style="color:${colorByType(d)}">${d.type === 'delegator' ? 'Delegator' : 'Validator'}</strong><br>` +
+      `${d.type === 'delegator' ? shortAddr(d.label) : esc(d.label)}<br>` +
+      `<span style="color:var(--text-dim)">total: ${fmtNum(Math.round(d.total_stake_mon))} MON</span>`
+    ))
+    .on('mouseleave', hideTT)
+    .on('click', (e, d) => {
+      if (d.type === 'validator') {
+        window.location = '/validator.html?id=' + d.val_id;
+      } else {
+        window.open(EXPLORER + '/address/' + d.label, '_blank');
+      }
+    });
+
+  // Labels
+  node.append('text')
+    .attr('x', d => d.type === 'delegator' ? d.x1 + 6 : d.x0 - 6)
+    .attr('y', d => (d.y0 + d.y1) / 2)
+    .attr('dy', '0.35em')
+    .attr('text-anchor', d => d.type === 'delegator' ? 'start' : 'end')
+    .text(d => {
+      const label = d.type === 'delegator' ? shortAddr(d.label) : d.label;
+      return label.length > 26 ? label.slice(0, 24) + '…' : label;
+    });
+
+  document.getElementById('sankey-loading').style.display = 'none';
+  document.getElementById('sankey-svg').style.display = 'block';
+}
+
+document.getElementById('apply').addEventListener('click', render);
+document.addEventListener('DOMContentLoaded', render);
+</script>
+</body>
+</html>

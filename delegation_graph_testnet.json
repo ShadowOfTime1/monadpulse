@@ -1,0 +1,4567 @@
+[
+  {
+    "val_id": 1,
+    "delegator": "0x62b1b16294310962b23dcb08cc8f221914ff624e",
+    "active_stake_wei": 63015613863491029473
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 9900000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xf95542cf4150a0bd07c4dd6335097d9da4503f55",
+    "active_stake_wei": 28010783300585020147
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xe7eb74c246f679b04f3822bf2f2c1e3e944eb2fc",
+    "active_stake_wei": 17765404000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 15840000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 12000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 8500000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xec7e1ce0756b23bae372846ceab311388ad45de9",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x053f62b6f0586b651d8af6a89bba5ec69d0ad86e",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xb649a8426a3a581a18fa32ebbee688d677d4cf88",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xb58830b6cab4dbd5db41a928b9860de9df62887f",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x7338412a578aee3e6f30062ddb1e4cbfc43c1e14",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x0c7c99776e2ca74c6589d962cfa0c84eccf8d437",
+    "active_stake_wei": 100000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x6e0100edf9e747612a2a44ca7b41dbb365498204",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x4f6374eecdd9ca64de176cf78774446be7dfd86f",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x60625e4b8f591f86ade10ebbce7c52ea905af519",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xdb01cdf9a91844c4cee265d5dc15bcbd6597f61c",
+    "active_stake_wei": 4667289000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xf814b374db50cd53002b5347ab424d3c4dd3405a",
+    "active_stake_wei": 26677625000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x56351c09a3d2e236eeb6c60265471093126eb2c0",
+    "active_stake_wei": 201000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x65fda8628dafc855af954132c112f238a149db5e",
+    "active_stake_wei": 7323919000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xe74fc4399defb0cc0d0bd9e52b3b08dc2f4b2018",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xc614112159855a3866a1c3c9d379a544f3ce6238",
+    "active_stake_wei": 8000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 100000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x5479213be8137abe68b8406d4b258bf384fccfda",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xa98f490101dbb87be8ea98de2d33eba54dd4f7ab",
+    "active_stake_wei": 9750000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xf0f3abaffa4ae760706d1670749266b1f29d5694",
+    "active_stake_wei": 7326000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 96929855000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x0799f37f871e0280f3149ca7e4868beef06f749a",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x43b72feb45d0c35809529494d63221ab68ead542",
+    "active_stake_wei": 29546000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xf21bd56c2bc0538eb1face7e9730be20aa352054",
+    "active_stake_wei": 12000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x553d2db79d200017647d554a83ce87e05d9b727c",
+    "active_stake_wei": 10000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xc0bd8b86bcfb960242341f03d91526e967b73bad",
+    "active_stake_wei": 7312500000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x26fcd40dfb1316d0438018da213d7f18191cf710",
+    "active_stake_wei": 2437500000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xc72b1c647c9bdc6f5c73ae97252d5556ae031b43",
+    "active_stake_wei": 53222484354297503985
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x95d8ed6944fce9a610ab5af665147a3fcfdb484a",
+    "active_stake_wei": 18738211000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x3255f553aca3f4e8bfbaea03d120725de42ab0b2",
+    "active_stake_wei": 14875000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x6e3c86ea12856e84d64201d6d1af30f4aa16dfb9",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x3c95f4c097501d378a3a294c43bb17d5d759e970",
+    "active_stake_wei": 91000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x36d2cca58105022e18198ffc331fd25b5c2af629",
+    "active_stake_wei": 45009070117682922203
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x0dd4af90d5ca1a086e08bef8f0e0368863fbe5e4",
+    "active_stake_wei": 300000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x8e9bad15f5418280590f52f62e0f46ce384ceb00",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xd6fc53458a2dbf4e79d0c1b92b1b7be1dce30958",
+    "active_stake_wei": 74000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x7c5ba31cf62ffab321f9f7236a42d698774b3f2e",
+    "active_stake_wei": 41633910450000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x2309d19042398056ed5868c839b0237427d72e92",
+    "active_stake_wei": 1189760259741298651517
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x883162f54149eaf23ae2ae23bd60929f29260ed0",
+    "active_stake_wei": 9875000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xae30b6ff9b6ff75661e016ea76cca4232a773f16",
+    "active_stake_wei": 1990375000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x45e1c9a6ea13d60ee3d82433978a5afb89264fd7",
+    "active_stake_wei": 30412500000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x6d8939563a379ba65211015ab83d715f65888d14",
+    "active_stake_wei": 68245000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x345a984ead23c99c3912214d24240c11bb4cda67",
+    "active_stake_wei": 56910156000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xe8265467bac27f87e9e7bf06228c189bdd78b583",
+    "active_stake_wei": 9750000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x717ac74a1d77d387ce873d1939dca2c884a02c30",
+    "active_stake_wei": 1838113250493294481
+  },
+  {
+    "val_id": 1,
+    "delegator": "0xa7c80f7b37958e1f630e7051724b50c4583fa8c8",
+    "active_stake_wei": 100000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x0ac81872eb0c1d18e31594f8c566cb03b355ff42",
+    "active_stake_wei": 100000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x1d6386e7b848c379c9cb2ff29275994d5e9bd382",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 1,
+    "delegator": "0x92e8074d2db345a2215e045a55caa083c9ec023e",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 19800000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 31680000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 14000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 17000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xb649a8426a3a581a18fa32ebbee688d677d4cf88",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xad6a8c0fbdc2f595a388f1884233ae5a897fc563",
+    "active_stake_wei": 26740382286876246
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 71068501593565629424
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xe74fc4399defb0cc0d0bd9e52b3b08dc2f4b2018",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x5479213be8137abe68b8406d4b258bf384fccfda",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x342caf8efdf5af95511697f2995fa025eefb8e05",
+    "active_stake_wei": 31622283616952361452
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x0678cd5c81f3cb50d79de127b96da3e291bd8b11",
+    "active_stake_wei": 21228565530858268995
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x3255f553aca3f4e8bfbaea03d120725de42ab0b2",
+    "active_stake_wei": 1802625000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0x78d1fa49923b4b9e3cbcac72bd212799b3586e49",
+    "active_stake_wei": 1375000000000000000
+  },
+  {
+    "val_id": 2,
+    "delegator": "0xc0237741649eb6dda04115479c1a1823860c4b82",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 55689070000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x49470006466bded774cc575ed243cc3e90dc120c",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x75b65f42298fc6a8b49ded90ffc0c1abfb975cd2",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xad6a8c0fbdc2f595a388f1884233ae5a897fc563",
+    "active_stake_wei": 263370191143438123
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xfc1dad5a806c1149ecc901f1b57cdb7e4226a840",
+    "active_stake_wei": 1586317000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 643938919892244793774
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x26fcd40dfb1316d0438018da213d7f18191cf710",
+    "active_stake_wei": 1802625000000000000
+  },
+  {
+    "val_id": 3,
+    "delegator": "0x1eef33c0a36faea1a14d5f00ec0197929a25ac43",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6e38e5f2e726f75d19d33f6807b14ef1bf883a60",
+    "active_stake_wei": 11000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x2d4c06d7fe0eac008f8aa2740675d890c86be155",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa822b9b77270a043c0d7426a0bf9983f79fa0dc5",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xfb85a5be02b7d1824e018a2f10121ba7333b0fba",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5b6b98912888cb22f60bd00d8fcc997a16d6069e",
+    "active_stake_wei": 110874313623495659299
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe6aef14153f3ff3d8defccf50d719e1df1e851b5",
+    "active_stake_wei": 139621110295804699506
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x59a0101bc616c789ae94c7ccd7258164ad8de7a6",
+    "active_stake_wei": 2570883080000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x404c856ab1d448d117091a01278fa389d3b47fe7",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x133e3c0b5e5db51fa245b7833a364d462e8ea7e6",
+    "active_stake_wei": 3000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0e091465c7795bef03fd68d70dcba13cab0d62e2",
+    "active_stake_wei": 5000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x08b1f390a769027230d51bf6a2729d84db1e6ce6",
+    "active_stake_wei": 76000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xde39d24175a68a9192edb20ba21df73f171a68c6",
+    "active_stake_wei": 30000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x9ffe5ffea692dbd3a2301d25e8224b4f1ee86783",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x2fd144e9b6ddd1e35c8e2b31a1357821623b2ed8",
+    "active_stake_wei": 231248850099009764120
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x70dc722405caad482ffcdf7c65c4adbb892318d8",
+    "active_stake_wei": 45000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0b5d7b1ddf89bed6229601225ca3103450792b7f",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa91cf8bb5df24c8ded4768763148f3871a427983",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x67067949dd530a7daddb22cefd0912175ecaa5f7",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x285b6ff9699b60193ba7fc57b2c0b689f44d80e7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 38000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x08d27fed5cbe0368dd2ce8591ecf32d64be61d9f",
+    "active_stake_wei": 3400000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xad2ff4527e4b57c02ee3d9dff297503acc9da8b5",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6d6d064a2ebddb5fbfb8b3c5e99b30ac5f340971",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x444435222eff3e2c171bdeeb7d5e0a9d382c1784",
+    "active_stake_wei": 175494594461601448300
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xbf21d58776f904f99f26d10f8df545906f1919f1",
+    "active_stake_wei": 4000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xd5bf9489ceb6f141b1cdccfdf2f8685c77de42dd",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb9a3b9870f0c0613dbe84c2cf69867bc02f3aa2e",
+    "active_stake_wei": 216300000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe3e9d814627c518b6829fc0a60c2aa2b8b1bf280",
+    "active_stake_wei": 186396312834141313122
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe7b52b1a0d0815fc45b33365137f871f3b05de0c",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc3bef3af84796f278222559eafe9a36fe810408d",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 55174648374262517694
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa81ca19e1152c1c234e744637033116a784687a4",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc9c912769f5ed7668673a09dc8a272114769cb94",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0e44e8ca25b7c8b80efc50fcfcab4fb8aa24a13f",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x09a47506afd8d74d833527a62229abe5040be141",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe7eb74c246f679b04f3822bf2f2c1e3e944eb2fc",
+    "active_stake_wei": 101000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x8f4449bfc7b78b65486babff1cce9f93da90e217",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6502aa0eb1112064862b6a9a780ee26619e84043",
+    "active_stake_wei": 158000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 200759057487000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x9c3c3a758703f1ea9cfbb0e02930036261654531",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 94733180000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xdde2d01a90471fe2ef56b998ce832467eee45612",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x68cb99dceccb32f1e1118105633f5e15520996e5",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x8cb71fa6058c31a30b80bf060c84314b4d9753c3",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xcefe340153d3bed90c93aeed0ede629ac6226e6e",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xbe41831c5e5f19246341da95cdb0786689b4755b",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa2607f0d0e381e799d7f5ab1cba5b7b97aa238a8",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x15ea942cb3867be8748dd9883804e54ec9fff69c",
+    "active_stake_wei": 8000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc614112159855a3866a1c3c9d379a544f3ce6238",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe89a0ff94a91aa5a760d1a8529b04784a9ad0691",
+    "active_stake_wei": 1900000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x500bddef67fc77639aa85ab221f2bfcee44aafe4",
+    "active_stake_wei": 10354082128315674134
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x08ec7fd3ebf3c85006556228c45fca18c87a5508",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb053d340d133472548cdd05118ff271040002851",
+    "active_stake_wei": 19000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x621434d5e102dd070df494544d3c56632441d318",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc3441b603949aaa52cd1f1662b330b9410ffa7d0",
+    "active_stake_wei": 19000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x4cc7fa290b5d25de15ae3f2d0112bbb32ec75f1a",
+    "active_stake_wei": 4460000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6b2ebdd9bceea5c9dad0fd3cbca335e833afb281",
+    "active_stake_wei": 248000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe66bedd0f7a81c63b2c1eecc0c0bbfab2bd2bf38",
+    "active_stake_wei": 463500000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xcb7d10c2062eb5ca2e5ed7d5217aac85ab906984",
+    "active_stake_wei": 1497893674454452860022
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x7c7c7d8f38613dd2a87e1ded5799db9f244e9746",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xadb3a666accef23b14a74fe4202ecdaac062441f",
+    "active_stake_wei": 632514726222765582725
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc415fc466633b3760db4bf0277b6c555a7313880",
+    "active_stake_wei": 501576203809072299880
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x47ae4cc9981ca180effbde1594955fae44eefd14",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x9841a8f3da9bd38e9c9db81a5d31e52e8b7e7f8e",
+    "active_stake_wei": 434917083816782522370
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x64eca8b0f41e75e5fc0ffc8bb5efeb86787b1e4b",
+    "active_stake_wei": 512183902172072453031
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xaafa401e0d841c2fd6555e092ff97e45f53dc81d",
+    "active_stake_wei": 500751484154801771081
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x534f205a6de691a13a20c8942b38a01a1fd3c06e",
+    "active_stake_wei": 269859455815408344689
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x4024bdfeedfd1cae7d2d02250e33dbf0b3ac109f",
+    "active_stake_wei": 651513874994773200265
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x9bd34a27ed836cc25c13e88e552ec7e59d522090",
+    "active_stake_wei": 267000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa2f36c063a06c16f145b6519a06fccea70b0f1ad",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5d08c3c65f75cd3810b035bc552e02d9a92eb735",
+    "active_stake_wei": 1700000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x485e6a765190167e42ad1ea0205a365e2dbcca0f",
+    "active_stake_wei": 546371720108857501499
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x00404ef55c0a4c8db08911f56f6567a1b2d89f8b",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0799f37f871e0280f3149ca7e4868beef06f749a",
+    "active_stake_wei": 25000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5d7e2d89a431279d6f562481056e4b90d6837a3b",
+    "active_stake_wei": 8000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x3355567a774fdbaee25313a6fb1c95cbb4b94da2",
+    "active_stake_wei": 11000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x52af66e6926bd7f8da4ba225ef6013796d4328e5",
+    "active_stake_wei": 13000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xcaf9b8dff6b1ce23302389cde83fe3ef71a8fd31",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x003fb656cbcb9775121bc034e1163d536e7db6b1",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x21bdc7cdbd2b85317d7a34d6cca371e3ecd7f2a6",
+    "active_stake_wei": 12000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb224abc54098f0b0884ef73894d7a7f30e4e36ee",
+    "active_stake_wei": 13000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5cb017eabfff6d585b68e108fb7ff1ba15b7ea7a",
+    "active_stake_wei": 11000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x76773eeb6d4f805ca36c3d775d2a5c90c3bd1379",
+    "active_stake_wei": 12000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6fc18005a0c3c59790922903c64d1e542304c534",
+    "active_stake_wei": 12000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x09e5dd0b67d248c7f7d9002fe0b2a5f37795d12d",
+    "active_stake_wei": 4000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x12161f80b378bd568d7b37a875d5dacbb5bc11d4",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa6c3500eff63431c42208f36d57cddd4115e218f",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x05cd6a5463bfbd6f287cb9093f0397c9a8fe873c",
+    "active_stake_wei": 57000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x056b3c5de92cd9ab67ec3da99425a8538a2729ad",
+    "active_stake_wei": 60000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc0bd8b86bcfb960242341f03d91526e967b73bad",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5c96642ef9c5bd54e35c52b1eebf8dadc6ed3d06",
+    "active_stake_wei": 1002000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x27537108f229ec6018cbb64112ddcdb1bbc86435",
+    "active_stake_wei": 9500000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x1a1adaf0d507b1dd5d8edbc6782f953cab63152b",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x326d0846e6843132639671dceb1743e655d53573",
+    "active_stake_wei": 385000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xe2c47098354401963adf79e84fac3395fa017380",
+    "active_stake_wei": 83000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 17888418390001535063294
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6e3c86ea12856e84d64201d6d1af30f4aa16dfb9",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x82f0b86482269c1ef370c5ad6b1c9a6a44aac14f",
+    "active_stake_wei": 1100000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf0d5724f89670fa08d4d34b2893fce66183c96e3",
+    "active_stake_wei": 80765271951200000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb3d10f7f156ed62ce102eac77f80915ef3f437b3",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0c5a7fad7baaee62b9bc45491c9c252cf16e886f",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 460074947865938
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x2a670ef8fc052d5cc2d6d556974da7fbc66a9bdb",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x42687abb8c5142e7c1e6958a7e16a868e8607de6",
+    "active_stake_wei": 30345456681519778671
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc72b1c647c9bdc6f5c73ae97252d5556ae031b43",
+    "active_stake_wei": 97647935863917879001
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x9150929f5a3c5a3ad701fa001d6c78c30ffb5c90",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x0aa6340d3b7cb3aa05b82536389651b866d89eda",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb8a5c41277663e0a42b96206dfb98a0f5f73bd35",
+    "active_stake_wei": 16000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xd6fc53458a2dbf4e79d0c1b92b1b7be1dce30958",
+    "active_stake_wei": 39996360323636
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb7265011550966f6199353649a96c9efacf37a0b",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x914cf904c4a7b9fc2313b6687b8dd1ac41838586",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x3eb45ba5eec6f9841881b59a520f26dc3a26f471",
+    "active_stake_wei": 30000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x1afc70e0418f4073f8692c90acc72e1b7a3bcb76",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x7bae6b8eece5ca158b1d84244dfbd38fe86b0773",
+    "active_stake_wei": 333641369591223371705
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x83ba247388b971ae32f5647d25ae2e2c7e55d79e",
+    "active_stake_wei": 9970883080000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 373069078894402848042
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x695e04a09fa1762eef3313a247e395b3f0477a30",
+    "active_stake_wei": 12166256795910503449
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 240921298997995142044
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x286206203857308a27c53a62de958ed6a63617ba",
+    "active_stake_wei": 15000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x947d426fbdb8ad177d885a2924b9213e899652b8",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xbd7c8e461f108079ef0c8b82286f7d45c01e9d79",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf0696a58262e66e26963a5465ba0e5e5bbea2d55",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x4865deb9438554ff7f78642e8db9c067b2bc1d7c",
+    "active_stake_wei": 866613182788003892983
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x406d4c9cf0d6fbb3d0e69ef4a1fe8c240481008d",
+    "active_stake_wei": 12000053999096772843
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xa853814ed7ae6942bb7cc5fd7c251b63d87c3907",
+    "active_stake_wei": 684051373283314058644
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf89abfa51d4056fa92cfa8e2602f4d9e6dcb1545",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xb3faf78f75da81f0b1c24d3f1844ee548b719c2c",
+    "active_stake_wei": 190000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xed4223fd83820f7ff339ac8c9968ab7b40460707",
+    "active_stake_wei": 825600000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc31d73905bb051e251434ee2d5df9339b5ac4d20",
+    "active_stake_wei": 560000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xc529d3ec69857bf9bf4206019d81fcb20f478774",
+    "active_stake_wei": 1413591165419298341855
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf5a1f014dcdbf206355bc32bd562ff59b87d417a",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x6784f65225f7d567cf1535525b0dd720b1450d1b",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x40a27d5d24c44a5c4a9976b4a46a5fae74a06e07",
+    "active_stake_wei": 70000279999885200
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xdc7c03ccee6b098ee22b5d522ebbd78de6afa7b7",
+    "active_stake_wei": 3210000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0xf5fe89361b6492e36859249e0c4df49d2bb0abe2",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 4,
+    "delegator": "0x66880ab079dde801faa55639013e7335622c097e",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 9900000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 15840000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 14061485644524017656
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x60625e4b8f591f86ade10ebbce7c52ea905af519",
+    "active_stake_wei": 11000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x49470006466bded774cc575ed243cc3e90dc120c",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x75b65f42298fc6a8b49ded90ffc0c1abfb975cd2",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x0678cd5c81f3cb50d79de127b96da3e291bd8b11",
+    "active_stake_wei": 24000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x68cb99dceccb32f1e1118105633f5e15520996e5",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 100000000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x4cc7fa290b5d25de15ae3f2d0112bbb32ec75f1a",
+    "active_stake_wei": 6750000000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x342caf8efdf5af95511697f2995fa025eefb8e05",
+    "active_stake_wei": 40616262393575137510
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x36d2cca58105022e18198ffc331fd25b5c2af629",
+    "active_stake_wei": 51051586449495870788
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x42687abb8c5142e7c1e6958a7e16a868e8607de6",
+    "active_stake_wei": 40449756961667738048
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xc72b1c647c9bdc6f5c73ae97252d5556ae031b43",
+    "active_stake_wei": 83848744382365037026
+  },
+  {
+    "val_id": 5,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 10026217142632
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xae30b6ff9b6ff75661e016ea76cca4232a773f16",
+    "active_stake_wei": 2687500000000000000
+  },
+  {
+    "val_id": 5,
+    "delegator": "0xa67b6ad4df4d0b535bb1e32227accae53c963be0",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 8000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x75032593bad7cac1067283a08845c02a2c8b1340",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x7ee8c3086ebf61645598a27660f22f9871797cf0",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x67067949dd530a7daddb22cefd0912175ecaa5f7",
+    "active_stake_wei": 59000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 24052476000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x49470006466bded774cc575ed243cc3e90dc120c",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x75b65f42298fc6a8b49ded90ffc0c1abfb975cd2",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xc3441b603949aaa52cd1f1662b330b9410ffa7d0",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xdde2d01a90471fe2ef56b998ce832467eee45612",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 100000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xa2f36c063a06c16f145b6519a06fccea70b0f1ad",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x36d2cca58105022e18198ffc331fd25b5c2af629",
+    "active_stake_wei": 54730737721208837158
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 10026947665482
+  },
+  {
+    "val_id": 6,
+    "delegator": "0xc57150ff26d166343099a81b6b7d6bfe847049fa",
+    "active_stake_wei": 44907533430838142360
+  },
+  {
+    "val_id": 6,
+    "delegator": "0x628d5e0c560cd8ecd6bb7b32f90c531d5549e8c7",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xf814b374db50cd53002b5347ab424d3c4dd3405a",
+    "active_stake_wei": 6000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 9900000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 15840000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 7000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 37312500000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x5479213be8137abe68b8406d4b258bf384fccfda",
+    "active_stake_wei": 12000000000000000000
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x342caf8efdf5af95511697f2995fa025eefb8e05",
+    "active_stake_wei": 25416211633566302799
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 10027027742733
+  },
+  {
+    "val_id": 7,
+    "delegator": "0x42687abb8c5142e7c1e6958a7e16a868e8607de6",
+    "active_stake_wei": 35166909900791992392
+  },
+  {
+    "val_id": 7,
+    "delegator": "0xc83589d0b028c62737fb4073563faa9f87e2cf4c",
+    "active_stake_wei": 25000000000000000000000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 60188244000000000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0x3d8250ac679dcfd1e90c29e7a64ab5013645e579",
+    "active_stake_wei": 25000000000000000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0x2741db011195d3400bf2466734a5fc143f3144f8",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 643938919892244793774
+  },
+  {
+    "val_id": 8,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 10027427842223
+  },
+  {
+    "val_id": 8,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 24900000000000000000000000
+  },
+  {
+    "val_id": 8,
+    "delegator": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 2000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x4865deb9438554ff7f78642e8db9c067b2bc1d7c",
+    "active_stake_wei": 33265988711689221613
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 1000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 37312500000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x328b2bade1efdf740222a61624069dc9a258fde4",
+    "active_stake_wei": 55000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xc3bef3af84796f278222559eafe9a36fe810408d",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x3ae3330af55f1aced27ffcc8edd872c222fe4bff",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 919116097209141106984
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x638694444895f0db08a0828e10903d57efcb91dd",
+    "active_stake_wei": 50000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 24900000000000000000000000
+  },
+  {
+    "val_id": 9,
+    "delegator": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xbe02901944c06622abeda00587ac359a94c505d4",
+    "active_stake_wei": 19800000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xf5e1d977640a4cbdfb899b5ca827cb6196bc3d5f",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x0e1ddecf3f034d944206ffc4ccfce3209e8c1b17",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x796d607a008c55f0460d21e857d1682c1eede23e",
+    "active_stake_wei": 1959048711339764149788
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xc7351de3140c0ac188aa0669fd2035edd4a0f2ba",
+    "active_stake_wei": 31680000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x5b12578d131fa85274d85eba034dc9c5aab2b26f",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xeab60c15717b5dea9b4b2f8e372dff4f0d601233",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xb19bbd2d633f4a76a85a77c912278f8789753278",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x148db716f5e275dedd8f614274651f86a81d862e",
+    "active_stake_wei": 14000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x8f754a3053d0249aab18717377e9e26afc4242b4",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 7297829411379060771
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xbd47b3975c6ed5f2fd48ea2ec521079f35770776",
+    "active_stake_wei": 654511733604796322617
+  },
+  {
+    "val_id": 10,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xf0696a58262e66e26963a5465ba0e5e5bbea2d55",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 24900000000000000000000000
+  },
+  {
+    "val_id": 10,
+    "delegator": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 11,
+    "delegator": "0x67067949dd530a7daddb22cefd0912175ecaa5f7",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 11,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 13000000000000000000
+  },
+  {
+    "val_id": 11,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 52394061000000000000
+  },
+  {
+    "val_id": 11,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 11,
+    "delegator": "0xe5f07daccee7354ca3b411f4e0e029d7980f2ad6",
+    "active_stake_wei": 588745114317041788
+  },
+  {
+    "val_id": 11,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899924017192885682958212
+  },
+  {
+    "val_id": 11,
+    "delegator": "0x55c017f9086928e093cbd132d8992779a61f83f7",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 12,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 12,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 12,
+    "delegator": "0xf5fe89361b6492e36859249e0c4df49d2bb0abe2",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 12,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 24900000000000000000000000
+  },
+  {
+    "val_id": 12,
+    "delegator": "0xfa0345732c996311385ce64c8ff9332a9119ef8c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 13,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 13,
+    "delegator": "0x2121b7d36f50e8a4dcabb8d50ddad8e4c04e2e3c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xc3bef3af84796f278222559eafe9a36fe810408d",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 24000000000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0x66e105cdaafe60bcbeb9ea1391df31e514796dec",
+    "active_stake_wei": 434852814112336466
+  },
+  {
+    "val_id": 14,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xe5f07daccee7354ca3b411f4e0e029d7980f2ad6",
+    "active_stake_wei": 196248371439013929
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10869219368897812488649605
+  },
+  {
+    "val_id": 14,
+    "delegator": "0xf2fff6ced59c1d45257a7e6b316a8ceef7958293",
+    "active_stake_wei": 132503000000000000000000
+  },
+  {
+    "val_id": 15,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 15,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 15,
+    "delegator": "0xf73d59d8fdf55e7b83e96f752d4c2c3f0dd8ada9",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 16,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 16,
+    "delegator": "0x7bae6b8eece5ca158b1d84244dfbd38fe86b0773",
+    "active_stake_wei": 50145776268833379710
+  },
+  {
+    "val_id": 16,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 16,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899949854222729206620290
+  },
+  {
+    "val_id": 16,
+    "delegator": "0x1b4bbbf4de70855971cc96e4fae13a12b273f506",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 17,
+    "delegator": "0xd9a2a1fed22255432c15e987819b669820cbded8",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 17,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 17,
+    "delegator": "0x282bddff5e58793acab65438b257dbd15a8745c9",
+    "active_stake_wei": 256861953956102444668
+  },
+  {
+    "val_id": 17,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 17,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10859741519378024406978715
+  },
+  {
+    "val_id": 17,
+    "delegator": "0x8b7f496e4fc6211c9f772fd8d9e8a0d98d6566e0",
+    "active_stake_wei": 140000000000000000000000
+  },
+  {
+    "val_id": 18,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 18,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 18,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 18,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899998999998998040000000
+  },
+  {
+    "val_id": 18,
+    "delegator": "0x9ffb12eb5aba50eda0ecb3baa6070549a622d27e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 19,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 19,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 19,
+    "delegator": "0xc60c403d8177d5c1ebd1e7f1957906e574addfa0",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xc614112159855a3866a1c3c9d379a544f3ce6238",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xbdd40ecd434e4f0f58f9a0dc93d2e83db48cd721",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 30000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xf0696a58262e66e26963a5465ba0e5e5bbea2d55",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899930999998998040000000
+  },
+  {
+    "val_id": 20,
+    "delegator": "0xbe19f6ee6ec909e2a75c01f6086721d5a9fff242",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 21,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 30703065000000000000
+  },
+  {
+    "val_id": 21,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 21,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 21,
+    "delegator": "0x71380b8f979b3811fc290ed7434d54bb4c0797d1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 22,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 22,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 22,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899685499998998040000000
+  },
+  {
+    "val_id": 22,
+    "delegator": "0x8d4f815c1f39bb4d6c441322f2e6843a2f9f2c2c",
+    "active_stake_wei": 100314500000000000000000
+  },
+  {
+    "val_id": 23,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 23,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 23,
+    "delegator": "0xd02319d3bb46584b6fe5688e4d37f8155c1f8565",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 24,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 24,
+    "delegator": "0x3ae3330af55f1aced27ffcc8edd872c222fe4bff",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 24,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 24,
+    "delegator": "0xe5f07daccee7354ca3b411f4e0e029d7980f2ad6",
+    "active_stake_wei": 196248371439013929
+  },
+  {
+    "val_id": 24,
+    "delegator": "0xd66479974969a5b86351bf6b96fe1d519db92ba8",
+    "active_stake_wei": 14200069945685806065
+  },
+  {
+    "val_id": 24,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899975763680680915180006
+  },
+  {
+    "val_id": 24,
+    "delegator": "0x712346c4445de341b61da60409368b57fd59b4a5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 25,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 25,
+    "delegator": "0xd6fc53458a2dbf4e79d0c1b92b1b7be1dce30958",
+    "active_stake_wei": 49500000000000000000
+  },
+  {
+    "val_id": 25,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899950499999000000000000
+  },
+  {
+    "val_id": 25,
+    "delegator": "0x1fb56db82aa69aa869b6ceb12cc61608f5d775e3",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 26,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 26,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 26,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999998998040000000
+  },
+  {
+    "val_id": 26,
+    "delegator": "0xacab9f18b3ab1b221de210195998f3eabb9937e6",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 27,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 27,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 27,
+    "delegator": "0x635218a45b004cf9335e2aa70986b83ea1ba69a2",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0x765dccad438b6e1e0adebebab0c03489c351685a",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0xdde2d01a90471fe2ef56b998ce832467eee45612",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0x66e105cdaafe60bcbeb9ea1391df31e514796dec",
+    "active_stake_wei": 130294371775327066
+  },
+  {
+    "val_id": 28,
+    "delegator": "0x68fef4f2e859fa0ce02dd6423e2cd9d159ee4408",
+    "active_stake_wei": 770000000000000000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 28,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899269869704626264672934
+  },
+  {
+    "val_id": 28,
+    "delegator": "0x71e15da23d004bca1dfbfc17016615943c0def3f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 28746806000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x70dc722405caad482ffcdf7c65c4adbb892318d8",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x621434d5e102dd070df494544d3c56632441d318",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0xf0696a58262e66e26963a5465ba0e5e5bbea2d55",
+    "active_stake_wei": 21000000000000000000
+  },
+  {
+    "val_id": 30,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10540629746680343079348316
+  },
+  {
+    "val_id": 30,
+    "delegator": "0x1bddd6eb454076a791c44c5b11bb4e3cbd901855",
+    "active_stake_wei": 477170084331610920617136
+  },
+  {
+    "val_id": 31,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 31,
+    "delegator": "0x6bfbf25817a829ff54a3992cae8de5f8c398d5d1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 32,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 32,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 32,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999998998040000000
+  },
+  {
+    "val_id": 32,
+    "delegator": "0x88889e20c3f1c073f7a422c728205bba70d5832b",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 33,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10795027550000000000000000
+  },
+  {
+    "val_id": 33,
+    "delegator": "0x01381e61c1158c3e21752d568a9af0d1c617efcf",
+    "active_stake_wei": 204972450000000000000000
+  },
+  {
+    "val_id": 34,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 34,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999998040000000
+  },
+  {
+    "val_id": 34,
+    "delegator": "0x9357b5bfde730ac973aee68cc5dbe61c26ecadd4",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 35,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 35,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999000000000000
+  },
+  {
+    "val_id": 35,
+    "delegator": "0x10d3a880ab77a9024f721fc5e095f97e832f00a7",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 36,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 36,
+    "delegator": "0xd9a2a1fed22255432c15e987819b669820cbded8",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 36,
+    "delegator": "0x282bddff5e58793acab65438b257dbd15a8745c9",
+    "active_stake_wei": 200069655864989766407
+  },
+  {
+    "val_id": 36,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 36,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899811775382134498259030
+  },
+  {
+    "val_id": 36,
+    "delegator": "0x4366e6fe0d9b5611d7eed0fe52be329cafd04583",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 37,
+    "delegator": "0x3ae3330af55f1aced27ffcc8edd872c222fe4bff",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 37,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 37,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 37,
+    "delegator": "0xe5f07daccee7354ca3b411f4e0e029d7980f2ad6",
+    "active_stake_wei": 196248371439013930
+  },
+  {
+    "val_id": 37,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10864524612042255282910567
+  },
+  {
+    "val_id": 37,
+    "delegator": "0x6dbd2b0420d63aef1465479acf71bc534890b515",
+    "active_stake_wei": 135455191708373278075503
+  },
+  {
+    "val_id": 38,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 38,
+    "delegator": "0x2c9b7e6322763942693036bcae9dfea9747299ef",
+    "active_stake_wei": 1000000000000
+  },
+  {
+    "val_id": 38,
+    "delegator": "0x282bddff5e58793acab65438b257dbd15a8745c9",
+    "active_stake_wei": 554337791524850544939
+  },
+  {
+    "val_id": 38,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899455282194677202827363
+  },
+  {
+    "val_id": 38,
+    "delegator": "0x765f173b41314b7753ec72f2d5aaf11f1785a208",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 39,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 15808070000000000000
+  },
+  {
+    "val_id": 39,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899984191930000000000000
+  },
+  {
+    "val_id": 39,
+    "delegator": "0x34b9190d88d9923498fd15815449fc1178b3ce0c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 40,
+    "delegator": "0xf94ee8aba0f16d50b27096bb25bcef0f0ad73078",
+    "active_stake_wei": 1960000000
+  },
+  {
+    "val_id": 40,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999999998040000000
+  },
+  {
+    "val_id": 40,
+    "delegator": "0xbf4b34f3c542e650dcc507a2048ef0145ea67f53",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 41,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 41,
+    "delegator": "0x8a5a6006c238b4946fb48c9c4d872270c5c0e94d",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 42,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 42,
+    "delegator": "0xaebbe9f7bc256316e911c31bb9f7ef5e24c2ead8",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 43,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 43,
+    "delegator": "0x29720ae911269dc2807bbed8d0af566ef012064d",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 44,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 44,
+    "delegator": "0x23823e9364fb1ab30119b75cf429d1b92feae438",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 46,
+    "delegator": "0x68cb99dceccb32f1e1118105633f5e15520996e5",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 46,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899990000000000000000000
+  },
+  {
+    "val_id": 46,
+    "delegator": "0x3cdc1ce298f992ca965cef4028615a3b44178513",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 47,
+    "delegator": "0x282bddff5e58793acab65438b257dbd15a8745c9",
+    "active_stake_wei": 256517516356581557123
+  },
+  {
+    "val_id": 47,
+    "delegator": "0x4ffaa85beae6979e269a15ce94a7284672c203df",
+    "active_stake_wei": 3020000000000000000
+  },
+  {
+    "val_id": 47,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899744031548680669223067
+  },
+  {
+    "val_id": 47,
+    "delegator": "0x384342040e8311a6f2e8314098e95d5618c531a3",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 48,
+    "delegator": "0x4ffaa85beae6979e269a15ce94a7284672c203df",
+    "active_stake_wei": 47547504920005968
+  },
+  {
+    "val_id": 48,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999952452495079994032
+  },
+  {
+    "val_id": 48,
+    "delegator": "0x045f4ae63318bf60d7b859551d7dc8feaf3c2569",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 49,
+    "delegator": "0x4ffaa85beae6979e269a15ce94a7284672c203df",
+    "active_stake_wei": 496357634836022
+  },
+  {
+    "val_id": 49,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999999503642365163978
+  },
+  {
+    "val_id": 49,
+    "delegator": "0xaf3e489ce282352a4f6ca14428fbf3768309bffb",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 50,
+    "delegator": "0x4ffaa85beae6979e269a15ce94a7284672c203df",
+    "active_stake_wei": 100000000000000000
+  },
+  {
+    "val_id": 50,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999900000000000000000
+  },
+  {
+    "val_id": 50,
+    "delegator": "0xa45a0cea64045e99b969cb92a025ee4312df4173",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 51,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 51,
+    "delegator": "0xc927ac79ee088f9349f49cb78b3018186d7c6009",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 52,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 52,
+    "delegator": "0x24db53d70075cd6985795e65924dc7070f201bb4",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 53,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 53,
+    "delegator": "0x51e5b38b070aa82bf4f742a3ec890bea7b242384",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 54,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 54,
+    "delegator": "0xd4539e18a2d1c8c59d4fbbde580478e205e618a5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 55,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 55,
+    "delegator": "0x70c3c39196f75a39adfcdf0d3073a3f850fbe533",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 56,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 56,
+    "delegator": "0xcd32a5406a8caf84b7f1ed161ee2785a2347fa62",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 57,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 57,
+    "delegator": "0x4108b9df8e0d493b3c6bea741ef64cc6c40d0b45",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 58,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 16000000000000000000
+  },
+  {
+    "val_id": 58,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10720437481387158809867445
+  },
+  {
+    "val_id": 58,
+    "delegator": "0x062f3cc428b9082c64ba3bab043ffc4569e55430",
+    "active_stake_wei": 279546518612841190132555
+  },
+  {
+    "val_id": 59,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 59,
+    "delegator": "0xf85db8769e7d26f5d8bbeabd6accf29984084753",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 60,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 19000000000000000000
+  },
+  {
+    "val_id": 60,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899981000000000000000000
+  },
+  {
+    "val_id": 60,
+    "delegator": "0x369e2def524f24cb7a4b5f40809a1cb47bbcba5e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 61,
+    "delegator": "0x70dc722405caad482ffcdf7c65c4adbb892318d8",
+    "active_stake_wei": 50000000000000000000
+  },
+  {
+    "val_id": 61,
+    "delegator": "0xd9a2a1fed22255432c15e987819b669820cbded8",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 61,
+    "delegator": "0x68fef4f2e859fa0ce02dd6423e2cd9d159ee4408",
+    "active_stake_wei": 730000000000000000000
+  },
+  {
+    "val_id": 61,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899218000000000000000000
+  },
+  {
+    "val_id": 61,
+    "delegator": "0x1c2f30ba19a32e63f8ae1493b99fbf815cc02b28",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 62,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10662829492381950761804924
+  },
+  {
+    "val_id": 62,
+    "delegator": "0xac51cb7edb329d80446d40c2a88cff3e094c5288",
+    "active_stake_wei": 337170507618049238195076
+  },
+  {
+    "val_id": 63,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 4000000000000000000
+  },
+  {
+    "val_id": 63,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899996000000000000000000
+  },
+  {
+    "val_id": 63,
+    "delegator": "0x29da7befcbd23ffc0a6ba0d9190db230fb79b84a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 64,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 64,
+    "delegator": "0xe72d7b6816841d2a2601646877e17c8e53aa0abf",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 65,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10872010000000000000000000
+  },
+  {
+    "val_id": 65,
+    "delegator": "0x6a5a62cd648cf5e1a5efdbe023044374504af33e",
+    "active_stake_wei": 127990000000000000000000
+  },
+  {
+    "val_id": 66,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 66,
+    "delegator": "0x185281c54a9fc3be31766ffb85169bc7f136070f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 67,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 67,
+    "delegator": "0xf8f521211fe5b8195d3fd80eed28473c5e9cabc6",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 68,
+    "delegator": "0xc8a1a7cca0b3a05100617f8b8cbe4639696fd1ca",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 68,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899991000000000000000000
+  },
+  {
+    "val_id": 68,
+    "delegator": "0xa5b820964519a83caef2928a85512b49210492cf",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 69,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10646996000000000000000000
+  },
+  {
+    "val_id": 69,
+    "delegator": "0xa4c05856b4fbc60ba8db82886390c26bc01b7786",
+    "active_stake_wei": 353004000000000000000000
+  },
+  {
+    "val_id": 70,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 70,
+    "delegator": "0xbcc48624a9e545227db5959f8a5626dbcd963228",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 71,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 71,
+    "delegator": "0x8dbadd3d410592fe7920aacf986c37bcf09b5202",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 72,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 72,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899991000000000000000000
+  },
+  {
+    "val_id": 72,
+    "delegator": "0x4f6d3930ded0fe6c1351899174b761909d7d0ab9",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 73,
+    "delegator": "0x9b4d848e4d8e527165e0c3456c56835c7575eda8",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 73,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999000000000000000000
+  },
+  {
+    "val_id": 73,
+    "delegator": "0x6b8dfc7642732ae8d5a39fc9f64c0dde7cef46af",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 74,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 74,
+    "delegator": "0xc3a8c7d5b3fa2558c8568c7ca28aa7a220140bbd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 75,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 75,
+    "delegator": "0xffe5219a68f9e1a63b71a4c75de500ed864ae651",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 76,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 76,
+    "delegator": "0xe094c81695520774195c211e0d3b2fba15fb1904",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 77,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 77,
+    "delegator": "0xf8a9ccb1e137b727830879cb9f35870d836eb729",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 78,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 78,
+    "delegator": "0xf077cf7d98ed27454afd63a064401b2e0785e23d",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 79,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 79,
+    "delegator": "0x46d0ba3513e6f035d1115cf519de76c53ca843fa",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 80,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 80,
+    "delegator": "0xb9329366e0ee0e2f15cc46f61b6928cc4da8d778",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 81,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10881100000000000000000000
+  },
+  {
+    "val_id": 81,
+    "delegator": "0xc61868d88152e22da4256ef197db3fc44631eff9",
+    "active_stake_wei": 118900000000000000000000
+  },
+  {
+    "val_id": 82,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 82,
+    "delegator": "0xb55cbacd1fbfd2c0dc92360b681d32d2b6996378",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 83,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 83,
+    "delegator": "0x604f5a5e469a9a355c6f9d94a545830f4eef9e63",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 84,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 84,
+    "delegator": "0xf41251f1cea9f21d5210880d07c968ba819a679c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 85,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 85,
+    "delegator": "0xccc8690beca5dd50d24378c61bf7541288b56498",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 86,
+    "delegator": "0x84f727729ebdaf98e360c7cbfa4192fb98236aea",
+    "active_stake_wei": 33118259000000000000
+  },
+  {
+    "val_id": 86,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899966881741000000000000
+  },
+  {
+    "val_id": 86,
+    "delegator": "0x41ebf27c2a5943f07d6b820f956d2c0ac7171dfd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 87,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 87,
+    "delegator": "0x1cb07b39b8a3ed3a127f2432e29f997843daddc1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 88,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 88,
+    "delegator": "0x8014ec1e8270df44b39e5d04973f5d1db283e05d",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 89,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 89,
+    "delegator": "0xe135a637f07ce2826ebdbbcb0e83e3fe27896a8a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 90,
+    "delegator": "0x08d27fed5cbe0368dd2ce8591ecf32d64be61d9f",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 90,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899998000000000000000000
+  },
+  {
+    "val_id": 90,
+    "delegator": "0x91b2085fce61f484d4f8e226cd84c175f39fea88",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 91,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 91,
+    "delegator": "0x6cfa24c419781dec1b34bd2615961a8ba6339706",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 92,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 92,
+    "delegator": "0x8d02d2b6bcce240a6156fddc8fb5dfe7306244cd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 93,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 93,
+    "delegator": "0xb8beb15c08c059f0b9868fa1136df0df97cab214",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 94,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8860000000000000000000000
+  },
+  {
+    "val_id": 94,
+    "delegator": "0x2dca087678c72a6969ae4585fc618ca08f878019",
+    "active_stake_wei": 140000000000000000000000
+  },
+  {
+    "val_id": 95,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 13000000000000000000
+  },
+  {
+    "val_id": 95,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 95,
+    "delegator": "0x68fef4f2e859fa0ce02dd6423e2cd9d159ee4408",
+    "active_stake_wei": 740000000000000000000
+  },
+  {
+    "val_id": 95,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8899294000000000000000000
+  },
+  {
+    "val_id": 95,
+    "delegator": "0xe77b9372a3d19c2d31bc98f0847e3a9b15802267",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 96,
+    "delegator": "0x328b2bade1efdf740222a61624069dc9a258fde4",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 96,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 96,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8899988000000000000000000
+  },
+  {
+    "val_id": 96,
+    "delegator": "0xada04b8911b8f8408866974b77533b74d1cfb687",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x67067949dd530a7daddb22cefd0912175ecaa5f7",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0xe9c5a7f3531197430829f1bce895840af19f6424",
+    "active_stake_wei": 190083001000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x2599150ffacb439a41f4ce683189b5a9e82d5948",
+    "active_stake_wei": 2959200000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0xcc279a76b37ff631a909edbfc91b2ab3692f5e0d",
+    "active_stake_wei": 124837001864208222855
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x4707f087c05a7dd395311c6f57819c45d65e38f0",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x7bae6b8eece5ca158b1d84244dfbd38fe86b0773",
+    "active_stake_wei": 1262201462284538315259
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x6f9b91eba6e82eeafab7c5428efb56c8ad9c85b6",
+    "active_stake_wei": 1337014460737289076235
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x0f638e90352b7bc0649507b20e4593cc4ede93d4",
+    "active_stake_wei": 2959200000000000000
+  },
+  {
+    "val_id": 97,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8897275445674113964385651
+  },
+  {
+    "val_id": 97,
+    "delegator": "0x877b7d057223182c92b822e6cacbe8163acf14a5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 98,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 98,
+    "delegator": "0xb6a9fad534babdd23688e68bc1a97ca2d976a1b1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 99,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 3000000000000000000
+  },
+  {
+    "val_id": 99,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8899997000000000000000000
+  },
+  {
+    "val_id": 99,
+    "delegator": "0xc94767c489656061d70d53b687e7a5a13e2504a7",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 100,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 100,
+    "delegator": "0x206fe803162ede22065187d1efc7efbf83fac2b5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 158,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 158,
+    "delegator": "0x9c9401051d74ec2b2c02d8577e9df35d9ba64eaf",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 159,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 159,
+    "delegator": "0x0c171a2d256550dd3fe0670eaa765def1d224c83",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 160,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 160,
+    "delegator": "0x7749a4b46c976d0bb62226ae4a581e1c1bcb1b09",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 161,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 161,
+    "delegator": "0xa48c1ebfce0baf744111a02b0a092e7b4f41e789",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 162,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 162,
+    "delegator": "0x25fa8827ff13bf428ec5f9d3666c2a0a7439e509",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 163,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 163,
+    "delegator": "0x0aa2abaf175124abc9198cac888ba768e0d8d5e5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 164,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 164,
+    "delegator": "0xc653e9188532238a36dd2c02d63ee1931f3e46f0",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 165,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 8900000000000000000000000
+  },
+  {
+    "val_id": 165,
+    "delegator": "0x2470d1233c023282dd51965157bf2ea297b526c1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 166,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 166,
+    "delegator": "0x4298ab37274dcbec0d33e24f2d9eddf7f932b17a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 167,
+    "delegator": "0x66e105cdaafe60bcbeb9ea1391df31e514796dec",
+    "active_stake_wei": 434852814112336466
+  },
+  {
+    "val_id": 167,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 167,
+    "delegator": "0xb9613b821fa96d5962dabe2f1311385a8cb8b46f",
+    "active_stake_wei": 309779966966394242345360
+  },
+  {
+    "val_id": 167,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10690209598180791645318174
+  },
+  {
+    "val_id": 168,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 27000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0xc114cdedb83ffd978ef94103ac01791fa6ae0f6c",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0x1d62e3c119fcc1b9a321e2ffc04cf4013d06eb68",
+    "active_stake_wei": 40000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 60000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0xf0696a58262e66e26963a5465ba0e5e5bbea2d55",
+    "active_stake_wei": 15000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899856000000000000000000
+  },
+  {
+    "val_id": 168,
+    "delegator": "0x568faa5eb9226a145e1908f0ab63f6a7d2d96782",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 169,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 169,
+    "delegator": "0x00486f66e484705cfcbbc5a8c306f68204982581",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 170,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 170,
+    "delegator": "0x0ffaa5e691a30c8b5949bbb01872b5616ddb240e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 171,
+    "delegator": "0xc8a1a7cca0b3a05100617f8b8cbe4639696fd1ca",
+    "active_stake_wei": 9000000000000000000
+  },
+  {
+    "val_id": 171,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899991000000000000000000
+  },
+  {
+    "val_id": 171,
+    "delegator": "0xa6e539edcd5964386570f3f808b0773823a8d801",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 172,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 172,
+    "delegator": "0xbb8ee00846bf924f34ba4f8a86d690ff11eed7ca",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 173,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 173,
+    "delegator": "0x72ebc90f0e3457a1ff6b000dc9b1aa152ee82974",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 174,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 174,
+    "delegator": "0xe127fb2de8f831852aad552554f411185dddd154",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 175,
+    "delegator": "0x64264d7b4b8984d56dbac165961fd641e2186787",
+    "active_stake_wei": 9970883080000000000
+  },
+  {
+    "val_id": 175,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10845590029116920000000000
+  },
+  {
+    "val_id": 175,
+    "delegator": "0xc1184ef5090b7b9bdc86fbbc4b04884d4327e94b",
+    "active_stake_wei": 154400000000000000000000
+  },
+  {
+    "val_id": 176,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 176,
+    "delegator": "0x30c6c01c82ed8046ef7ecd510a2b5f027f18e204",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 177,
+    "delegator": "0x282bddff5e58793acab65438b257dbd15a8745c9",
+    "active_stake_wei": 78890894565210189585
+  },
+  {
+    "val_id": 177,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10882607479720679697625640
+  },
+  {
+    "val_id": 177,
+    "delegator": "0x672a87d1e76391e4265c66eba160beb624a5a4df",
+    "active_stake_wei": 117392520279320302374360
+  },
+  {
+    "val_id": 178,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 178,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10891999976133218962150996
+  },
+  {
+    "val_id": 178,
+    "delegator": "0x4c3ab8eeff2ea8de67d84063864f94f2b7c173e4",
+    "active_stake_wei": 117928171515334581982905
+  },
+  {
+    "val_id": 179,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 179,
+    "delegator": "0xa1885be53967568ab28ae48d74d625f1706d6d3a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0xbc68f582832e87794c672a4b6282bcffb9aaed98",
+    "active_stake_wei": 750000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0x68fef4f2e859fa0ce02dd6423e2cd9d159ee4408",
+    "active_stake_wei": 760000000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0xeff17c01047b6e98b6c688d9dfff2997d1697843",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899317550000000000000000
+  },
+  {
+    "val_id": 180,
+    "delegator": "0x3bff4e998466765db090f01e11e2ebf8dd341a5f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 181,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 181,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10707225656412553745677565
+  },
+  {
+    "val_id": 181,
+    "delegator": "0x2217cb1777056e1b5dcabe56b6e949df4034eb15",
+    "active_stake_wei": 292764343587446254322435
+  },
+  {
+    "val_id": 182,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 182,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10754754131818181818181819
+  },
+  {
+    "val_id": 182,
+    "delegator": "0xafe181de33939fa1d693452f9815edaf62eb7c87",
+    "active_stake_wei": 245240868181818181818181
+  },
+  {
+    "val_id": 183,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10891100000000000000000000
+  },
+  {
+    "val_id": 183,
+    "delegator": "0x9af276a0d327605dc650290df4e9f1506866146e",
+    "active_stake_wei": 108900000000000000000000
+  },
+  {
+    "val_id": 184,
+    "delegator": "0x5d08c3c65f75cd3810b035bc552e02d9a92eb735",
+    "active_stake_wei": 5620000000000000000
+  },
+  {
+    "val_id": 184,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10897094380000000000000000
+  },
+  {
+    "val_id": 184,
+    "delegator": "0x14416ec93d7a56d8f503ff942db888ad9f05a8d1",
+    "active_stake_wei": 102900000000000000000000
+  },
+  {
+    "val_id": 185,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10884100000000000000000000
+  },
+  {
+    "val_id": 185,
+    "delegator": "0x3a0db6afa0a85642ec0bd6edf2125ce8d64434ad",
+    "active_stake_wei": 115900000000000000000000
+  },
+  {
+    "val_id": 186,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 186,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10891417823551095257447835
+  },
+  {
+    "val_id": 186,
+    "delegator": "0x2862679bebb2abec21fb73e6a241a772f5ce2d93",
+    "active_stake_wei": 108581176448904742552165
+  },
+  {
+    "val_id": 187,
+    "delegator": "0xeb0323de1ccf9c65b73de19491be5db8a11ebe8d",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 187,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10887294000000000000000000
+  },
+  {
+    "val_id": 187,
+    "delegator": "0xa91cf8bb5df24c8ded4768763148f3871a427983",
+    "active_stake_wei": 112705000000000000000000
+  },
+  {
+    "val_id": 188,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 188,
+    "delegator": "0x96415cf3532987f2849ff863bd76c24612887195",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 189,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 189,
+    "delegator": "0x129352380b7aae673677536cc56eafd99a5bcbb2",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 190,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 190,
+    "delegator": "0x35a46a843c25c078d067bcd8f438745b0c457017",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 191,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 191,
+    "delegator": "0x24e2cdbbfa82e87eac074d674bde21923d5c3458",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 192,
+    "delegator": "0x5c3bae921c97058fe0b25253da4f8cc8595e6908",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 192,
+    "delegator": "0xfff8c8814c77598105783e14e473d8ab06578a4a",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 192,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10674658577862445362432692
+  },
+  {
+    "val_id": 192,
+    "delegator": "0x970666116d815a078e1f23ae6cb3975f8f3c8b1f",
+    "active_stake_wei": 325326422137554637567308
+  },
+  {
+    "val_id": 193,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 193,
+    "delegator": "0xfa7d8840d90d2c1ab8c7370ddf0bf085dc77da5a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 194,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10897228227272727272727273
+  },
+  {
+    "val_id": 194,
+    "delegator": "0xef704a2737e33760754f0e2907896f82b5e37ead",
+    "active_stake_wei": 102771772727272727272727
+  },
+  {
+    "val_id": 195,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 195,
+    "delegator": "0xa2c3330ddbb1ceab502689b10c55aff05fee6c53",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 196,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10650000000000000000000000
+  },
+  {
+    "val_id": 196,
+    "delegator": "0x18fcc3c263244df42a18b3c6659adf7d07359897",
+    "active_stake_wei": 376000000000000000000000
+  },
+  {
+    "val_id": 197,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 197,
+    "delegator": "0x0d420faec4edc09fa8887ac9880b9f57400d1ff3",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 198,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10896400000000000000000000
+  },
+  {
+    "val_id": 198,
+    "delegator": "0xac08a9657fa41eda72648fc33d4e81f1ca57de55",
+    "active_stake_wei": 103600000000000000000000
+  },
+  {
+    "val_id": 199,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 199,
+    "delegator": "0x580d1ea3e5051c86cac03a4f06361b0a7f4768b3",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 200,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 200,
+    "delegator": "0xcd769b0851a6363662bcade6750f802e20d52f61",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 201,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899720000000000000000000
+  },
+  {
+    "val_id": 201,
+    "delegator": "0x94fb00705411c2c07007490acd6f8e550be8817b",
+    "active_stake_wei": 248790754746758496659449
+  },
+  {
+    "val_id": 202,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 202,
+    "delegator": "0x7a020aa78a7de9d1e8c952759ce08b855552eb74",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 203,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10887420000000000000000000
+  },
+  {
+    "val_id": 203,
+    "delegator": "0xd838ebf4a7adfe0ad2c1dbc5f95eaf399e3d8bfd",
+    "active_stake_wei": 112580000000000000000000
+  },
+  {
+    "val_id": 204,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 204,
+    "delegator": "0x0b4a128f2f50cc12def9ada1f7952bfad43e5d7f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 205,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 205,
+    "delegator": "0x18af5f42dbede0f1cf53b3626458f8f47b570007",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 206,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 206,
+    "delegator": "0x905361198ff12a83c689042162d3f1ea2c7cdfd0",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 207,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10845753000000000000000000
+  },
+  {
+    "val_id": 207,
+    "delegator": "0x6387d02728f4adc7dc3b36db5106eec3d785c963",
+    "active_stake_wei": 154247000000000000000000
+  },
+  {
+    "val_id": 208,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 208,
+    "delegator": "0x59997634e11b3bf6733e26c48545fa84e669e7bd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 209,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 209,
+    "delegator": "0x9f4861545857d6fb3293979ec404bedab0e74eb1",
+    "active_stake_wei": 111177272727272727272727
+  },
+  {
+    "val_id": 210,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999000000000000000000
+  },
+  {
+    "val_id": 210,
+    "delegator": "0x4b7d41f4bfa1c400b524e98b6f5bf5d1f68e3ae5",
+    "active_stake_wei": 100001000000000000000000
+  },
+  {
+    "val_id": 211,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 211,
+    "delegator": "0x59654935bd87e75753e2ee09d35caf23e82ff168",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 212,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 212,
+    "delegator": "0x9c9cff03e7a7542cd23e6c8c2d6605b6d5bb264c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 213,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 24000000000000000000
+  },
+  {
+    "val_id": 213,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 213,
+    "delegator": "0xfa66f47d1b2f0e982f4ae350529e2b09bf544242",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 214,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 214,
+    "delegator": "0x385d0c490cb15a5e8872e49288860754a03ac275",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 215,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 215,
+    "delegator": "0x5deea49b127ed42dc23dbc968a4cb46ff6e66299",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 216,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 216,
+    "delegator": "0x78fe936c552317cc63d2043c12407987f0f39b7a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 217,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10892700000000000000000000
+  },
+  {
+    "val_id": 217,
+    "delegator": "0xeb69059c7078d16762d8b353cf486371f3ddba1e",
+    "active_stake_wei": 107300000000000000000000
+  },
+  {
+    "val_id": 218,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999500000000000000000
+  },
+  {
+    "val_id": 218,
+    "delegator": "0xe00331137933f78ad0a773c97157f4cd9051ea26",
+    "active_stake_wei": 500000000000000000
+  },
+  {
+    "val_id": 218,
+    "delegator": "0x724fc9b7ac82479a0d4ed7cbdc8f1b0225fd3e6b",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 219,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 219,
+    "delegator": "0xbffa043d5ab7d0281e6c33547fe6df803255dcdd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 220,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 220,
+    "delegator": "0x17d5e2b715650c316e680e415cdc051af8ece195",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 221,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 221,
+    "delegator": "0x3069307370003f1508dabd8cb5efd03480da91be",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 222,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 21000000000000000000
+  },
+  {
+    "val_id": 222,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899979000000000000000000
+  },
+  {
+    "val_id": 222,
+    "delegator": "0xbebb0597b9f5e2e268ec864781a4539d645a456d",
+    "active_stake_wei": 220163582649986202791055
+  },
+  {
+    "val_id": 223,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 223,
+    "delegator": "0x7f585961b0b0a0c25687cdcfcc963bf9f7b036aa",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 224,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 1000000000000000000
+  },
+  {
+    "val_id": 224,
+    "delegator": "0xb053d340d133472548cdd05118ff271040002851",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 224,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899238998152092500000001
+  },
+  {
+    "val_id": 224,
+    "delegator": "0x2d05434ec35132766d799ee97633276eab0f2688",
+    "active_stake_wei": 100750001847907499999999
+  },
+  {
+    "val_id": 225,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899990000000000000000000
+  },
+  {
+    "val_id": 225,
+    "delegator": "0x02796362409ea7164444c8e1f882bf300d76a99c",
+    "active_stake_wei": 100010000000000000000000
+  },
+  {
+    "val_id": 226,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 226,
+    "delegator": "0x9fde72cb243e49550dab0f7fd993f1c7b69b4eab",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 227,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899994500000000000000000
+  },
+  {
+    "val_id": 227,
+    "delegator": "0xea59cc82f33f64e6fa6f7a9204116b2e05361712",
+    "active_stake_wei": 100005500000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0xa2b37d852ddc86cde61d20f0b7fd768d15fa8a15",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 20000000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0xd9a2a1fed22255432c15e987819b669820cbded8",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0x6d2347ca06a561661f9eac54099fd5d26e2c36b7",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899976000000000000000000
+  },
+  {
+    "val_id": 228,
+    "delegator": "0x9946d6894904737a421a21f11a10ab79bf88340d",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 229,
+    "delegator": "0x9b4d848e4d8e527165e0c3456c56835c7575eda8",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 229,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899990000000000000000000
+  },
+  {
+    "val_id": 229,
+    "delegator": "0xc1c81c33689a6abaad3cee8a19724b399741fa79",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 230,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 230,
+    "delegator": "0xfba2313a59188be8371f7919f15362c6be7c6101",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 231,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10820000000000000000000000
+  },
+  {
+    "val_id": 231,
+    "delegator": "0xf4e1c6c1c5bf6163194ac89a9772a94c160abdeb",
+    "active_stake_wei": 180000000000000000000000
+  },
+  {
+    "val_id": 232,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 232,
+    "delegator": "0xa849b3171098e40099d28ab2ef6b8e511279fc61",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 233,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10859668443181818181818182
+  },
+  {
+    "val_id": 233,
+    "delegator": "0xa68414aa0f9cd3f66474df2eba51f50cf28e2c34",
+    "active_stake_wei": 147904275589105712406257
+  },
+  {
+    "val_id": 234,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10846520401460500000000001
+  },
+  {
+    "val_id": 234,
+    "delegator": "0x657874394026bacd41545813266c770778caf8ce",
+    "active_stake_wei": 163770489296969286719639
+  },
+  {
+    "val_id": 235,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 235,
+    "delegator": "0x9483db77af813c3b2460681d1cacfaae4704e088",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 236,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 236,
+    "delegator": "0xe8f7e30e939fd43a2d4755d10af0e3e1baf8554e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 237,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 237,
+    "delegator": "0xd9a2a1fed22255432c15e987819b669820cbded8",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 237,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899993000000000000000000
+  },
+  {
+    "val_id": 237,
+    "delegator": "0xf0e8f65f0e72f2136e0f387b1224e619afc943d0",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 238,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 238,
+    "delegator": "0xc395a6236cc445423d5b59bb123cd3a0a93bbb0e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 239,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 239,
+    "delegator": "0x756d4c468f6131d7896aec8a897865ae92412b77",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 240,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 240,
+    "delegator": "0xbd01e9b5c1b1cf742b6b1c63fb0ede24192aac00",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 241,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899643761995748735775256
+  },
+  {
+    "val_id": 241,
+    "delegator": "0x02fea10c2a9d6f30bab3c515efccb0f6e368ac85",
+    "active_stake_wei": 100356238004251264224744
+  },
+  {
+    "val_id": 242,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 242,
+    "delegator": "0x874ab7273e6233a13e9fb1b753f5a761ed20bcbd",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 243,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 243,
+    "delegator": "0xc2911e979f3cc080e595b38674ce34d294ecefa2",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 244,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 244,
+    "delegator": "0x74acb1c0eab48be5eb61de26936e42af4a83035f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 245,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 10000000000000000000
+  },
+  {
+    "val_id": 245,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 245,
+    "delegator": "0x7628af8e061267f26a156509135a2fe097281be8",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 246,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 246,
+    "delegator": "0x2849acb4f35d3848396d001e75f627bc39490741",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 247,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 247,
+    "delegator": "0x53828fceb109e25433a5317920d851d9f63e3e73",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 248,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 11000000000000000000
+  },
+  {
+    "val_id": 248,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 248,
+    "delegator": "0xb2f963f6069374d3ef69d2d9a8689995435b8c77",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 249,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 249,
+    "delegator": "0xc286c4b42f8fd7620f0850c4ec2b7ef553eb4861",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 250,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 250,
+    "delegator": "0x61bea6279fe7ca6110b0ddb8fc52c34f5f9c184f",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 251,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899910000000000000000000
+  },
+  {
+    "val_id": 251,
+    "delegator": "0x0362a25e4ada3b1c284b4791ffeee55dea55a5e3",
+    "active_stake_wei": 100090000000000000000000
+  },
+  {
+    "val_id": 252,
+    "delegator": "0x11013f546eeba5d93d077cfafc6b6593164cab01",
+    "active_stake_wei": 5000000000000000000
+  },
+  {
+    "val_id": 252,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899995000000000000000000
+  },
+  {
+    "val_id": 252,
+    "delegator": "0x26bd33098961b848517f5795c4f87e40b8462a9c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 253,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 253,
+    "delegator": "0x973e732e5306086fa8963677ec49010ee2f3d35a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 254,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 254,
+    "delegator": "0x79002e61584eb70f26f73645551c5659ebeb989e",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 255,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 255,
+    "delegator": "0xdcfbf01bbc75652e36a6a777107a4153c82a7b83",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 256,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 256,
+    "delegator": "0xf01b49b05c02c3d89df7e44aa0775463cf8dea7f",
+    "active_stake_wei": 101839204545454545454545
+  },
+  {
+    "val_id": 257,
+    "delegator": "0xac5e11955cfa8baeb7abf7652208a28b14f9fcc5",
+    "active_stake_wei": 18000000000000000000
+  },
+  {
+    "val_id": 257,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10899999000000000000000000
+  },
+  {
+    "val_id": 257,
+    "delegator": "0x765dccad438b6e1e0adebebab0c03489c351685a",
+    "active_stake_wei": 2000000000000000000
+  },
+  {
+    "val_id": 257,
+    "delegator": "0x59d006afed20f71799fc3a88ff9c7a2b97475a01",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 258,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 258,
+    "delegator": "0xef7d5843386b108d228458dc997e50c1ab881eaa",
+    "active_stake_wei": 100000454545454545454545
+  },
+  {
+    "val_id": 259,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 259,
+    "delegator": "0xde80953f25f5c93fef6940545c1b8766e58fc737",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 260,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 260,
+    "delegator": "0x6562a772554c20ca2b0b8e80388896ed798c52ab",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 261,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 261,
+    "delegator": "0x119af7e51a606510745af94284c6b398d4d2836a",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 262,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 262,
+    "delegator": "0x90837fdfdf921071fc948cc02f5d0323ae914da5",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 263,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 263,
+    "delegator": "0x87acedf1d46400f841c4c13cc362a2c605478198",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 264,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 264,
+    "delegator": "0xbb7aebc4e743861c3b7d14c8eca2f0ece87942d1",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 265,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 265,
+    "delegator": "0xf0669b9bb94cf7000fab9b92f9b92bc0b42dccf0",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 266,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 266,
+    "delegator": "0x0516f122f787a45912ca46fce1f02963db18057c",
+    "active_stake_wei": 100000000000000000000000
+  },
+  {
+    "val_id": 267,
+    "delegator": "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e",
+    "active_stake_wei": 10900000000000000000000000
+  },
+  {
+    "val_id": 267,
+    "delegator": "0x92936497b6ad2ba84b3f7af22c9aff15f00b13b5",
+    "active_stake_wei": 100000000000000000000000
+  }
+]

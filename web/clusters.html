@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Delegator Clusters — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Who delegates to whom: cartel-like patterns and multi-validator delegators on Monad.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Delegator Clusters — MonadPulse">
+<meta property="og:description" content="Who delegates to whom: cartel-like patterns and multi-validator delegators on Monad.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:url" content="https://monadpulse.xyz/clusters.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Delegator Clusters — MonadPulse">
+<meta name="twitter:description" content="Who delegates to whom: cartel-like patterns and multi-validator delegators on Monad.">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .cluster-row { cursor: pointer; }
+  .cluster-row:hover { background: rgba(110,84,255,0.04); }
+  .cluster-details { display: none; background: rgba(14,9,28,0.6); padding: 12px 16px; border-left: 2px solid #6E54FF; }
+  .cluster-details.open { display: block; }
+  .val-chip { display: inline-block; padding: 3px 8px; margin: 2px; border-radius: 99px; background: rgba(110,84,255,0.1); color: #DDD7FE; font-size: 11px; font-family: var(--mono); }
+  .val-chip:hover { background: rgba(110,84,255,0.25); color: #fff; text-decoration: none; }
+  .signal { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-family: var(--mono); margin-left: 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .signal-extreme { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .signal-high { background: rgba(255,142,228,0.15); color: #FF8EE4; }
+  .signal-medium { background: rgba(255,174,69,0.15); color: #FFAE45; }
+  .signal-low { background: rgba(110,84,255,0.1); color: #9994AE; }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse</a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Delegator Clusters</h1>
+    <p class="page-desc">
+      Addresses that delegate to many validators at once — useful for detecting
+      coordinated groups, Foundation rebalancing, or a single operator running
+      multiple nodes. Ranking by distinct validator count.
+    </p>
+  </div>
+
+  <div style="margin:16px 0 24px;font-size:12px;color:var(--text-dim);line-height:1.7">
+    <strong style="color:#DDD7FE">Signal legend:</strong>
+    <span class="signal signal-low">2-5</span> normal (most retail delegators)
+    <span class="signal signal-medium">6-20</span> power-delegator (funds, whales)
+    <span class="signal signal-high">21-100</span> likely coordinated group or multi-node operator
+    <span class="signal signal-extreme">100+</span> foundation-scale redistribution
+  </div>
+
+  <div class="flow-sep"></div>
+
+  <section class="data-section">
+    <div class="section-title">Top Delegators by Validator Count</div>
+    <div id="clusters-meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-bottom:12px"></div>
+    <div style="overflow-x:auto">
+      <table id="clusters-table">
+        <thead>
+          <tr>
+            <th style="width:40px"></th>
+            <th>Delegator</th>
+            <th style="text-align:right">Validators</th>
+            <th style="text-align:right">Total Stake</th>
+            <th style="width:120px"></th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+async function loadClusters() {
+  const r = await apiFetch('/analytics/delegator-clusters?min_validators=2&limit=100');
+  const meta = document.getElementById('clusters-meta');
+  const tbody = document.querySelector('#clusters-table tbody');
+  if (!r || !r.clusters) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:32px">No graph data — waiting for rebuild</td></tr>';
+    meta.textContent = '';
+    return;
+  }
+  meta.textContent = `${r.returned} delegators shown · ${r.total_delegators} total in graph`;
+
+  function signalClass(n) {
+    if (n >= 100) return 'signal-extreme';
+    if (n > 20) return 'signal-high';
+    if (n > 5) return 'signal-medium';
+    return 'signal-low';
+  }
+
+  tbody.innerHTML = r.clusters.map((c, i) => {
+    const cls = signalClass(c.validator_count);
+    const chips = c.validators.slice(0, 40).map(v =>
+      `<a href="/validator.html?id=${v.val_id}" class="val-chip" title="${fmtNum(Math.round(v.stake_wei/1e18))} MON">${esc(v.name || ('#' + v.val_id))}</a>`
+    ).join(' ');
+    const more = c.validators.length > 40 ? `<span style="color:var(--text-dim);font-size:11px;margin-left:8px">…and ${c.validators.length - 40} more</span>` : '';
+    return `
+      <tr class="fade-row cluster-row" data-idx="${i}" style="animation-delay:${Math.min(i*15,300)}ms">
+        <td><span class="rank">${i+1}</span></td>
+        <td>
+          <a href="${EXPLORER}/address/${c.delegator}" target="_blank" class="addr" style="color:var(--purple-light);font-size:11px">${shortAddr(c.delegator)}</a>
+        </td>
+        <td style="text-align:right;font-weight:600">${c.validator_count}<span class="signal ${cls}">${cls === 'signal-extreme' ? 'foundation' : cls === 'signal-high' ? 'coordinated' : cls === 'signal-medium' ? 'power' : 'normal'}</span></td>
+        <td style="text-align:right;color:var(--cyan,#85E6FF);font-weight:600">${fmtNum(Math.round(c.total_stake_mon))} MON</td>
+        <td style="text-align:right"><button class="page-btn" onclick="toggleCluster(${i})" style="padding:4px 10px;font-size:11px">Details</button></td>
+      </tr>
+      <tr class="cluster-details-row" id="details-${i}" style="display:none">
+        <td colspan="5"><div class="cluster-details open">${chips}${more}</div></td>
+      </tr>`;
+  }).join('');
+}
+
+window.toggleCluster = function(idx) {
+  const row = document.getElementById('details-' + idx);
+  if (!row) return;
+  row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+};
+
+document.addEventListener('DOMContentLoaded', loadClusters);
+</script>
+</body>
+</html>
