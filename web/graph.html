@@ -24,12 +24,19 @@
 <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 <script src="https://cdn.jsdelivr.net/npm/d3-sankey@0.12.3"></script>
 <style>
-  #sankey-container { width: 100%; min-height: 720px; overflow-x: auto; }
-  #sankey-svg { display: block; margin: 0 auto; }
+  #sankey-container {
+    width: 100%;
+    overflow: hidden;
+    border: 1px solid rgba(110,84,255,0.1);
+    border-radius: 14px;
+    background: rgba(14,9,28,0.4);
+    padding: 12px;
+  }
+  #sankey-svg { display: block; width: 100%; height: auto; }
   .sankey-link { fill: none; stroke-opacity: 0.25; transition: stroke-opacity 0.15s; }
   .sankey-link:hover { stroke-opacity: 0.55; }
   .sankey-node rect { cursor: pointer; }
-  .sankey-node text { font-family: 'JetBrains Mono', 'Roboto Mono', monospace; font-size: 10px; fill: #DDD7FE; pointer-events: none; }
+  .sankey-node text { font-family: 'JetBrains Mono', 'Roboto Mono', monospace; fill: #DDD7FE; pointer-events: none; }
   .sankey-tooltip {
     position: absolute; pointer-events: none; background: rgba(14,9,28,0.95);
     border: 1px solid rgba(110,84,255,0.4); border-radius: 8px; padding: 8px 12px;
@@ -76,8 +83,8 @@
   </div>
 
   <div class="gctrl">
-    <label>Top delegators</label><input id="top-del" type="number" min="5" max="100" value="30">
-    <label>Top validators</label><input id="top-val" type="number" min="5" max="100" value="30">
+    <label>Top delegators</label><input id="top-del" type="number" min="5" max="60" value="15">
+    <label>Top validators</label><input id="top-val" type="number" min="5" max="60" value="15">
     <button id="apply" class="page-btn" style="padding:6px 14px">Apply</button>
     <span id="meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-left:12px"></span>
   </div>
@@ -140,16 +147,21 @@ async function render() {
   };
 
   const container = document.getElementById('sankey-container');
-  const width = Math.min(Math.max(container.clientWidth - 20, 900), 1400);
-  const height = 50 + Math.max(allNodes.length * 8, 600);
+  // Use a fixed logical viewBox; SVG scales to fit container width via CSS.
+  // Height chosen to give ~16px per row at 15×15, stays inside typical viewport.
+  const maxSide = Math.max(data.nodes.delegators.length, data.nodes.validators.length);
+  const width = 1200;
+  const height = Math.min(720, Math.max(420, maxSide * 32));
+  const margin = { left: 160, right: 200, top: 12, bottom: 12 };
 
   const svg = d3.select('#sankey-svg')
-    .attr('width', width).attr('height', height).attr('viewBox', [0, 0, width, height]);
+    .attr('viewBox', [0, 0, width, height])
+    .attr('preserveAspectRatio', 'xMidYMid meet');
   svg.selectAll('*').remove();
 
   const sankey = d3.sankey()
-    .nodeWidth(18).nodePadding(6)
-    .extent([[10, 10], [width - 10, height - 10]])
+    .nodeWidth(16).nodePadding(8)
+    .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
     .nodeSort(null);
 
   const {nodes, links} = sankey(sankeyData);
@@ -190,15 +202,18 @@ async function render() {
       }
     });
 
-  // Labels
+  // Labels — dynamic font size based on density
+  const fontSize = maxSide <= 15 ? 12 : maxSide <= 30 ? 10 : 9;
+  const maxChars = maxSide <= 15 ? 22 : 18;
   node.append('text')
-    .attr('x', d => d.type === 'delegator' ? d.x1 + 6 : d.x0 - 6)
+    .attr('x', d => d.type === 'delegator' ? d.x0 - 8 : d.x1 + 8)
     .attr('y', d => (d.y0 + d.y1) / 2)
     .attr('dy', '0.35em')
-    .attr('text-anchor', d => d.type === 'delegator' ? 'start' : 'end')
+    .attr('text-anchor', d => d.type === 'delegator' ? 'end' : 'start')
+    .attr('font-size', fontSize)
     .text(d => {
       const label = d.type === 'delegator' ? shortAddr(d.label) : d.label;
-      return label.length > 26 ? label.slice(0, 24) + '…' : label;
+      return label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label;
     });
 
   document.getElementById('sankey-loading').style.display = 'none';
