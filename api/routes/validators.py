@@ -1,7 +1,69 @@
+import os
 from datetime import datetime, timedelta, timezone
-from fastapi import APIRouter, Request, Query
+
+import httpx
+from eth_abi import decode, encode
+from fastapi import APIRouter, HTTPException, Query, Request
 
 router = APIRouter()
+
+STAKING_PRECOMPILE = "0x0000000000000000000000000000000000001000"
+GET_VALIDATOR_SELECTOR = "2b6d639a"
+GET_VALIDATOR_ABI = [
+    "address", "uint256", "uint256", "uint256", "uint256", "uint256",
+    "uint256", "uint256", "uint256", "uint256", "bytes", "bytes",
+]
+RPC_URLS = {
+    "testnet": os.environ.get("TESTNET_RPC", "http://localhost:8080"),
+    "mainnet": os.environ.get("MAINNET_RPC", "https://rpc.monad.xyz"),
+}
+
+
+async def _get_validator_onchain(val_id: int, network: str) -> tuple | None:
+    """Call staking precompile get_validator(val_id) via eth_call."""
+    calldata = "0x" + GET_VALIDATOR_SELECTOR + encode(["uint64"], [val_id]).hex()
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(RPC_URLS.get(network, RPC_URLS["testnet"]), json={
+            "jsonrpc": "2.0", "method": "eth_call",
+            "params": [{"to": STAKING_PRECOMPILE, "data": calldata}, "latest"],
+            "id": 1,
+        })
+        data = r.json()
+    if "error" in data or not data.get("result"):
+        return None
+    return decode(GET_VALIDATOR_ABI, bytes.fromhex(data["result"][2:]))
+
+
+@router.get("/by-id/{val_id}")
+async def validator_by_id(val_id: int, network: str = Query("testnet")):
+    """On-chain validator state from staking precompile. Works for any validator
+    including operators whose block.miner is ephemeral / not indexed in blocks table."""
+    v = await _get_validator_onchain(val_id, network)
+    if v is None:
+        raise HTTPException(status_code=404, detail=f"validator {val_id} not found on {network}")
+    auth_raw = v[0]
+    auth = auth_raw if isinstance(auth_raw, str) else "0x" + auth_raw.hex()
+    secp = v[10].hex() if hasattr(v[10], "hex") else bytes(v[10]).hex()
+    bls = v[11].hex() if hasattr(v[11], "hex") else bytes(v[11]).hex()
+    # Empty registration check: secp all zeros
+    if secp == "00" * (len(secp) // 2):
+        raise HTTPException(status_code=404, detail=f"validator {val_id} not registered on {network}")
+    return {
+        "validator_id": val_id,
+        "network": network,
+        "auth_address": auth.lower(),
+        "flags": int(v[1]),
+        "execution_stake": int(v[2]),
+        "rewards_per_token": int(v[3]),
+        "execution_commission": int(v[4]),
+        "unclaimed_rewards": int(v[5]),
+        "consensus_stake": int(v[6]),
+        "consensus_commission": int(v[7]),
+        "snapshot_stake": int(v[8]),
+        "snapshot_commission": int(v[9]),
+        "secp_pubkey": secp,
+        "bls_pubkey": bls,
+    }
 
 
 @router.get("/list")

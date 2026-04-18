@@ -138,17 +138,24 @@
 async function loadValidator() {
   const params = new URLSearchParams(location.search);
   const addr = (params.get('addr') || '').toLowerCase();
+  const idParam = params.get('id');
   const loading = document.getElementById('val-loading');
   const content = document.getElementById('val-content');
   const empty = document.getElementById('val-empty');
+
+  // ?id=N path — query staking precompile directly
+  if (idParam && /^\d+$/.test(idParam)) {
+    await loadValidatorById(parseInt(idParam, 10), loading, content, empty);
+    return;
+  }
 
   if (!addr || !/^0x[0-9a-f]{40}$/i.test(addr)) {
     loading.innerHTML = `
       <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
         <div style="font-size:15px;color:#DDD7FE;margin-bottom:8px">No validator selected</div>
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px;line-height:1.6">
-          This page expects a validator address in the URL<br>
-          (e.g. <code style="color:#a78bfa">?addr=0x…</code>)
+          This page expects a validator address or ID in the URL<br>
+          (e.g. <code style="color:#a78bfa">?addr=0x…</code> or <code style="color:#a78bfa">?id=267</code>)
         </div>
         <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
       </div>`;
@@ -289,6 +296,87 @@ async function loadValidator() {
         </table>
       </div>
     </section>
+  `;
+
+  loading.style.display = 'none';
+  empty.style.display = 'none';
+  content.style.display = 'block';
+}
+
+const MON = 1e18;
+
+async function loadValidatorById(valId, loading, content, empty) {
+  await loadNames();
+  const v = await apiFetch('/validators/by-id/' + valId);
+  if (!v || v.validator_id == null) {
+    loading.innerHTML = `
+      <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
+        <div style="font-size:15px;color:#FFAE45;margin-bottom:8px">Validator #${esc(String(valId))} not found</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px">
+          This validator is not registered on the current network (${esc(NETWORK)}).
+        </div>
+        <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
+      </div>`;
+    return;
+  }
+
+  const auth = v.auth_address;
+  const name = (typeof valName === 'function' && valName(auth)) || null;
+  const displayName = name || `Validator #${v.validator_id}`;
+  const execStake = v.execution_stake / MON;
+  const consStake = v.consensus_stake / MON;
+  const snapStake = v.snapshot_stake / MON;
+  const unclaimed = v.unclaimed_rewards / MON;
+  const comm = (v.execution_commission / 100).toFixed(2);
+  const isActive = v.consensus_stake > 0;
+
+  content.innerHTML = `
+    <div class="val-hero">
+      <div class="val-hero-top">
+        <a href="/validators.html" class="val-back">← Validators</a>
+      </div>
+      <div class="val-name-big">${esc(displayName)}</div>
+      <div class="val-addr-sub">
+        <span style="color:#6B6580">Validator ID</span>
+        <span style="color:#DDD7FE;margin-left:6px">#${v.validator_id}</span>
+        <span style="margin:0 10px;color:var(--text-dim)">·</span>
+        <span style="color:#6B6580">Auth</span>
+        <a href="${EXPLORER}/address/${auth}" target="_blank" style="color:#a78bfa;text-decoration:none;margin-left:6px">${auth}</a>
+      </div>
+      <div class="val-hero-row">
+        <div class="val-hero-score">
+          <span class="num" style="color:${isActive ? '#4ade80' : '#FFAE45'};font-size:34px">${isActive ? 'ACTIVE' : 'PENDING'}</span>
+          <span class="lbl">On-chain Status</span>
+        </div>
+        <div class="val-quick">
+          <div class="q"><span class="v">${fmtNum(Math.round(execStake))} MON</span><div class="k">Execution Stake</div></div>
+          <div class="q"><span class="v">${fmtNum(Math.round(consStake))} MON</span><div class="k">Consensus Stake</div></div>
+          <div class="q"><span class="v">${fmtNum(Math.round(snapStake))} MON</span><div class="k">Snapshot Stake</div></div>
+          <div class="q"><span class="v">${comm} %</span><div class="k">Commission</div></div>
+          <div class="q"><span class="v" style="color:var(--cyan,#85E6FF)">${unclaimed.toFixed(2)} MON</span><div class="k">Unclaimed (pool)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <section class="data-section">
+      <div class="section-title">Consensus Keys</div>
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <div class="bi-name">SECP Pubkey</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.secp_pubkey)}</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="bi-name">BLS Pubkey</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.bls_pubkey)}</div>
+        </div>
+      </div>
+    </section>
+
+    <div style="margin-top:24px;padding:14px 18px;background:rgba(110,84,255,0.05);border:1px solid rgba(110,84,255,0.15);border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.6">
+      <span style="color:#DDD7FE">ℹ Block production</span> — Monad testnet block.miner is ephemeral per-block and
+      doesn't match auth address, so the <code>Blocks</code> table on this page cannot be populated reliably
+      for this validator. Block/reward accounting is done via the staking precompile directly (shown above).
+    </div>
   `;
 
   loading.style.display = 'none';
