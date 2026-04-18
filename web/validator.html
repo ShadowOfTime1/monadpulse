@@ -212,6 +212,19 @@ async function loadValidator() {
     ? (typeof timeAgo === 'function' ? timeAgo(detail.stats.last_seen) : new Date(detail.stats.last_seen).toLocaleString())
     : '—';
 
+  // VDP uptime %: time since first_seen / 28 days
+  const VDP_TARGET_MS = 28 * 24 * 3600 * 1000;
+  let vdpPct = null;
+  if (detail.stats.first_seen) {
+    const age = Date.now() - new Date(detail.stats.first_seen).getTime();
+    vdpPct = Math.min(age / VDP_TARGET_MS * 100, 100);
+  }
+  const vdpColor = vdpPct == null ? 'var(--text-dim)'
+    : vdpPct >= 100 ? '#4ade80'
+    : vdpPct >= 50 ? '#FFAE45'
+    : '#FF8EE4';
+  const vdpStr = vdpPct == null ? '—' : `${vdpPct.toFixed(1)}%`;
+
   const breakdownComponents = health ? [
     { name: 'Uptime',     val: health.uptime_score,  weight: '40%' },
     { name: 'Block Time', val: health.miss_score,    weight: '20%' },
@@ -262,6 +275,7 @@ async function loadValidator() {
           <div class="q"><span class="v">${fmtNum(detail.stats.total_blocks)}</span><div class="k">Blocks</div></div>
           <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
           <div class="q"><span class="v">${fmtNum(detail.stats.total_tx)}</span><div class="k">Total Txns</div></div>
+          <div class="q"><span class="v" style="color:${vdpColor}">${vdpStr}</span><div class="k" title="Time since first block / 28 days (VDP 4-week target)">VDP Uptime</div></div>
           <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>
         </div>
       </div>
