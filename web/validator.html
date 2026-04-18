@@ -343,7 +343,9 @@ async function loadValidatorById(valId, loading, content, empty) {
   const execStake = v.execution_stake / MON;
   const consStake = v.consensus_stake / MON;
   const snapStake = v.snapshot_stake / MON;
-  const unclaimed = v.unclaimed_rewards / MON;
+  const poolUnclaimed = v.unclaimed_rewards / MON;
+  const opStake = v.operator_active_stake != null ? v.operator_active_stake / MON : null;
+  const opClaim = v.operator_claimable_rewards != null ? v.operator_claimable_rewards / MON : null;
   const comm = (v.execution_commission / 100).toFixed(2);
   const isActive = v.consensus_stake > 0;
 
@@ -371,7 +373,14 @@ async function loadValidatorById(valId, loading, content, empty) {
           <div class="q"><span class="v">${fmtNum(Math.round(snapStake))} MON</span><div class="k">Snapshot Stake</div></div>
           <div class="q"><span class="v">${comm} %</span><div class="k">Commission</div></div>
           <div class="q"><span class="v" id="vdp-uptime-val" style="color:var(--text-dim)">…</span><div class="k" title="Time since first Reward event / 28 days (VDP 4-week target)">VDP Uptime</div></div>
-          <div class="q"><span class="v" style="color:var(--cyan,#85E6FF)">${unclaimed.toFixed(2)} MON</span><div class="k">Unclaimed (pool)</div></div>
+          <div class="q" title="Total unclaimed rewards across ALL delegators (self-stake + external delegations). Only each delegator can claim their own share.">
+            <span class="v" style="color:var(--text-dim)">${fmtNum(Math.round(poolUnclaimed))} MON</span>
+            <div class="k">Pool Unclaimed (all delegators)</div>
+          </div>
+          <div class="q" title="Claimable by the validator's auth address (own self-stake share + earned commission if any).">
+            <span class="v" style="color:var(--cyan,#85E6FF)">${opClaim != null ? opClaim.toFixed(2) + ' MON' : '—'}</span>
+            <div class="k">Operator Claimable</div>
+          </div>
         </div>
       </div>
     </div>
@@ -391,6 +400,11 @@ async function loadValidatorById(valId, loading, content, empty) {
     </section>
 
     <div style="margin-top:24px;padding:14px 18px;background:rgba(110,84,255,0.05);border:1px solid rgba(110,84,255,0.15);border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.6">
+      <span style="color:#DDD7FE">ℹ Rewards accounting</span> — the pool number (${fmtNum(Math.round(poolUnclaimed))} MON) is the total
+      across <strong>all delegators</strong> of this validator (self-stake + external delegations). Each delegator can only
+      claim their own share; the Monad staking contract enforces <code>sender == delegator</code>. The operator (auth address)
+      claims proportionally to their self-stake, plus any commission on other delegators' rewards (commission is currently ${comm}%).
+      <br><br>
       <span style="color:#DDD7FE">ℹ Block production</span> — Monad testnet block.miner is ephemeral per-block and
       doesn't match auth address, so the <code>Blocks</code> table on this page cannot be populated reliably
       for this validator. Block/reward accounting is done via the staking precompile directly (shown above).

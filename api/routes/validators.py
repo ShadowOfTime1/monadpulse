@@ -111,10 +111,12 @@ def _load_directory(network: str) -> list[dict]:
 
 STAKING_PRECOMPILE = "0x0000000000000000000000000000000000001000"
 GET_VALIDATOR_SELECTOR = "2b6d639a"
+GET_DELEGATOR_SELECTOR = "573c1ce0"
 GET_VALIDATOR_ABI = [
     "address", "uint256", "uint256", "uint256", "uint256", "uint256",
     "uint256", "uint256", "uint256", "uint256", "bytes", "bytes",
 ]
+GET_DELEGATOR_ABI = ["uint256", "uint256", "uint256", "uint256", "uint256", "uint64", "uint64"]
 RPC_URLS = {
     "testnet": os.environ.get("TESTNET_RPC", "http://localhost:8080"),
     "mainnet": os.environ.get("MAINNET_RPC", "https://rpc.monad.xyz"),
@@ -134,6 +136,22 @@ async def _get_validator_onchain(val_id: int, network: str) -> tuple | None:
     if "error" in data or not data.get("result"):
         return None
     return decode(GET_VALIDATOR_ABI, bytes.fromhex(data["result"][2:]))
+
+
+async def _get_delegator_onchain(val_id: int, delegator: str, network: str) -> tuple | None:
+    """Call staking precompile get_delegator(val_id, address) via eth_call."""
+    delegator_bytes = bytes.fromhex(delegator[2:]) if delegator.startswith("0x") else bytes.fromhex(delegator)
+    calldata = "0x" + GET_DELEGATOR_SELECTOR + encode(["uint64", "address"], [val_id, "0x" + delegator_bytes.hex()]).hex()
+    async with httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(RPC_URLS.get(network, RPC_URLS["testnet"]), json={
+            "jsonrpc": "2.0", "method": "eth_call",
+            "params": [{"to": STAKING_PRECOMPILE, "data": calldata}, "latest"],
+            "id": 1,
+        })
+        data = r.json()
+    if "error" in data or not data.get("result"):
+        return None
+    return decode(GET_DELEGATOR_ABI, bytes.fromhex(data["result"][2:]))
 
 
 @router.get("/search")
@@ -176,23 +194,38 @@ async def validator_by_id(val_id: int, network: str = Query("testnet")):
     # Empty registration check: secp all zeros
     if secp == "00" * (len(secp) // 2):
         raise HTTPException(status_code=404, detail=f"validator {val_id} not registered on {network}")
-    first_active = await _find_first_active_block(val_id, network=network) if False else None
-    # Lazy fetch via separate call — keep endpoint fast, client polls /first-active
+    # Query auth's own delegator slot to surface operator-claimable rewards
+    # (the contract only lets a delegator claim their own share — see plan
+    # curious-hopping-quasar.md).
+    auth_lower = auth.lower()
+    operator_claimable = None
+    operator_active_stake = None
+    try:
+        d = await _get_delegator_onchain(val_id, auth_lower, network)
+        if d is not None:
+            operator_active_stake = int(d[0])
+            operator_claimable = int(d[2])
+    except Exception:
+        pass
+
     return {
         "validator_id": val_id,
         "network": network,
-        "auth_address": auth.lower(),
+        "auth_address": auth_lower,
         "flags": int(v[1]),
         "execution_stake": int(v[2]),
         "rewards_per_token": int(v[3]),
         "execution_commission": int(v[4]),
-        "unclaimed_rewards": int(v[5]),
+        "unclaimed_rewards": int(v[5]),          # pool total (all delegators)
         "consensus_stake": int(v[6]),
         "consensus_commission": int(v[7]),
         "snapshot_stake": int(v[8]),
         "snapshot_commission": int(v[9]),
         "secp_pubkey": secp,
         "bls_pubkey": bls,
+        # Auth-scoped accounting (may be null if call failed or auth is not a delegator)
+        "operator_active_stake": operator_active_stake,
+        "operator_claimable_rewards": operator_claimable,
     }
 
 
