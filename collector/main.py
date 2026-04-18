@@ -126,7 +126,7 @@ async def aggregate_hourly(pool):
 
 
 async def track_epoch(rpc: MonadRPC, pool):
-    """Track current epoch and record in DB."""
+    """Track current epoch + post a detailed summary of the PREVIOUS epoch."""
     epoch_num = await rpc.get_epoch()
     if epoch_num is None:
         return
@@ -139,11 +139,27 @@ async def track_epoch(rpc: MonadRPC, pool):
             return
 
         boundary = epoch_num * 50_000
-        # Get validator count from blocks in this epoch range
-        val_count = await conn.fetchval("""
-            SELECT COUNT(DISTINCT proposer_address)
-            FROM blocks WHERE block_number >= $1 AND block_number < $2 AND network = $3
-        """, max(0, boundary - 50_000), boundary, NETWORK)
+        prev_lo = max(0, boundary - 50_000)
+
+        # Summary of the PREVIOUS (just-ended) epoch
+        summary = await conn.fetchrow("""
+            SELECT COUNT(*) AS blocks,
+                   COALESCE(SUM(tx_count), 0) AS txs,
+                   COALESCE(AVG(block_time_ms), 0)::INT AS avg_bt,
+                   COUNT(DISTINCT proposer_address) FILTER (
+                       WHERE proposer_address != '0x0000000000000000000000000000000000000000'
+                   ) AS val_count,
+                   COUNT(*) FILTER (
+                       WHERE proposer_address = '0x0000000000000000000000000000000000000000'
+                   ) AS null_blocks,
+                   COALESCE(AVG(base_fee), 0)::BIGINT AS avg_base_fee,
+                   MIN(timestamp) AS started,
+                   MAX(timestamp) AS ended
+            FROM blocks
+            WHERE block_number >= $1 AND block_number < $2 AND network = $3
+        """, prev_lo, boundary, NETWORK)
+
+        val_count = summary["val_count"] if summary else 0
 
         await conn.execute(
             "INSERT INTO epochs (epoch_number, boundary_block, timestamp, validator_count, network) "
@@ -152,19 +168,105 @@ async def track_epoch(rpc: MonadRPC, pool):
         )
         log.info(f"Epoch {epoch_num} recorded, boundary={boundary}, validators={val_count}")
 
-        # Alert on new epoch
+        # Epoch summary (previous epoch just ended at this boundary)
+        if summary and summary["blocks"]:
+            blocks_n = summary["blocks"]
+            txs_n = int(summary["txs"])
+            avg_bt = int(summary["avg_bt"] or 0)
+            null_n = int(summary["null_blocks"] or 0)
+            null_pct = (null_n * 100 / blocks_n) if blocks_n else 0
+            base_fee_gwei = int(summary["avg_base_fee"] or 0) // 10**9
+            duration_s = int((summary["ended"] - summary["started"]).total_seconds()) if summary["started"] and summary["ended"] else 0
+            dur_h, rem = divmod(duration_s, 3600)
+            dur_m = rem // 60
+            tps = txs_n / duration_s if duration_s > 0 else 0
+            digest_title = f"Epoch {epoch_num - 1} summary"
+            digest_desc = (
+                f"⏱ {dur_h}h {dur_m}m · {blocks_n:,} blocks · avg {avg_bt}ms\n"
+                f"💳 {txs_n:,} transactions · {tps:.0f} TPS\n"
+                f"👥 {val_count} unique proposers · {null_n:,} null blocks ({null_pct:.1f}%)\n"
+                f"⛽ median base fee ~{base_fee_gwei} gwei"
+            )
+            await insert_alert(
+                conn, alert_type="epoch_summary", severity="info",
+                title=digest_title, description=digest_desc,
+                data_json={
+                    "prev_epoch": epoch_num - 1, "blocks": blocks_n, "txs": txs_n,
+                    "avg_block_time_ms": avg_bt, "validators": val_count,
+                    "null_blocks": null_n, "base_fee_gwei": base_fee_gwei,
+                    "duration_sec": duration_s,
+                },
+                network=NETWORK,
+            )
+            await tg_send("epoch_summary", "info", digest_title, digest_desc)
+
+        # Short "epoch changed" ping (keeps existing behavior)
         alert_title = f"New epoch {epoch_num} started at block {boundary}"
         alert_desc = f"Active validators: {val_count}"
         await insert_alert(
-            conn,
-            alert_type="new_epoch",
-            severity="info",
-            title=alert_title,
-            description=alert_desc,
+            conn, alert_type="new_epoch", severity="info",
+            title=alert_title, description=alert_desc,
             data_json={"epoch": epoch_num, "boundary_block": boundary, "validator_count": val_count},
             network=NETWORK,
         )
         await tg_send("new_epoch", "info", alert_title, alert_desc)
+
+        # Detect newly-registered validators between previous and current epoch
+        await detect_new_validators(rpc, pool, epoch_num)
+
+
+_SEEN_VAL_IDS: set[int] | None = None
+
+
+async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
+    """Compare current execution valset to the last snapshot, alert on new ids.
+    First run just seeds the cache silently."""
+    global _SEEN_VAL_IDS
+    try:
+        # Fetch current execution valset via staking precompile.
+        # We bypass the sdk to keep main.py slim; use eth_call directly.
+        selector = "7cb074df"  # get_execution_valset(uint64)
+        current: set[int] = set()
+        start = 0
+        while True:
+            calldata = "0x" + selector + start.to_bytes(32, "big").hex()
+            result = await rpc._call("eth_call", [
+                {"to": "0x0000000000000000000000000000000000001000", "data": calldata},
+                "latest",
+            ])
+            if not result or len(result) < 130:
+                break
+            raw = bytes.fromhex(result[2:])
+            done = raw[31] == 1
+            next_idx = int.from_bytes(raw[56:64], "big")
+            # Decode uint64[] at offset 0x60
+            arr_len = int.from_bytes(raw[0x60 + 24:0x60 + 32], "big")
+            ids = [int.from_bytes(raw[0x80 + i * 32 + 24:0x80 + i * 32 + 32], "big") for i in range(arr_len)]
+            current.update(ids)
+            if done:
+                break
+            start = next_idx
+    except Exception as e:
+        log.warning(f"new-validator detect: valset fetch err {e}")
+        return
+
+    if _SEEN_VAL_IDS is None:
+        _SEEN_VAL_IDS = current
+        log.info(f"new-validator detect: seeded with {len(current)} ids")
+        return
+
+    new_ids = current - _SEEN_VAL_IDS
+    _SEEN_VAL_IDS = current
+    for vid in sorted(new_ids):
+        title = f"New validator #{vid} registered"
+        desc = f"Joined at epoch {epoch_num}. Active validators now: {len(current)}."
+        async with pool.acquire() as conn:
+            await insert_alert(
+                conn, alert_type="new_validator", severity="info",
+                title=title, description=desc,
+                data_json={"validator_id": vid, "epoch": epoch_num}, network=NETWORK,
+            )
+        await tg_send("new_validator", "info", title, desc)
 
 
 async def compute_health_scores(pool):
@@ -230,6 +332,52 @@ STAKE_LOGS_CHUNK = 500 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "ma
 STAKE_BACKFILL_BLOCKS = 200_000 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 5_000
 
 
+WHALE_STAKE_MON = 1_000_000  # 1M MON threshold for whale alerts
+
+
+async def _maybe_alert_stake_event(conn, ev: dict) -> None:
+    """Send Telegram alert for notable stake events. Anti-spam built-in:
+    whale threshold for delegate/undelegate, only emit commission change,
+    skip small deltas and block-reward-like noise."""
+    et = ev["event_type"]
+    amount = int(ev["amount"])
+
+    # Commission changes — always alert, always interesting
+    if et == "commission_changed":
+        # amount = new_rate (uint256, basis points scaled by 1e16 → percent)
+        new_pct = amount / (10 ** 16)
+        title = f"Validator #{ev['validator_id']} commission → {new_pct:.2f}%"
+        await insert_alert(
+            conn, alert_type="commission_change", severity="info",
+            title=title, description=None,
+            data_json={"validator_id": ev["validator_id"], "new_rate_wei": amount},
+            network=NETWORK,
+        )
+        await tg_send("commission_change", "info", title)
+        return
+
+    # Whale delegations / undelegations (≥ 1M MON)
+    if et in ("delegate", "undelegate"):
+        amount_mon = amount / 10 ** 18
+        if amount_mon < WHALE_STAKE_MON:
+            return
+        emoji = "🐋 Delegation" if et == "delegate" else "🦈 Undelegation"
+        short_deleg = ev["delegator"][:10] + "…" + ev["delegator"][-4:]
+        title = f"{emoji} {amount_mon:,.0f} MON · validator #{ev['validator_id']}"
+        desc = f"by {short_deleg} at block {ev['block_number']}"
+        await insert_alert(
+            conn, alert_type="whale_stake", severity="info",
+            title=title, description=desc,
+            data_json={
+                "event_type": et, "validator_id": ev["validator_id"],
+                "delegator": ev["delegator"], "amount_mon": amount_mon,
+                "block": ev["block_number"],
+            },
+            network=NETWORK,
+        )
+        await tg_send("whale_stake", "info", title, desc)
+
+
 async def ingest_stake_events(rpc: MonadRPC, pool):
     """Poll staking precompile logs and persist decoded events."""
     async with pool.acquire() as conn:
@@ -259,6 +407,7 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
             async with pool.acquire() as conn:
                 for ev in decoded:
                     await insert_stake_event(conn, ev, NETWORK)
+                    await _maybe_alert_stake_event(conn, ev)
             inserted_total += len(decoded)
 
         async with pool.acquire() as conn:
@@ -267,6 +416,62 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
 
     if inserted_total:
         log.info(f"Stake ingest [{NETWORK}]: +{inserted_total} events up to {chain_head}")
+
+
+async def detect_offline_validators(pool):
+    """Flag validators that are in execution valset but produced 0 blocks in
+    the last 24h. One alert per validator per 24h (dedup via alerts table)."""
+    global _SEEN_VAL_IDS
+    if _SEEN_VAL_IDS is None:
+        return  # no seed yet
+
+    async with pool.acquire() as conn:
+        # Blocks produced per auth_address in last 24h
+        # Note: on testnet miner != auth; we check via directory file if present.
+        # Fallback: count via proposer_address == auth (works for mainnet + some testnet cases)
+        active_directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
+        if not active_directory_path.exists():
+            return
+        import json as _json
+        directory = _json.loads(active_directory_path.read_text())
+        auth_to_vid = {e["auth"]: e["val_id"] for e in directory if e.get("auth")}
+        vid_to_name = {e["val_id"]: e.get("name") for e in directory}
+
+        rows = await conn.fetch("""
+            SELECT proposer_address, COUNT(*) AS blk
+            FROM blocks
+            WHERE network = $1
+              AND timestamp > NOW() - INTERVAL '24 hours'
+              AND proposer_address != '0x0000000000000000000000000000000000000000'
+            GROUP BY proposer_address
+        """, NETWORK)
+        active_auths = {r["proposer_address"] for r in rows if r["blk"] > 0}
+
+        for vid in _SEEN_VAL_IDS:
+            # Find auth for this vid
+            auth = next((a for a, v in auth_to_vid.items() if v == vid), None)
+            if not auth or auth in active_auths:
+                continue
+            # Dedup — already alerted within 24h?
+            already = await conn.fetchval("""
+                SELECT 1 FROM alerts
+                WHERE alert_type = 'validator_offline' AND network = $1
+                  AND data_json->>'validator_id' = $2
+                  AND timestamp > NOW() - INTERVAL '24 hours'
+                LIMIT 1
+            """, NETWORK, str(vid))
+            if already:
+                continue
+            name = vid_to_name.get(vid) or f"#{vid}"
+            title = f"⚠ Validator {name} offline — 0 blocks in 24h"
+            desc = f"val_id={vid}, auth={auth[:10]}…{auth[-4:]}"
+            await insert_alert(
+                conn, alert_type="validator_offline", severity="warning",
+                title=title, description=desc,
+                data_json={"validator_id": str(vid), "auth": auth},
+                network=NETWORK,
+            )
+            await tg_send("validator_offline", "warning", title, desc)
 
 
 async def detect_tps_spike(pool):
@@ -394,6 +599,7 @@ async def run():
         last_health_calc = 0
         last_tps_check = 0
         last_stake_ingest = 0
+        last_offline_check = 0
         while not shutdown_event.is_set():
             try:
                 chain_head = await rpc.get_block_number()
@@ -462,6 +668,14 @@ async def run():
                 if now - last_tps_check > 300:
                     await detect_tps_spike(pool)
                     last_tps_check = now
+
+                # Offline-validator check — daily (24h), testnet only to avoid dupes
+                if NETWORK == "testnet" and now - last_offline_check > 86400:
+                    try:
+                        await detect_offline_validators(pool)
+                    except Exception as e:
+                        log.warning(f"Offline detect error: {e}")
+                    last_offline_check = now
 
                 # Stake event ingestion — every 60 seconds
                 if now - last_stake_ingest > 60:

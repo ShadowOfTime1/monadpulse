@@ -444,52 +444,52 @@
     "secp": "02e3ed7ca400eee8a706f5fe520e83473f0dbf993b970d96d7f3f9472ff3328e45"
   },
   {
-    "val_id": 142,
-    "name": "Pacific Meta",
-    "auth": "0x9b2926762675cf572a5f29a4617dbc334c384b1e",
-    "secp": "02c887f6001b23d4b7a4a15cba287a8abbbe244ba60235026da46d1cf306b7c7a6"
+    "val_id": 77,
+    "name": "ITRocket",
+    "auth": "0xf8a9ccb1e137b727830879cb9f35870d836eb729",
+    "secp": "03e4dd0eb8b0c7300c0eef78de39c8a7b4cfb894d89e6f7705036158937aac60d2"
   },
   {
-    "val_id": 143,
-    "name": "Moonlet",
-    "auth": "0x24089889ee9dc4c20ab20c871686b03af2d204c2",
-    "secp": "028a938a76c07651a27f5a20c875f14c5d336505527ea4c89040302a4b735837ed"
+    "val_id": 78,
+    "name": "Cosmostation",
+    "auth": "0xf077cf7d98ed27454afd63a064401b2e0785e23d",
+    "secp": "035e05885785ba73b53634657fd04b12fc3aa737aa17041579a16c968fdbeb1a0f"
   },
   {
-    "val_id": 144,
-    "name": "BlockPI",
-    "auth": "0x3d3a8d1c1d3d75b2f0db0eff4d892a2790584fa1",
-    "secp": "0294879eb58f3a16424e6f6861e58e7d9917e36c5b06f1d56cf1d66112b859c25c"
+    "val_id": 79,
+    "name": "DSRV",
+    "auth": "0x46d0ba3513e6f035d1115cf519de76c53ca843fa",
+    "secp": "03acd1bff6bcf0c9d556a90d351de217f2b5dd4174348ba54333e38c66ca5e92a8"
   },
   {
-    "val_id": 145,
-    "name": "node101",
-    "auth": "0x2dec2927a6099f6fdbf4696ccf759d1aa96b2f04",
-    "secp": "02e34b2e6272b9fbd0eca4677dd422ba2df4d1e91de0cb86b48b3dd92d494012cd"
+    "val_id": 80,
+    "name": "Natsai",
+    "auth": "0xb9329366e0ee0e2f15cc46f61b6928cc4da8d778",
+    "secp": "02624d6561f75564b013f3f833834b3ebe554afd43bb81340dabd1bdd1603efba1"
   },
   {
-    "val_id": 146,
-    "name": "Kiln",
-    "auth": "0x794fcadf922cdbec2f476f1a63298f1c5f43492c",
-    "secp": "032ab878d87cb9f91454f18ff7c89b0bd27b97961530ef06b25012461f90717d5c"
+    "val_id": 81,
+    "name": "Staker Space",
+    "auth": "0xc61868d88152e22da4256ef197db3fc44631eff9",
+    "secp": "03eb54d047e974e003ddf9ee89bc2ea4aa3983a095eb2f8d247a77a9f63b1af560"
   },
   {
-    "val_id": 147,
-    "name": "Chainflow",
-    "auth": "0x0ed29c8de0aa718093586ba309be2e36a49fa8b0",
-    "secp": "035026c472e7f8c398e2ccd25d5289ccdf5e0c2c1fc7dd9f8c05f04133ff1fc17a"
+    "val_id": 82,
+    "name": "Nodeinfra",
+    "auth": "0xb55cbacd1fbfd2c0dc92360b681d32d2b6996378",
+    "secp": "02e38031e789ce5ab099f6f882267c2e4518b259c605f43d498b2535681b7d709c"
   },
   {
-    "val_id": 148,
-    "name": "Meria",
-    "auth": "0x8c1104f9166d431260a88a6d66190bbb52ab00a6",
-    "secp": "02f1c539f44ed099000d9595951a4a386b73d2ff3691bb862ec4fe4fc551680603"
+    "val_id": 83,
+    "name": "Needlecast",
+    "auth": "0x604f5a5e469a9a355c6f9d94a545830f4eef9e63",
+    "secp": "020bf48419090e769a1e0d5b534626d43495d50f498d165d9f188b41ea3d115e6b"
   },
   {
-    "val_id": 149,
-    "name": "Stake Shark",
-    "auth": "0xd20a8456ebf9f90e86b899dc857745c5c57f6e76",
-    "secp": "037786259b74c50ce561689ec42e4dfc0274dbbacc9639d483e383a439c85c3c74"
+    "val_id": 84,
+    "name": "Staking Facilities",
+    "auth": "0xf41251f1cea9f21d5210880d07c968ba819a679c",
+    "secp": "02182d3c12132a92c3a645c6d942025ee304aedf83b137639d0fd3164c6f0d2185"
   },
   {
     "val_id": 150,
