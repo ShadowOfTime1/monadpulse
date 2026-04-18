@@ -492,52 +492,52 @@
     "secp": "02182d3c12132a92c3a645c6d942025ee304aedf83b137639d0fd3164c6f0d2185"
   },
   {
-    "val_id": 150,
-    "name": "Stakecito",
-    "auth": "0x863f563aad493825bee199faa8da135509f9d63d",
-    "secp": "02bc0c86193948d7fba858cc7a2c97d7b4fdaf5da8ff2c38bd47a36b647c7a33b9"
+    "val_id": 85,
+    "name": "Spectrum Staking",
+    "auth": "0xccc8690beca5dd50d24378c61bf7541288b56498",
+    "secp": "035f355c2cd6b72d3a068813e19151348af2d9f43b5d29829f8560d774b10f985a"
   },
   {
-    "val_id": 151,
-    "name": "Kraken",
-    "auth": "0xfeeafa73d83c1e6c49df3590e767e367e502e7a9",
-    "secp": "022f7db5a4f1aacf793aac5ab68ded690084190d84da968aea4cffde8ca20873b3"
+    "val_id": 86,
+    "name": "Staking4All",
+    "auth": "0x41ebf27c2a5943f07d6b820f956d2c0ac7171dfd",
+    "secp": "0267a466f113ee4cef1160b602450bd726f9b981fa53a315c039a3a44975610fa4"
   },
   {
-    "val_id": 152,
-    "name": "Luganodes",
-    "auth": "0x5a4121eb3d1f5c0f882e5ffaf95d3ab4a9f5166c",
-    "secp": "036daee7750e29e46eb64d86ad1cc7b235d7f1ad9597941a3a77cdd641cead4528"
+    "val_id": 87,
+    "name": "auri0x",
+    "auth": "0x1cb07b39b8a3ed3a127f2432e29f997843daddc1",
+    "secp": "0382fb4d3512d6fd524962489b1923c72638d767853d341bcaa98679efec63fea8"
   },
   {
-    "val_id": 153,
-    "name": "HashKey Cloud",
-    "auth": "0x516fda4e678d683332c689e5080d34f4cb3d0058",
-    "secp": "0350c65b72c4281d9b5dc78a5ea1eeb1661a357ac23ecb8d723daebcf8bbd0b494"
+    "val_id": 88,
+    "name": "Etherfuse",
+    "auth": "0x8014ec1e8270df44b39e5d04973f5d1db283e05d",
+    "secp": "0399b2e51c0c233dedc3bf79ef6840be90f37457abc634309758cf1ae220bb1c49"
   },
   {
-    "val_id": 154,
-    "name": "TTT VN",
-    "auth": "0xc833404089416eab548df4ef2a998599c57cd83e",
-    "secp": "0236bb5f4016cb92794d6e5c0bf8b1f359351813b9a924a665167e93d2a173705b"
+    "val_id": 89,
+    "name": "Chainlayer",
+    "auth": "0xe135a637f07ce2826ebdbbcb0e83e3fe27896a8a",
+    "secp": "02d806eddfa43d63cc47c1d73f62c353d22564e1c9ec667abe8f5f9813879ee1b4"
   },
   {
-    "val_id": 155,
-    "name": "Finoa Consensus Services",
-    "auth": "0xa294a74c47912dc7035d1c8fe9f3c75244740ff4",
-    "secp": "036cc4ac39d2a751a9b1ee6c7b199fe93cf7cf06243e0782a31fb9f59e05aafdf1"
+    "val_id": 90,
+    "name": "Validatus",
+    "auth": "0x91b2085fce61f484d4f8e226cd84c175f39fea88",
+    "secp": "02668b78383890d54e0b032ef638cb3bb58efc2879bc4353eac45f9cc92f383619"
   },
   {
-    "val_id": 156,
-    "name": "LakeStake",
-    "auth": "0x563d8bb1503be20b0ff9ecb6d4be1b566bceeb95",
-    "secp": "032b6eda0655044acfc13e7ac87e35ec8487cbc6b31c1adbf873b9ed1b17f4822f"
+    "val_id": 91,
+    "name": "Silk Nodes",
+    "auth": "0x6cfa24c419781dec1b34bd2615961a8ba6339706",
+    "secp": "0344bf6f5d2e52bb74e737f1306e75ad0539565121eb2bdbc71cae71ab1f4f4d0f"
   },
   {
-    "val_id": 157,
-    "name": "TrustedPoint",
-    "auth": "0x04a590305be1f96441026ed10440189cc8577e89",
-    "secp": "033d60ac9d9a830ded2522837e7407699e6f9aac0b8d8829f04627a39d4616af65"
+    "val_id": 92,
+    "name": "Artifact",
+    "auth": "0x8d02d2b6bcce240a6156fddc8fb5dfe7306244cd",
+    "secp": "02173522f978b116958d3e1a061c06731afdb27edf2d83de6ab1d2199f65375299"
   },
   {
     "val_id": 158,

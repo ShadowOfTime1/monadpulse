@@ -332,19 +332,54 @@ STAKE_LOGS_CHUNK = 500 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "ma
 STAKE_BACKFILL_BLOCKS = 200_000 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 5_000
 
 
-WHALE_STAKE_MON = 1_000_000  # 1M MON threshold for whale alerts
+WHALE_STAKE_MON = 1_000_000  # absolute floor (≥ 1M MON to even consider)
+STAKE_CRITICAL_PCT = 15      # alert if action ≥ 15% of validator's stake
+ACTIVE_VALIDATOR_STAKE = 10_000_000 * 10 ** 18  # Monad active-set threshold
+GET_VALIDATOR_SELECTOR = "2b6d639a"
+PRECOMPILE = "0x0000000000000000000000000000000000001000"
 
 
-async def _maybe_alert_stake_event(conn, ev: dict) -> None:
-    """Send Telegram alert for notable stake events. Anti-spam built-in:
-    whale threshold for delegate/undelegate, only emit commission change,
-    skip small deltas and block-reward-like noise."""
+async def _current_val_stake(rpc: MonadRPC, val_id: int) -> int | None:
+    """Read execution_stake for val_id via staking precompile (returns wei)."""
+    try:
+        calldata = "0x" + GET_VALIDATOR_SELECTOR + int(val_id).to_bytes(32, "big").hex()
+        result = await rpc._call("eth_call", [
+            {"to": PRECOMPILE, "data": calldata}, "latest",
+        ])
+        if not result or len(result) < 130:
+            return None
+        # Fields layout: address (32) + flags (32) + execution_stake (32) + ...
+        # Skip first 64 bytes (addr + flags), next 32 = execution_stake
+        execution_stake_hex = result[2 + 64 * 2: 2 + 96 * 2]
+        return int(execution_stake_hex, 16)
+    except Exception:
+        return None
+
+
+def _lookup_val_name(val_id: int) -> str | None:
+    """Look up a human-readable validator name from validator_directory file."""
+    try:
+        import json as _json
+        p = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
+        if not p.exists():
+            return None
+        for e in _json.loads(p.read_text()):
+            if e.get("val_id") == val_id:
+                return e.get("name")
+    except Exception:
+        pass
+    return None
+
+
+async def _maybe_alert_stake_event(conn, ev: dict, rpc: MonadRPC | None = None) -> None:
+    """Anti-spam filter for stake events. Only alerts when truly informative:
+      • commission change — always
+      • delegate/undelegate — only if ≥1M MON AND (≥15% of validator stake OR
+        drops validator below ACTIVE_VALIDATOR_STAKE threshold)"""
     et = ev["event_type"]
     amount = int(ev["amount"])
 
-    # Commission changes — always alert, always interesting
     if et == "commission_changed":
-        # amount = new_rate (uint256, basis points scaled by 1e16 → percent)
         new_pct = amount / (10 ** 16)
         title = f"Validator #{ev['validator_id']} commission → {new_pct:.2f}%"
         await insert_alert(
@@ -356,26 +391,68 @@ async def _maybe_alert_stake_event(conn, ev: dict) -> None:
         await tg_send("commission_change", "info", title)
         return
 
-    # Whale delegations / undelegations (≥ 1M MON)
-    if et in ("delegate", "undelegate"):
-        amount_mon = amount / 10 ** 18
-        if amount_mon < WHALE_STAKE_MON:
-            return
-        emoji = "🐋 Delegation" if et == "delegate" else "🦈 Undelegation"
-        short_deleg = ev["delegator"][:10] + "…" + ev["delegator"][-4:]
-        title = f"{emoji} {amount_mon:,.0f} MON · validator #{ev['validator_id']}"
-        desc = f"by {short_deleg} at block {ev['block_number']}"
-        await insert_alert(
-            conn, alert_type="whale_stake", severity="info",
-            title=title, description=desc,
-            data_json={
-                "event_type": et, "validator_id": ev["validator_id"],
-                "delegator": ev["delegator"], "amount_mon": amount_mon,
-                "block": ev["block_number"],
-            },
-            network=NETWORK,
+    if et not in ("delegate", "undelegate"):
+        return
+
+    amount_mon = amount / 10 ** 18
+    if amount_mon < WHALE_STAKE_MON:
+        return  # under absolute floor
+
+    val_id = int(ev["validator_id"])
+    stake_wei = await _current_val_stake(rpc, val_id) if rpc else None
+    stake_mon = stake_wei / 10 ** 18 if stake_wei else None
+    pct = (amount_mon / stake_mon * 100) if stake_mon else 0
+
+    # Critical: undelegation knocks validator below active threshold
+    drops_below_active = False
+    if et == "undelegate" and stake_wei is not None:
+        post_stake_wei = stake_wei - amount
+        if stake_wei >= ACTIVE_VALIDATOR_STAKE and post_stake_wei < ACTIVE_VALIDATOR_STAKE:
+            drops_below_active = True
+
+    # Significance filter — noise reduction
+    if not drops_below_active and pct < STAKE_CRITICAL_PCT:
+        return  # routine rebalance, skip
+
+    # Build alert
+    name = _lookup_val_name(val_id) or f"#{val_id}"
+    severity = "critical" if drops_below_active else "info"
+    if drops_below_active:
+        emoji = "🚨 Validator exit risk"
+    elif et == "delegate":
+        emoji = "🐋 Large delegation"
+    else:
+        emoji = "🦈 Large undelegation"
+
+    title = f"{emoji}: {amount_mon:,.0f} MON ({pct:.0f}% of stake)"
+    desc_lines = [
+        f"Validator: {name} (id {val_id})",
+        f"Delegator: {ev['delegator']}",
+    ]
+    if stake_mon is not None:
+        post_mon = stake_mon + (amount_mon if et == "delegate" else -amount_mon)
+        desc_lines.append(f"Stake: {stake_mon:,.0f} → {post_mon:,.0f} MON")
+    if drops_below_active:
+        desc_lines.append(
+            f"⚠ Falls below ACTIVE_VALIDATOR_STAKE ({ACTIVE_VALIDATOR_STAKE // 10**18:,} MON) "
+            "— validator will exit active set next epoch."
         )
-        await tg_send("whale_stake", "info", title, desc)
+    desc_lines.append(f"block {ev['block_number']}")
+    desc = "\n".join(desc_lines)
+
+    await insert_alert(
+        conn, alert_type="whale_stake", severity=severity,
+        title=title, description=desc,
+        data_json={
+            "event_type": et, "validator_id": val_id,
+            "delegator": ev["delegator"], "amount_mon": amount_mon,
+            "stake_mon": stake_mon, "pct": pct,
+            "drops_below_active": drops_below_active,
+            "block": ev["block_number"],
+        },
+        network=NETWORK,
+    )
+    await tg_send("whale_stake", severity, title, desc)
 
 
 async def ingest_stake_events(rpc: MonadRPC, pool):
@@ -407,7 +484,7 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
             async with pool.acquire() as conn:
                 for ev in decoded:
                     await insert_stake_event(conn, ev, NETWORK)
-                    await _maybe_alert_stake_event(conn, ev)
+                    await _maybe_alert_stake_event(conn, ev, rpc)
             inserted_total += len(decoded)
 
         async with pool.acquire() as conn:
