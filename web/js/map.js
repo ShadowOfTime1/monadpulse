@@ -391,7 +391,13 @@ function _renderMapRows() {
         if (_mapTableExpanded) {
           btn.textContent = 'Show less';
         } else {
-          btn.textContent = `Show all ${data.length} known identities`;
+          // Clarify how many of the listed validators are actually plotted
+          // on the map above — the rest are known names without geo data.
+          const withGeo = data.filter(v => v.hasLocation).length;
+          const noGeo = data.length - withGeo;
+          btn.textContent = noGeo > 0
+            ? `Show all ${data.length} validators (${withGeo} on map · ${noGeo} without geo)`
+            : `Show all ${data.length} validators`;
         }
       }
     }
