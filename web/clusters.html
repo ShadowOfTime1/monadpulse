@@ -56,6 +56,16 @@
   #clusters-table td:nth-child(5) { width: 18%; text-align: right; padding-right: 4px; }
   /* Chips row in the details panel can still wrap horizontally freely */
   .cluster-details-row td { overflow: visible !important; white-space: normal; }
+  /* Override the round .page-btn shape for the "Details" action — the
+     word "Details" needs ~55px; without this it truncates to "Deta…". */
+  .cluster-details-btn {
+    width: auto; height: auto;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
 </style>
 </head>
 <body>
@@ -188,7 +198,7 @@ function renderClusters() {
         </td>
         <td style="text-align:right;font-weight:600">${c.validator_count}<span class="signal ${cls}">${label}</span></td>
         <td style="text-align:right;color:var(--cyan,#85E6FF);font-weight:600">${fmtNum(Math.round(c.total_stake_mon))} MON</td>
-        <td style="text-align:right"><button class="page-btn" onclick="toggleCluster(${i})" style="padding:4px 10px;font-size:11px">Details</button></td>
+        <td style="text-align:right"><button class="page-btn cluster-details-btn" onclick="toggleCluster(${i})">Details</button></td>
       </tr>
       <tr class="cluster-details-row" id="details-${i}" style="display:none">
         <td colspan="5"><div class="cluster-details open">${chips}${more}</div></td>
