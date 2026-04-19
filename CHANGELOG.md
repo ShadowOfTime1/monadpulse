@@ -53,6 +53,23 @@ and this project adheres to semantic-ish versioning.
   and recent blocks — end of the previous "two half-pages" split.
 
 ### Fixed
+- **Graph (root cause fix)**: labels no longer pile up in a phantom
+  column above the diagram. Top-N delegators whose outgoing edges all
+  fell outside top-N validators were being placed in the RIGHT column
+  by d3-sankey (orphans with no outgoing flow in the filtered graph),
+  but the label renderer anchored them by `n.type`, producing a
+  misplaced x≈976 column. Their rects had height=0 so all labels
+  collapsed to the same y and then got 16px-stacked by collision
+  resolution. Fix classifies label side by rendered x position,
+  hides labels for rects < 6px tall, and surfaces an explicit
+  "+N delegators without top-N target" / "+N validators without
+  top-N source" summary along the bottom of each column.
+- Graph: tooltip now flips horizontally when it would overflow the
+  viewport right edge and clamps to the viewport vertically; uses
+  `position: fixed` so page scroll can't desync it from the cursor.
+- Network toggle: switching Testnet ↔ Mainnet on /graph.html and
+  /clusters.html now re-renders the page — previously reloadPage()
+  had no case for either, so the old network's data lingered.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
