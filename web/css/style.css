@@ -298,14 +298,21 @@ main {
 
 .metric-val {
   font-family: var(--mono);
-  font-size: 32px;
+  font-size: 26px;
   font-weight: 600;
   color: var(--text);
-  line-height: 1;
+  line-height: 1.1;
   transition: color 0.3s;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+@media (max-width: 1400px) {
+  .metric-val { font-size: 22px; }
+  .metric-lbl { font-size: 9px; letter-spacing: 1.2px; }
+  .metrics { gap: 18px; }
 }
 
 .metric:hover .metric-val { color: var(--purple-light); }
