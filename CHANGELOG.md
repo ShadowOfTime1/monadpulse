@@ -111,6 +111,19 @@ and this project adheres to semantic-ish versioning.
 - **Graph click navigation** — clicks on validator nodes now include
   `&network=` so shared links and network context stay consistent
   when opening the validator detail page.
+- **Graph mobile viewport** — at ≤768px the container now scrolls
+  horizontally and the SVG is pinned at `min-width: 900px` so labels
+  stay readable; node labels locked to 12px on mobile. Previously
+  the 1200px viewBox squeezed down ~3× on 390px screens, rendering
+  labels at ~4px.
+- **Network toggle URL sync** — clicking Testnet/Mainnet now rewrites
+  the URL's `?network=` query via `history.replaceState`, so
+  share-links / refresh / browser history reflect the active network
+  instead of the stale one from the original page load. Works on
+  every page with a network toggle (fixed in shared `initNetSwitch`).
+- **Clusters "Details" button** — truncated to "Deta" because it
+  inherited the circular `.page-btn` (32×32 fixed). Overridden with
+  a scoped pill-shape class that allows the full word.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
