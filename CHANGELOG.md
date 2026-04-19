@@ -14,10 +14,29 @@ and this project adheres to semantic-ish versioning.
   social preview compatibility
 - `og:image:width`, `og:image:height`, `og:image:type` meta tags on all
   pages
+- Clusters page: "Show inactive (0 MON)" toggle — inactive delegators
+  hidden by default for a meaningful default view
 
 ### Changed
 - `og:image` / `twitter:image` now point to `/og-image.png` — universal
   social preview. SVG source retained as `og-image.svg` for future edits.
+- Dashboard metrics switched from flex-wrap to explicit 6-column CSS grid;
+  6 items now fit on a single row at 1440px and scale to 3 cols (tablet)
+  and 1/2 cols (mobile). Labels `nowrap` + ellipsis to survive longer
+  captions like "Validators (this epoch)".
+
+### Fixed
+- Graph: empty state now clears the stale SVG when no data — previously
+  an old render stayed visible next to the "no data" banner, creating a
+  contradictory UX.
+- Graph: user-facing error messages no longer expose the backend
+  rebuild-script filename (neutral `graph_not_ready` / "Graph data is
+  not available yet" surfaces instead).
+- Graph: Top delegators / Top validators inputs now `min=2 max=100` with
+  client-side clamping; label "(2–100)" next to controls.
+- Clusters: delegators with 0 MON total stake are filtered by default,
+  removing the "COORDINATED with 0 MON" paradox from the top of the
+  ranking. Toggle reveals them for historical analysis.
 
 ## [0.4.0] — 2026-04-18
 
