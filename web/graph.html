@@ -188,11 +188,50 @@ async function render() {
   svg.selectAll('*').remove();
 
   const sankey = d3.sankey()
-    .nodeWidth(16).nodePadding(8)
+    .nodeWidth(16).nodePadding(14)
     .extent([[margin.left, margin.top], [width - margin.right, height - margin.bottom]])
     .nodeSort(null);
 
   const {nodes, links} = sankey(sankeyData);
+
+  // Label-collision pass: when one huge flow dominates (e.g. Foundation with
+  // 10× the stake of everyone else), the other nodes get <1px tall and their
+  // labels would stack on top of each other. We keep the rects untouched (so
+  // links still terminate correctly) and only push the LABEL Y positions apart.
+  const fontSize = maxSide <= 15 ? 12 : maxSide <= 30 ? 10 : 9;
+  const MIN_LABEL_GAP = fontSize + 4;
+  const midX = (margin.left + width - margin.right) / 2;
+
+  function spreadLabels(col) {
+    col.sort((a, b) => a.labelY - b.labelY);
+    for (let i = 1; i < col.length; i++) {
+      const prev = col[i - 1];
+      if (col[i].labelY - prev.labelY < MIN_LABEL_GAP) {
+        col[i].labelY = prev.labelY + MIN_LABEL_GAP;
+      }
+    }
+    // Pull back if we ran past the bottom
+    const bottomLimit = height - margin.bottom;
+    for (let i = col.length - 1; i > 0; i--) {
+      if (col[i].labelY > bottomLimit) col[i].labelY = bottomLimit;
+      const prev = col[i - 1];
+      if (col[i].labelY - prev.labelY < MIN_LABEL_GAP) {
+        prev.labelY = col[i].labelY - MIN_LABEL_GAP;
+      }
+    }
+  }
+
+  nodes.forEach(n => { n.labelY = (n.y0 + n.y1) / 2; });
+  spreadLabels(nodes.filter(n => n.x0 < midX));
+  spreadLabels(nodes.filter(n => n.x0 >= midX));
+
+  // Hide labels for nodes whose share is microscopic on dense renders (100×100).
+  // At 15×15 keep every label.
+  const totalValue = d3.sum(nodes, n => n.value || 0);
+  const minShare = maxSide <= 30 ? 0 : maxSide <= 60 ? 0.002 : 0.005;
+  nodes.forEach(n => {
+    n.showLabel = totalValue <= 0 ? true : ((n.value || 0) / totalValue) >= minShare;
+  });
 
   // Links
   svg.append('g').selectAll('path')
@@ -230,12 +269,12 @@ async function render() {
       }
     });
 
-  // Labels — dynamic font size based on density
-  const fontSize = maxSide <= 15 ? 12 : maxSide <= 30 ? 10 : 9;
+  // Labels — dynamic font size based on density (fontSize computed above for
+  // label-collision pass). Use labelY from that pass instead of rect center.
   const maxChars = maxSide <= 15 ? 22 : 18;
-  node.append('text')
+  node.filter(d => d.showLabel).append('text')
     .attr('x', d => d.type === 'delegator' ? d.x0 - 8 : d.x1 + 8)
-    .attr('y', d => (d.y0 + d.y1) / 2)
+    .attr('y', d => d.labelY)
     .attr('dy', '0.35em')
     .attr('text-anchor', d => d.type === 'delegator' ? 'end' : 'start')
     .attr('font-size', fontSize)
@@ -243,6 +282,17 @@ async function render() {
       const label = d.type === 'delegator' ? shortAddr(d.label) : d.label;
       return label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label;
     });
+
+  // Leader line: if the label was pushed far from the node's rect, connect
+  // them with a thin line so users can tell which rect a label belongs to.
+  node.filter(d => d.showLabel).append('line')
+    .attr('x1', d => d.type === 'delegator' ? d.x0 - 3 : d.x1 + 3)
+    .attr('y1', d => Math.max(d.y0 + 0.5, Math.min(d.y1 - 0.5, d.labelY)))
+    .attr('x2', d => d.type === 'delegator' ? d.x0 - 6 : d.x1 + 6)
+    .attr('y2', d => d.labelY)
+    .attr('stroke', 'rgba(110,84,255,0.25)')
+    .attr('stroke-width', 0.6)
+    .attr('pointer-events', 'none');
 
   document.getElementById('sankey-loading').style.display = 'none';
   document.getElementById('sankey-svg').style.display = 'block';
