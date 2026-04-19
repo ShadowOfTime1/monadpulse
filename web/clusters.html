@@ -79,7 +79,13 @@
 
   <section class="data-section">
     <div class="section-title">Top Delegators by Validator Count</div>
-    <div id="clusters-meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-bottom:12px"></div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px;flex-wrap:wrap">
+      <div id="clusters-meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px"></div>
+      <label style="display:flex;align-items:center;gap:6px;color:var(--text-dim);font-family:var(--mono);font-size:11px;cursor:pointer;margin-left:auto">
+        <input type="checkbox" id="show-inactive" style="accent-color:#6E54FF">
+        <span>Show inactive (0&nbsp;MON)</span>
+      </label>
+    </div>
     <div style="overflow-x:auto">
       <table id="clusters-table">
         <thead>
@@ -104,16 +110,30 @@
 </footer>
 <script src="/js/app.js"></script>
 <script>
+let _allClusters = [];
+
 async function loadClusters() {
-  const r = await apiFetch('/analytics/delegator-clusters?min_validators=2&limit=100');
-  const meta = document.getElementById('clusters-meta');
+  const r = await apiFetch('/analytics/delegator-clusters?min_validators=2&limit=200');
   const tbody = document.querySelector('#clusters-table tbody');
   if (!r || !r.clusters) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:32px">No graph data — waiting for rebuild</td></tr>';
-    meta.textContent = '';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:32px">Graph data not available yet — rebuild in progress.</td></tr>';
+    document.getElementById('clusters-meta').textContent = '';
     return;
   }
-  meta.textContent = `${r.returned} delegators shown · ${r.total_delegators} total in graph`;
+  _allClusters = r.clusters;
+  r._total = r.total_delegators;
+  renderClusters();
+}
+
+function renderClusters() {
+  const meta = document.getElementById('clusters-meta');
+  const tbody = document.querySelector('#clusters-table tbody');
+  const showInactive = document.getElementById('show-inactive').checked;
+
+  const active = _allClusters.filter(c => c.total_stake_mon > 0);
+  const shown = showInactive ? _allClusters : active;
+  meta.textContent =
+    `${shown.length} shown · ${active.length} active · ${_allClusters.length} with ≥2 validators`;
 
   function signalClass(n) {
     if (n >= 100) return 'signal-extreme';
@@ -122,7 +142,7 @@ async function loadClusters() {
     return 'signal-low';
   }
 
-  tbody.innerHTML = r.clusters.map((c, i) => {
+  tbody.innerHTML = shown.map((c, i) => {
     const cls = signalClass(c.validator_count);
     const chips = c.validators.slice(0, 40).map(v =>
       `<a href="/validator.html?id=${v.val_id}" class="val-chip" title="${fmtNum(Math.round(v.stake_wei/1e18))} MON">${esc(v.name || ('#' + v.val_id))}</a>`
@@ -150,7 +170,10 @@ window.toggleCluster = function(idx) {
   row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
 };
 
-document.addEventListener('DOMContentLoaded', loadClusters);
+document.addEventListener('DOMContentLoaded', () => {
+  loadClusters();
+  document.getElementById('show-inactive').addEventListener('change', renderClusters);
+});
 </script>
 </body>
 </html>
