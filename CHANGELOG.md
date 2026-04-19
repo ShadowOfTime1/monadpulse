@@ -78,6 +78,14 @@ and this project adheres to semantic-ish versioning.
 - URL ?network= query now honored on page load (any page). Deep
   links like /graph.html?network=mainnet now land on the right
   network and persist the choice to sessionStorage.
+- **Graph page Apply button** — restyled as a distinct primary button
+  instead of near-invisible flat text. Added Enter-to-apply on both
+  top-N inputs (blur-apply too, only if the value actually changed).
+- **Graph page viewport fit** — Sankey height now scales with the
+  number of rows (26px per node, clamped [420, 2400]), and the
+  container has `max-height: calc(100vh - 260px)` with
+  `overflow-y: auto` so large graphs scroll inside the container
+  rather than pushing the "How to read" block off-screen.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
