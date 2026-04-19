@@ -124,6 +124,13 @@ and this project adheres to semantic-ish versioning.
 - **Clusters "Details" button** — truncated to "Deta" because it
   inherited the circular `.page-btn` (32×32 fixed). Overridden with
   a scoped pill-shape class that allows the full word.
+- **Validator page commission** — corrected wei→percent formatting.
+  Previously showed nonsense values (e.g. `400000000000000.00 %`) for
+  any validator with a nonzero commission. The staking contract
+  returns commission as a wei-scale ratio (1e18 = 100%), not
+  basis-points-times-100; dividing by `1e16` gives the correct
+  percent. Hidden until now because testnet validators and Backpack
+  all have commission = 0.
 - **Validator page Health Score + Block Stats on mainnet** —
   `/health/scores` and `/validators/list` are indexed on
   `block.miner`, but mainnet rotates several ephemeral miner
