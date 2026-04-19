@@ -111,6 +111,27 @@ and this project adheres to semantic-ish versioning.
 - **Graph click navigation** — clicks on validator nodes now include
   `&network=` so shared links and network context stay consistent
   when opening the validator detail page.
+
+### Added
+- **Signing Uptime (proposing-rate proxy)** — new rolling 1h / 8h /
+  24h metric on `/validator.html` alongside VDP Uptime. Baseline is
+  self-calibrated: the validator's own 24h block-share is the
+  expected rate; 1h and 8h are compared to that projection. A
+  sustained drop in 1h → node outage signal. Backed by new API
+  endpoint `/validators/by-id/{id}/signing-uptime`, which resolves
+  candidate miner addresses from the names map and falls back to
+  `get_proposer_val_id()` RPC discovery for validators missing
+  from the upstream directory.
+- **Null-proposer backfill job** — `scripts/backfill_null_proposers.py`
+  + systemd timer (5 min) resolves blocks with `miner=0x0...0` via
+  `get_proposer_val_id(block_number)` and rewrites `proposer_address`
+  to the validator's auth. Recovered ~4k null blocks on testnet first
+  run; shadowoftime val_id=267 signing uptime now reads 972 blocks /
+  24h instead of 0.
+- **Signing-drop Telegram watchdog** — `/opt/monad/scripts/signing-uptime-alert.py`
+  polls the new endpoint every 10 min; if 1h pct drops below 20% AND
+  the validator has meaningful 24h activity, fires a single Telegram
+  alert (1h cooldown) + a recovery note when it climbs back.
 - **Graph mobile viewport** — at ≤768px the container now scrolls
   horizontally and the SVG is pinned at `min-width: 900px` so labels
   stay readable; node labels locked to 12px on mobile. Previously
