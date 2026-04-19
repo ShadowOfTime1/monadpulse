@@ -77,7 +77,7 @@
     <div style="overflow-x:auto">
       <table id="earners-table">
         <thead>
-          <tr><th></th><th>Validator</th><th>Blocks</th><th>Transactions</th><th>Est. Rewards</th><th>Share</th></tr>
+          <tr><th></th><th>Validator</th><th>Blocks</th><th>Transactions</th><th>Est. Rewards</th><th title="Share of total network blocks for the selected period">Share of network</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -108,10 +108,18 @@ const PERIOD_HOURS = { '24h': 24, '7d': 168, '30d': 720 };
 async function loadStake(period = '24h') {
   await loadNames();
   const hours = PERIOD_HOURS[period] || 24;
-  const [earners, events] = await Promise.all([
+  // proposer-stats returns one row per producing validator for the period —
+  // summing its blocks gives us the true network block count for that window.
+  // This is what "Share %" should divide by, NOT the top-N sum (which would
+  // inflate percentages of the biggest earners).
+  const [earners, events, proposerStats] = await Promise.all([
     apiFetch('/stake/top-earners?hours=' + hours),
     apiFetch('/stake/events?limit=200'),
+    apiFetch('/blocks/proposer-stats?period=' + period),
   ]);
+  window._networkBlocks = Array.isArray(proposerStats)
+    ? proposerStats.reduce((s, r) => s + (r.blocks_proposed || 0), 0)
+    : 0;
 
   if (earners && earners.length) {
     // Chart — top 15 always
@@ -125,7 +133,27 @@ async function loadStake(period = '24h') {
       borderWidth: 1,
       borderRadius: 6,
       borderSkipped: false,
-    }]);
+    }], {
+      // Chart.js auto-skips labels when bars get narrow (15 names at 1440px
+      // reduced to only "Backpack" visible). Rotate 45° and disable autoSkip
+      // so every validator shows. aspectRatio shortened to give x-axis room.
+      aspectRatio: 2.6,
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            maxRotation: 45, minRotation: 45, autoSkip: false,
+            color: '#6B6580',
+            font: { family: "'Roboto Mono', monospace", size: 10 },
+          },
+        },
+        y: {
+          grid: { color: 'rgba(110,84,255,0.06)', lineWidth: 0.5 },
+          ticks: { color: '#6B6580' },
+          beginAtZero: true,
+        },
+      },
+    });
 
     window._earnersAll = earners;
     window._earnersPage = 0;
@@ -140,7 +168,14 @@ async function loadStake(period = '24h') {
     window._eventsGroups = [];
     return;
   }
-  if (!events || !events.length) { window._eventsGroups = []; return; }
+  if (!events || !events.length) {
+    // Explicitly clear stale content — otherwise the previous network's
+    // events would linger after switching to a network with no events yet.
+    container.innerHTML = `<div class="empty-state">No recent stake events on ${esc(NETWORK)}.</div>`;
+    if (pag) pag.innerHTML = '';
+    window._eventsGroups = [];
+    return;
+  }
 
   window._eventsGroups = groupStakeEvents(events);
   window._eventsPage = 0;
@@ -269,10 +304,14 @@ function renderEarnersPage() {
   const totalPages = Math.ceil(data.length / EARNERS_PER_PAGE);
   const start = page * EARNERS_PER_PAGE;
   const slice = data.slice(start, start + EARNERS_PER_PAGE);
-  const totalRewards = data.reduce((s, e) => s + (e.est_rewards_mon || 0), 0);
+  // Share of the NETWORK (not of the top-N). Divide by total blocks produced
+  // across all proposers for the selected period. Falls back to top-N sum of
+  // blocks only if the network stat is unavailable.
+  const networkBlocks = window._networkBlocks
+    || data.reduce((s, e) => s + (e.blocks || 0), 0);
 
   tbody.innerHTML = slice.map((e, i) => {
-    const share = totalRewards > 0 ? (e.est_rewards_mon / totalRewards) * 100 : 0;
+    const share = networkBlocks > 0 ? (e.blocks / networkBlocks) * 100 : 0;
     const shareColor = share >= 10 ? '#FF7849' : share >= 5 ? '#FFAE45' : 'var(--text-dim)';
     const shareWidth = Math.min(100, share * 5); // scale for bar visualization
     return `
