@@ -48,6 +48,24 @@
   .gctrl { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
   .gctrl label { color: var(--text-dim); font-family: var(--mono); font-size: 11px; letter-spacing: 0.5px; }
   .gctrl input { width: 60px; padding: 4px 8px; background: rgba(14,9,28,0.6); border: 1px solid rgba(110,84,255,0.3); border-radius: 6px; color: #DDD7FE; font-family: var(--mono); font-size: 12px; text-align: center; }
+  /* Override the circular .page-btn — here Apply is a primary action button
+     and must read as one, not as part of the adjacent meta string. */
+  .gctrl-apply {
+    width: auto; height: auto;
+    padding: 7px 16px;
+    background: rgba(110,84,255,0.18);
+    color: var(--text);
+    border: 1px solid rgba(110,84,255,0.45);
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .gctrl-apply:hover { background: rgba(110,84,255,0.28); border-color: rgba(110,84,255,0.65); color: var(--text); }
+  .gctrl-apply:active { background: rgba(110,84,255,0.35); }
 </style>
 </head>
 <body>
@@ -86,7 +104,7 @@
     <label>Top delegators</label><input id="top-del" type="number" min="2" max="100" step="1" value="15">
     <label>Top validators</label><input id="top-val" type="number" min="2" max="100" step="1" value="15">
     <span style="color:var(--text-dim);font-family:var(--mono);font-size:10px">(2–100)</span>
-    <button id="apply" class="page-btn" style="padding:6px 14px">Apply</button>
+    <button id="apply" class="page-btn gctrl-apply">Apply</button>
     <span id="meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-left:12px"></span>
   </div>
 
@@ -154,6 +172,10 @@ async function renderGraph() {
   const td = clamp(parseInt(delInput.value, 10), 2, 100);
   const tv = clamp(parseInt(valInput.value, 10), 2, 100);
   delInput.value = td; valInput.value = tv;
+  // Remember what we just applied so the blur-handler doesn't redundantly
+  // re-trigger renderGraph when focus leaves an input that's already current.
+  delInput.dataset.lastApplied = String(td);
+  valInput.dataset.lastApplied = String(tv);
 
   document.getElementById('sankey-empty').style.display = 'none';
   document.getElementById('sankey-loading').style.display = 'block';
@@ -354,6 +376,26 @@ async function renderGraph() {
 window.renderGraph = renderGraph;
 document.getElementById('apply').addEventListener('click', renderGraph);
 document.addEventListener('DOMContentLoaded', renderGraph);
+
+// Enter in either input applies immediately — matches form conventions.
+// Blur also applies, but only if the value actually changed since the last
+// render (dataset.lastApplied is set inside renderGraph after clamping).
+['top-del', 'top-val'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      renderGraph();
+    }
+  });
+  el.addEventListener('blur', () => {
+    const v = parseInt(el.value, 10);
+    if (Number.isFinite(v) && v >= 2 && v <= 100 && String(v) !== el.dataset.lastApplied) {
+      renderGraph();
+    }
+  });
+});
 </script>
 </body>
 </html>
