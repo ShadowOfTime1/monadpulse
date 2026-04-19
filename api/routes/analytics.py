@@ -47,7 +47,7 @@ async def delegator_clusters(
     single operator running multiple validators, or coordinated group)."""
     edges = _load_graph(network)
     if not edges:
-        raise HTTPException(404, f"no graph data for {network} — rebuild not yet run")
+        raise HTTPException(404, "graph_not_ready")
 
     names = _load_names(network)
     agg: dict[str, dict] = {}
@@ -83,7 +83,7 @@ async def delegation_graph(
     top-N of each side by total stake. Keeps the viz readable."""
     edges = _load_graph(network)
     if not edges:
-        raise HTTPException(404, f"no graph data for {network} — rebuild not yet run")
+        raise HTTPException(404, "graph_not_ready")
     names = _load_names(network)
 
     # Total stake per delegator and per validator
