@@ -33,6 +33,28 @@
   .signal-high { background: rgba(255,142,228,0.15); color: #FF8EE4; }
   .signal-medium { background: rgba(255,174,69,0.15); color: #FFAE45; }
   .signal-low { background: rgba(110,84,255,0.1); color: #9994AE; }
+
+  /* Fixed-width table: rank (narrow), delegator (wide), validators (medium),
+     stake (medium), detail (narrow). Prevents horizontal scrollbar at 1440px
+     where content minimally overflowed the 1185px wrapper. */
+  #clusters-wrap { overflow-x: hidden; }
+  #clusters-table { table-layout: fixed; width: 100%; }
+  #clusters-table th, #clusters-table td {
+    padding: 12px 10px; box-sizing: border-box;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  #clusters-table th:nth-child(1),
+  #clusters-table td:nth-child(1) { width: 4%; padding-left: 4px; padding-right: 4px; }
+  #clusters-table th:nth-child(2),
+  #clusters-table td:nth-child(2) { width: 25%; }
+  #clusters-table th:nth-child(3),
+  #clusters-table td:nth-child(3) { width: 30%; text-align: right; }
+  #clusters-table th:nth-child(4),
+  #clusters-table td:nth-child(4) { width: 23%; text-align: right; }
+  #clusters-table th:nth-child(5),
+  #clusters-table td:nth-child(5) { width: 18%; text-align: right; padding-right: 4px; }
+  /* Chips row in the details panel can still wrap horizontally freely */
+  .cluster-details-row td { overflow: visible !important; white-space: normal; }
 </style>
 </head>
 <body>
@@ -86,7 +108,7 @@
         <span>Show inactive (0&nbsp;MON)</span>
       </label>
     </div>
-    <div style="overflow-x:auto">
+    <div id="clusters-wrap">
       <table id="clusters-table">
         <thead>
           <tr>
