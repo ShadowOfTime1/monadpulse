@@ -224,12 +224,14 @@ async function renderGraph() {
   // Height chosen to give ~16px per row at 15×15, stays inside typical viewport.
   const maxSide = Math.max(data.nodes.delegators.length, data.nodes.validators.length);
   const width = 1200;
-  // Row-based height: 26px per node gives enough room for a 11–12px label
-  // plus padding. Clamped [420, 2400] so the viewBox stays sane at both the
-  // N=2 floor and the N=100 ceiling. The container caps the visible height
-  // via max-height and internal scroll handles the rest.
-  const rowH = 26;
-  const height = Math.max(420, Math.min(2400, maxSide * rowH));
+  // rowH 32 matches the node-padding (14) + label font-size budget that V9's
+  // MIN_RECT_FOR_LABEL = 6 was tuned against. Lower values (e.g. 26) push
+  // low-stake delegators below the label threshold and they disappear from
+  // the chart. Ceiling 3200 = 100 rows × 32 so maxSide = 100 still fits.
+  // The container cap (max-height: calc(100vh - 260px) + overflow-y:auto)
+  // absorbs the extra SVG height via internal scroll.
+  const rowH = 32;
+  const height = Math.max(420, Math.min(3200, maxSide * rowH));
   const margin = { left: 160, right: 200, top: 12, bottom: 12 };
 
   const svg = d3.select('#sankey-svg')
