@@ -1265,6 +1265,12 @@ function initNetSwitch() {
       sessionStorage.setItem('mp_net', net);
       document.querySelectorAll('.net-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      // Keep the URL in sync with the toggle. Share-links / refresh /
+      // browser history now reflect the active network instead of the
+      // stale ?network= (or missing one) from the original page load.
+      const url = new URL(location.href);
+      url.searchParams.set('network', net);
+      history.replaceState(null, '', url.pathname + url.search + url.hash);
       // Update live dot text
       const dot = document.querySelector('.live-dot');
       if (dot) dot.textContent = `Live — syncing with Monad ${net}`;
