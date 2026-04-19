@@ -345,7 +345,10 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
   const snapStake = v.snapshot_stake / MON;
   const poolUnclaimed = v.unclaimed_rewards / MON;
   const opClaim = v.operator_claimable_rewards != null ? v.operator_claimable_rewards / MON : null;
-  const comm = (v.execution_commission / 100).toFixed(2);
+  // Commission is a wei-scale ratio on the Monad staking contract:
+  // 1e18 = 100%. NOT basis-points-times-100 (old formula /100 produced
+  // "400000000000000.00 %" for CMS Holdings with a real 4% commission).
+  const comm = (Number(v.execution_commission) / 1e16).toFixed(2);
   const isActive = v.consensus_stake > 0;
 
   const avgBt = blocksData ? blocksData.avg_block_time_ms : null;
