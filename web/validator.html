@@ -434,6 +434,15 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
       </div>
     </div>
 
+    <section class="data-section" id="signing-uptime-section" style="display:none">
+      <div class="section-title">Signing Activity
+        <span style="color:var(--text-dim);font-weight:400;font-size:11px;margin-left:10px">proposing rate vs validator's own 24h baseline</span>
+      </div>
+      <div class="breakdown-grid" id="signing-uptime-grid"></div>
+      <div id="signing-uptime-note" style="color:var(--text-dim);font-size:11px;margin-top:12px;line-height:1.6"></div>
+    </section>
+    <div class="flow-sep"></div>
+
     ${breakdownComponents.length ? `
     <section class="data-section">
       <div class="section-title">Health Breakdown</div>
@@ -522,6 +531,54 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     el.textContent = pct.toFixed(1) + '%';
     el.style.color = pct >= 100 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
   }).catch(() => { const el = document.getElementById('vdp-uptime-val'); if (el) el.textContent = '—'; });
+
+  // Async signing-uptime fetch (1h / 8h / 24h). Cold RPC discovery may take
+  // 1-2s, so this doesn't block the initial render.
+  apiFetch('/validators/by-id/' + valId + '/signing-uptime').then(s => {
+    const section = document.getElementById('signing-uptime-section');
+    const grid = document.getElementById('signing-uptime-grid');
+    const note = document.getElementById('signing-uptime-note');
+    if (!section || !grid) return;
+    if (!s || !s.windows) {
+      note.textContent = 'Signing uptime data not available on this network yet.';
+      section.style.display = 'block';
+      return;
+    }
+    const color = (pct) => pct == null ? 'var(--text-dim)'
+      : pct >= 90 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
+    const cells = [['1h', '1 hour'], ['8h', '8 hours'], ['24h', '24 hours']].map(([k, label]) => {
+      const w = s.windows[k];
+      const pct = w && w.pct;
+      const col = color(pct);
+      const shownPct = pct == null ? '—' : pct.toFixed(1) + '%';
+      const sub = w
+        ? `${fmtNum(w.actual)} / ${fmtNum(Math.round(w.expected))} blocks`
+        : '—';
+      return `<div class="breakdown-item">
+        <div class="bi-name">${label}</div>
+        <div class="bi-bar"><div class="bi-bar-fill" style="width:${pct == null ? 0 : pct}%;background:${col};box-shadow:0 0 6px ${col}40"></div></div>
+        <div class="bi-val" style="color:${col}">${shownPct}</div>
+        <div style="color:var(--text-dim);font-size:10px;margin-top:4px;font-family:var(--mono)">${sub}</div>
+      </div>`;
+    }).join('');
+    grid.innerHTML = cells;
+    const baseShare = s.share_24h != null ? s.share_24h.toFixed(3) + '%' : '—';
+    let noteText = `Validator 24h share of network: ${baseShare} (${fmtNum(s.active_validators_24h)} active validators in window). `;
+    if (s.share_24h === 0) {
+      noteText += 'No blocks attributed to this validator in the last 24h — either the node is offline, or the collector hasn\'t resolved its block.miner addresses yet.';
+    } else {
+      noteText += 'A sustained drop in 1h pct signals an active outage; 8h / 24h are more stable.';
+    }
+    note.textContent = noteText;
+    section.style.display = 'block';
+  }).catch(() => {
+    const section = document.getElementById('signing-uptime-section');
+    const note = document.getElementById('signing-uptime-note');
+    if (section && note) {
+      note.textContent = 'Signing uptime unavailable — API error.';
+      section.style.display = 'block';
+    }
+  });
 }
 
 // Fallback when ?addr= doesn't resolve to a registered validator — still show

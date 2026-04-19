@@ -245,6 +245,193 @@ async def validator_first_active(val_id: int, network: str = Query("testnet")):
     }
 
 
+GET_PROPOSER_VAL_ID_SELECTOR = "fbacb0be"  # get_proposer_val_id() — reads proposer of the given historical block
+_MINER_DISCOVERY_CACHE: dict[tuple[str, int], tuple[float, list[str]]] = {}
+MINER_DISCOVERY_TTL = 600  # 10 min
+
+
+async def _discover_miners_via_rpc(val_id: int, network: str, pool) -> list[str]:
+    """Fallback when the names map has no miners attributed to this val_id.
+    For each unique proposer_address that produced blocks recently, probe
+    get_proposer_val_id() at its most recent block — O(distinct proposers)
+    RPC calls ≈ 200. Cached 10 min per (network, val_id)."""
+    import time as _t
+    import asyncio
+    key = (network, val_id)
+    cached = _MINER_DISCOVERY_CACHE.get(key)
+    if cached and (_t.time() - cached[0]) < MINER_DISCOVERY_TTL:
+        return cached[1]
+
+    # Collect distinct (miner, recent block_number) from the last 6h of blocks.
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            """
+            SELECT proposer_address, MAX(block_number) AS bn
+            FROM blocks
+            WHERE network = $1
+              AND timestamp > NOW() - INTERVAL '6 hours'
+              AND proposer_address != '0x0000000000000000000000000000000000000000'
+            GROUP BY proposer_address
+            """,
+            network,
+        )
+
+    url = RPC_URLS.get(network, RPC_URLS["testnet"])
+    miners: set[str] = set()
+
+    async def probe(client: httpx.AsyncClient, miner: str, bn: int) -> None:
+        try:
+            r = await client.post(url, json={
+                "jsonrpc": "2.0", "method": "eth_call",
+                "params": [{"to": STAKING_PRECOMPILE, "data": "0x" + GET_PROPOSER_VAL_ID_SELECTOR}, hex(bn)],
+                "id": 1,
+            })
+            data = r.json()
+            vid = int(data.get("result", "0x0"), 16) if data.get("result") else 0
+            if vid == val_id:
+                miners.add(miner.lower())
+        except Exception:
+            pass
+
+    async with httpx.AsyncClient(timeout=15) as client:
+        # Parallel probes, bounded concurrency.
+        sem = asyncio.Semaphore(20)
+        async def bounded(m, bn):
+            async with sem:
+                await probe(client, m, bn)
+        await asyncio.gather(*(bounded(r["proposer_address"], int(r["bn"])) for r in rows))
+
+    discovered = sorted(miners)
+    _MINER_DISCOVERY_CACHE[key] = (_t.time(), discovered)
+    return discovered
+
+
+def _candidate_addrs_for_valid(val_id: int, auth: str, network: str) -> list[str]:
+    """Return the set of addresses that can produce blocks for this validator.
+    On testnet block.miner == auth. On mainnet the miner rotates across several
+    ephemeral addrs, all attributed to the same canonical name in the names map.
+    We seed with auth and add every miner the map attributes to the same name."""
+    addrs = {auth.lower()}
+    try:
+        # Lazy-import to avoid circular deps with names.py
+        from api.routes.names import _load as _load_names
+    except Exception:
+        return list(addrs)
+    nmap = _load_names(network) or {}
+    # Find the canonical name for this val_id via auth (testnet) or miners
+    # (mainnet we don't know yet) — just walk the map and cluster by name.
+    target_name = nmap.get(auth.lower())
+    if not target_name:
+        # auth may not be in the miner-indexed names map on mainnet; fall back
+        # to the directory JSON which maps val_id → name directly.
+        try:
+            dir_path = Path(f"/opt/monadpulse/validator_directory_{network}.json")
+            if dir_path.exists():
+                for row in json.loads(dir_path.read_text()):
+                    if int(row.get("val_id", -1)) == val_id:
+                        target_name = row.get("name")
+                        break
+        except Exception:
+            pass
+    if target_name:
+        for addr, nm in nmap.items():
+            if nm == target_name:
+                addrs.add(addr.lower())
+    return list(addrs)
+
+
+@router.get("/by-id/{val_id}/signing-uptime")
+async def validator_signing_uptime(val_id: int, request: Request, network: str = Query("testnet")):
+    """Proposing-share uptime over rolling 1h / 8h / 24h windows.
+
+    Baseline is self-calibrated per validator: we take the validator's own
+    24h-average share of total network blocks as the "expected" rate, and
+    compare the 1h / 8h counts to that projection. This removes the
+    stake-weighting problem (Monad proposer selection is stake-weighted —
+    uniform average makes Backpack look 21× over-quota and small operators
+    look permanently under-quota). For the 24h window itself, baseline is
+    still validator's 24h share (so pct≈100% by definition unless there
+    was a clear drop within the window).
+
+    This is a proxy via proposing rate, not true BFT signing (RPC doesn't
+    expose individual signer sets per block). Good enough to spot a node
+    outage: if a validator stops proposing, their 1h count falls to 0
+    while 24h share stays nonzero, and pct_1h crashes toward 0."""
+    v = await _get_validator_onchain(val_id, network)
+    if v is None:
+        raise HTTPException(status_code=404, detail=f"validator {val_id} not found on {network}")
+    auth_raw = v[0]
+    auth = auth_raw if isinstance(auth_raw, str) else "0x" + auth_raw.hex()
+    addrs = _candidate_addrs_for_valid(val_id, auth.lower(), network)
+
+    pool = request.app.state.pool
+    # If the only candidate is auth (name map knew nothing about this validator),
+    # try RPC discovery — probes get_proposer_val_id() at historical blocks and
+    # harvests real miner addresses. Necessary for validators missing from the
+    # upstream validator-info repo (e.g. shadowoftime on testnet).
+    if len(addrs) == 1:
+        discovered = await _discover_miners_via_rpc(val_id, network, pool)
+        if discovered:
+            for a in discovered:
+                if a not in addrs:
+                    addrs.append(a)
+
+    now = datetime.now(timezone.utc)
+    # Single query that captures the three windows in one pass.
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            SELECT
+              COUNT(*) FILTER (WHERE timestamp >= $2 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_1h,
+              COUNT(*) FILTER (WHERE timestamp >= $2 AND proposer_address = ANY($5::text[])) AS actual_1h,
+              COUNT(*) FILTER (WHERE timestamp >= $3 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_8h,
+              COUNT(*) FILTER (WHERE timestamp >= $3 AND proposer_address = ANY($5::text[])) AS actual_8h,
+              COUNT(*) FILTER (WHERE timestamp >= $4 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_24h,
+              COUNT(*) FILTER (WHERE timestamp >= $4 AND proposer_address = ANY($5::text[])) AS actual_24h,
+              COUNT(DISTINCT proposer_address) FILTER (WHERE timestamp >= $4 AND proposer_address != '0x0000000000000000000000000000000000000000') AS active_24h
+            FROM blocks
+            WHERE network = $1 AND timestamp >= $4
+            """,
+            network,
+            now - timedelta(hours=1),
+            now - timedelta(hours=8),
+            now - timedelta(hours=24),
+            addrs,
+        )
+    total_24h = int(row["total_24h"] or 0)
+    actual_24h = int(row["actual_24h"] or 0)
+    # Self-calibrated baseline: validator's 24h share of all proposals
+    share_24h = (actual_24h / total_24h) if total_24h > 0 else 0
+
+    def window(total: int, actual: int, hours: int) -> dict:
+        expected = total * share_24h if share_24h > 0 else 0
+        pct = min(100.0, actual / expected * 100) if expected > 0 else None
+        return {
+            "actual": actual,
+            "expected": round(expected, 2),
+            "pct": round(pct, 1) if pct is not None else None,
+            "total_blocks": total,
+            "hours": hours,
+        }
+
+    out = {
+        "1h":  window(int(row["total_1h"] or 0),  int(row["actual_1h"] or 0),  1),
+        "8h":  window(int(row["total_8h"] or 0),  int(row["actual_8h"] or 0),  8),
+        "24h": window(total_24h, actual_24h, 24),
+    }
+    return {
+        "validator_id": val_id,
+        "network": network,
+        "auth": auth.lower(),
+        "candidate_addrs": addrs,
+        "windows": out,
+        "baseline": "self-24h-share",
+        "share_24h": round(share_24h * 100, 3),
+        "active_validators_24h": int(row["active_24h"] or 0),
+        "note": "proxy via proposing rate; baseline is validator's own 24h share — 1h pct will crash toward 0 on outage",
+    }
+
+
 @router.get("/list")
 async def validator_list(request: Request, period: str = Query("24h"), network: str = Query("testnet")):
     delta = {"24h": timedelta(hours=24), "7d": timedelta(days=7), "30d": timedelta(days=30)}.get(period, timedelta(hours=24))
