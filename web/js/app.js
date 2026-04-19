@@ -1027,13 +1027,29 @@ async function loadGas() {
       backgroundColor: 'rgba(110,84,255,0.08)',
       fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2,
     }]);
+    const baseFeeValues = hourly.map(h => h.avg_base_fee / 1e9);
     makeChart('chart-basefee', 'line', labels, [{
       label: 'Avg Base Fee (gwei)',
-      data: hourly.map(h => h.avg_base_fee / 1e9),
+      data: baseFeeValues,
       borderColor: '#FFAE45',
       backgroundColor: 'rgba(255,174,69,0.08)',
       fill: true, tension: 0.4, pointRadius: 0, borderWidth: 2,
     }]);
+    // Base fee is currently pinned on Monad (dynamic pricing not yet
+    // activated). If 48h of data is a flat line, explain it in-place rather
+    // than leaving viewers to wonder why the chart is a straight line.
+    const note = document.getElementById('basefee-note');
+    if (note && baseFeeValues.length) {
+      const min = Math.min(...baseFeeValues);
+      const max = Math.max(...baseFeeValues);
+      const isPinned = (max - min) < 0.5;
+      if (isPinned) {
+        note.style.display = 'block';
+        note.innerHTML = `Dynamic base fee is not yet active on Monad ${esc(NETWORK)} — value is pinned at ${min.toFixed(0)} gwei.`;
+      } else {
+        note.style.display = 'none';
+      }
+    }
     makeChart('chart-txcount', 'bar', labels, [{
       label: 'Transactions',
       data: hourly.map(h => h.tx_count),
