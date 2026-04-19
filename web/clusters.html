@@ -130,10 +130,13 @@ function renderClusters() {
   const tbody = document.querySelector('#clusters-table tbody');
   const showInactive = document.getElementById('show-inactive').checked;
 
-  const active = _allClusters.filter(c => c.total_stake_mon > 0);
+  // "Active" = ≥ 1 MON. Sub-1-MON dust rounds to "0 MON" in the table and
+  // behaves like an inactive delegator from the user's perspective.
+  const ACTIVE_THRESHOLD_MON = 1;
+  const active = _allClusters.filter(c => c.total_stake_mon >= ACTIVE_THRESHOLD_MON);
   const shown = showInactive ? _allClusters : active;
   meta.textContent =
-    `${shown.length} shown · ${active.length} active · ${_allClusters.length} with ≥2 validators`;
+    `${shown.length} shown · ${active.length} active · ${_allClusters.length} total (≥2 validators)`;
 
   function signalClass(n) {
     if (n >= 100) return 'signal-extreme';
