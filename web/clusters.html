@@ -33,6 +33,7 @@
   .signal-high { background: rgba(255,142,228,0.15); color: #FF8EE4; }
   .signal-medium { background: rgba(255,174,69,0.15); color: #FFAE45; }
   .signal-low { background: rgba(110,84,255,0.1); color: #9994AE; }
+  .signal-dust { background: rgba(107,101,128,0.15); color: #6B6580; }
 
   /* Fixed-width table: rank (narrow), delegator (wide), validators (medium),
      stake (medium), detail (narrow). Prevents horizontal scrollbar at 1440px
@@ -91,10 +92,11 @@
 
   <div style="margin:16px 0 24px;font-size:12px;color:var(--text-dim);line-height:1.7">
     <strong style="color:#DDD7FE">Signal legend:</strong>
-    <span class="signal signal-low">2-5</span> normal (most retail delegators)
-    <span class="signal signal-medium">6-20</span> power-delegator (funds, whales)
-    <span class="signal signal-high">21-100</span> likely coordinated group or multi-node operator
-    <span class="signal signal-extreme">100+</span> foundation-scale redistribution
+    <span class="signal signal-low">normal</span> 2-5 validators
+    <span class="signal signal-medium">power</span> 6-20 validators, meaningful stake
+    <span class="signal signal-high">coordinated</span> 21-100 validators, meaningful stake
+    <span class="signal signal-extreme">foundation</span> 100+ validators AND 10M+ MON
+    <span class="signal signal-dust">dust</span> high validator count, &lt;100 MON total (sybil / airdrop pattern)
   </div>
 
   <div class="flow-sep"></div>
@@ -160,15 +162,20 @@ function renderClusters() {
   meta.textContent =
     `${shown.length} shown · ${active.length} active · ${_allClusters.length} total (≥2 validators)`;
 
-  function signalClass(n) {
-    if (n >= 100) return 'signal-extreme';
-    if (n > 20) return 'signal-high';
-    if (n > 5) return 'signal-medium';
-    return 'signal-low';
+  // Classification uses BOTH validator count AND total stake — a delegator
+  // with 169 validators × 1 MON each is a sybil/airdrop pattern, not
+  // "foundation-scale redistribution". The old count-only rule mis-labelled
+  // these top rows FOUNDATION on mainnet.
+  function classify(count, stakeMon) {
+    if (count >= 100 && stakeMon >= 10_000_000) return { cls: 'signal-extreme', label: 'foundation' };
+    if (count >= 21  && stakeMon >= 100)        return { cls: 'signal-high',    label: 'coordinated' };
+    if (count >= 6   && stakeMon >= 100)        return { cls: 'signal-medium',  label: 'power' };
+    if (count >= 6   && stakeMon <  100)        return { cls: 'signal-dust',    label: 'dust' };
+    return { cls: 'signal-low', label: 'normal' };
   }
 
   tbody.innerHTML = shown.map((c, i) => {
-    const cls = signalClass(c.validator_count);
+    const { cls, label } = classify(c.validator_count, c.total_stake_mon);
     const chips = c.validators.slice(0, 40).map(v =>
       `<a href="/validator.html?id=${v.val_id}" class="val-chip" title="${fmtNum(Math.round(v.stake_wei/1e18))} MON">${esc(v.name || ('#' + v.val_id))}</a>`
     ).join(' ');
@@ -179,7 +186,7 @@ function renderClusters() {
         <td>
           <a href="${EXPLORER}/address/${c.delegator}" target="_blank" class="addr" style="color:var(--purple-light);font-size:11px">${shortAddr(c.delegator)}</a>
         </td>
-        <td style="text-align:right;font-weight:600">${c.validator_count}<span class="signal ${cls}">${cls === 'signal-extreme' ? 'foundation' : cls === 'signal-high' ? 'coordinated' : cls === 'signal-medium' ? 'power' : 'normal'}</span></td>
+        <td style="text-align:right;font-weight:600">${c.validator_count}<span class="signal ${cls}">${label}</span></td>
         <td style="text-align:right;color:var(--cyan,#85E6FF);font-weight:600">${fmtNum(Math.round(c.total_stake_mon))} MON</td>
         <td style="text-align:right"><button class="page-btn" onclick="toggleCluster(${i})" style="padding:4px 10px;font-size:11px">Details</button></td>
       </tr>
