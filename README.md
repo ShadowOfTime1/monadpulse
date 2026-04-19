@@ -32,6 +32,10 @@ Built by [shadowoftime](https://shadowoftime1.github.io) — independent Monad v
 
 **Network Map** — geographic distribution of validators on a dark Leaflet.js map with city clusters, click-for-details, and block time histogram.
 
+**Delegation Flow (Graph)** — interactive Sankey diagram of `delegator → validator` active stake. Top-N delegators and top-N validators are configurable (2–100 each), flow width is proportional to active stake, labels collision-resolved, dominant-flow orphans surfaced as a "+N without top-N" summary instead of a phantom column.
+
+**Delegator Clusters** — ranking of addresses delegating to multiple validators, useful for spotting Foundation-scale redistribution, multi-node operators, and sybil/airdrop patterns. Five signal tiers: `normal` / `power` / `coordinated` / `foundation` / `dust`, classified by both validator count and total stake (e.g. FOUNDATION = ≥100 validators AND ≥10M MON).
+
 **Stake Flow** — top earners by estimated rewards, delegation event monitoring via staking precompile logs.
 
 **Gas & Fee Analytics** — hourly gas trends, base fee tracking, transaction heatmap by day/hour, top contracts.
@@ -68,7 +72,7 @@ Monad Node RPC (:8080)
         │
         ▼
  Frontend (vanilla HTML/JS, Chart.js)
-   │  8 pages + About
+   │  10 pages + About
    │  Monad brand colors, dark theme
    │  mobile responsive
         │
