@@ -39,6 +39,21 @@ and this project adheres to semantic-ish versioning.
   and recent blocks — end of the previous "two half-pages" split.
 
 ### Fixed
+- Clusters: removed horizontal scrollbar at 1440px — table now uses
+  `table-layout: fixed` with explicit column widths and the wrapper is
+  `overflow-x: hidden`. Previously content was 1193px in a 1185px wrapper,
+  producing an 8px scrollbar that visually implied broken layout.
+- Graph: Sankey labels no longer overlap when one flow dominates (e.g.
+  Foundation 2.1B MON vs 14 delegators with micro-stakes). Added a
+  label-collision pass that spreads labels by `fontSize + 4` minimum gap
+  on each side, plus leader-lines connecting rects to shifted labels.
+  `nodePadding` raised 8 → 14. On dense renders (>60×60) labels under
+  0.2–0.5% share are hidden.
+- Map: validator markers in dense regions (Europe, US) now cluster via
+  the Leaflet.markercluster plugin. Cluster bubbles preserve the
+  under/balanced/oversaturated color palette by dominant-category
+  weighting across children; shadowoftime's teal highlight propagates
+  into any cluster that contains it. Clustering disables at zoom ≥5.
 - Graph: empty state now clears the stale SVG when no data — previously
   an old render stayed visible next to the "no data" banner, creating a
   contradictory UX.
