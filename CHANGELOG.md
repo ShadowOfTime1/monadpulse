@@ -70,6 +70,14 @@ and this project adheres to semantic-ish versioning.
 - Network toggle: switching Testnet ↔ Mainnet on /graph.html and
   /clusters.html now re-renders the page — previously reloadPage()
   had no case for either, so the old network's data lingered.
+- Network toggle on /graph.html: follow-up fix. The first attempt
+  added a /graph.html branch to reloadPage() that called `render()`,
+  but that name didn't resolve reliably to the inline graph function
+  from app.js scope. Renamed inline function to `renderGraph` and
+  exposed as `window.renderGraph` (same for `window.loadClusters`).
+- URL ?network= query now honored on page load (any page). Deep
+  links like /graph.html?network=mainnet now land on the right
+  network and persist the choice to sessionStorage.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
