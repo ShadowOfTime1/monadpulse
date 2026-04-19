@@ -7,6 +7,20 @@ and this project adheres to semantic-ish versioning.
 
 ## [Unreleased]
 
+### Changed (CRITICAL — data integrity)
+- **Health Score** now shows the raw API `total_score` everywhere:
+  Dashboard, Validators page, Validator detail, About page. Previously
+  Dashboard and Validators each ran their own min/max normalization over
+  the current population, so the same validator got three different
+  numbers (e.g. Backpack mainnet: API 78.8 vs Dashboard 100 vs Validators
+  100). About page now documents that 100 is the theoretical maximum —
+  real validators top out in the upper-70s.
+- **Stake "Share %"** now computed against the true network block count
+  for the selected period (via `/blocks/proposer-stats`), not against the
+  sum of the top-30 earners shown in the table. Previously misleading:
+  Backpack mainnet appeared as 28.88% of the network, actually 11.2%.
+  Column renamed `Share` → `Share of network`.
+
 ### Added
 - `CHANGELOG.md` tracking project history
 - README badges (live, license, Telegram, last commit)
@@ -39,6 +53,30 @@ and this project adheres to semantic-ish versioning.
   and recent blocks — end of the previous "two half-pages" split.
 
 ### Fixed
+- Dashboard: Top Validators widget names now always resolved on first
+  render, including after a network switch. Previously `_loadDashboard`
+  fired its health-score fetch before `loadNames()` completed on the
+  switch path, so the widget briefly showed raw addresses. Fix: await
+  `loadNames()` in both `reloadPage()` and inside `_loadDashboard`
+  Promise.all itself.
+- Stake bar chart (Top Validators by Estimated Rewards): X-axis labels
+  no longer collapse to a single visible name — `autoSkip: false` plus
+  45° rotation shows every validator in the top-15. Aspect ratio
+  shortened to give the rotated labels room.
+- Clusters: FOUNDATION badge now requires BOTH `validator_count >= 100`
+  AND `total_stake_mon >= 10,000,000`. Previously count-only, which
+  mis-labelled sybil / airdrop patterns (e.g. 169 validators × 1 MON
+  each) as "foundation-scale redistribution". New `dust` category for
+  high-count / low-stake addresses, added to the legend.
+- Stake page: events feed now explicitly clears when switching to a
+  network with no recent events, instead of leaving the previous
+  network's events on screen.
+- Gas page: Base Fee chart now carries an auto-annotation when the 48h
+  range is flat (max–min < 0.5 gwei) explaining that dynamic base fee
+  is not yet active on the selected network.
+- Map: "Show all N known identities" button rephrased to clarify how
+  many of the listed validators are actually plotted on the map vs how
+  many are named but have no geo data.
 - Clusters: removed horizontal scrollbar at 1440px — table now uses
   `table-layout: fixed` with explicit column widths and the wrapper is
   `overflow-x: hidden`. Previously content was 1193px in a 1185px wrapper,
