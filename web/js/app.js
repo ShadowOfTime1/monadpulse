@@ -411,7 +411,12 @@ async function loadDashboard() {
 }
 
 async function _loadDashboard() {
-  const [summary, timeline, healthScores, recent, upgradeStatus] = await Promise.all([
+  // Ensure names are resolved BEFORE rendering. On network switch reloadPage()
+  // clears _namesLoaded and schedules loadDashboard directly (without going
+  // through the router which calls loadNames first), so the Top Validators
+  // widget used to paint with raw addresses. Await it alongside the data fetches.
+  const [_, summary, timeline, healthScores, recent, upgradeStatus] = await Promise.all([
+    loadNames(),
     apiFetch('/dashboard/summary'),
     apiFetch('/blocks/timeline?hours=24'),
     apiFetch('/health/scores?limit=5'),
@@ -1200,7 +1205,7 @@ function initAlertsControls() {
 }
 
 /* ═══ Network switch ═══ */
-function reloadPage() {
+async function reloadPage() {
   // Destroy all charts
   Object.keys(_charts).forEach(k => { _charts[k].destroy(); delete _charts[k]; });
   _lastBlockNum = 0;
@@ -1210,9 +1215,13 @@ function reloadPage() {
   _tickerBusy = false;
   const tickerEl = document.getElementById('block-ticker');
   if (tickerEl) tickerEl.innerHTML = '';
-  // Force reload of names for the new network
+  // Force reload of names for the new network and wait — otherwise page-level
+  // loaders that don't call loadNames themselves (loadValidators, loadBlocks,
+  // loadGas, loadAlerts) will render with an empty _nameMap and show raw
+  // addresses until the next refresh cycle.
   _namesLoaded = false;
   _nameMap = {};
+  await loadNames();
 
   const path = window.location.pathname;
   if (path === '/' || path === '/index.html') loadDashboard();
