@@ -229,17 +229,36 @@ async function loadValidator() {
     return;
   }
 
-  // ?addr= path — resolve to val_id via directory search, then render unified UI
-  const searchRes = await apiFetch('/validators/search?q=' + addr).catch(() => null);
-  const match = searchRes && searchRes.matches && searchRes.matches[0];
+  // ?addr= path — resolve to val_id. Two-step lookup:
+  // (1) search by addr — works when addr IS the registered auth.
+  // (2) fallback: on mainnet block.miner ≠ auth. If the names map knows
+  //     this miner addr, search by its name instead — that finds the real
+  //     auth/val_id entry in the directory.
+  let match = null;
+  const byAddr = await apiFetch('/validators/search?q=' + addr).catch(() => null);
+  if (byAddr && byAddr.matches && byAddr.matches.length) {
+    match = byAddr.matches[0];
+  } else if (typeof valName === 'function') {
+    const nm = valName(addr);
+    if (nm) {
+      const byName = await apiFetch('/validators/search?q=' + encodeURIComponent(nm)).catch(() => null);
+      if (byName && byName.matches) {
+        match = byName.matches.find(m => m.name === nm) || byName.matches[0];
+      }
+    }
+  }
+
   if (match && match.val_id != null) {
-    // Normalize URL to ?id=N so future copy/paste and refresh behave consistently
-    history.replaceState(null, '', '/validator.html?id=' + match.val_id);
+    // Normalize URL to ?id=N (preserve network query). Unifies both entry
+    // points on a single render path + keeps refresh/copy-paste stable.
+    const net = params.get('network');
+    const qs = '?id=' + match.val_id + (net ? '&network=' + encodeURIComponent(net) : '');
+    history.replaceState(null, '', '/validator.html' + qs);
     await renderValidator(match.val_id, addr, loading, content, empty);
     return;
   }
 
-  // Address not in the on-chain registry — fall back to block-only render
+  // Address truly not in the on-chain registry — fall back to block-only render
   await renderBlockOnly(addr, loading, content, empty);
 }
 
