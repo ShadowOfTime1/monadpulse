@@ -230,9 +230,12 @@ async function buildMap() {
     }
     popup += `</div>`;
 
-    L.marker([cluster.lat, cluster.lon], { icon }).addTo(_markersLayer).bindPopup(popup, {
-      className: 'dark-popup', maxWidth: 240,
-    });
+    const marker = L.marker([cluster.lat, cluster.lon], { icon });
+    // Attach metadata so the markercluster iconCreateFunction can aggregate
+    // counts and pick the dominant category/color for the cluster bubble.
+    marker._mp = { count, category, hasShadow, region: cluster.region };
+    marker.bindPopup(popup, { className: 'dark-popup', maxWidth: 240 });
+    _markersLayer.addLayer(marker);
   });
 
   _legendControl = L.control({ position: 'bottomleft' });
@@ -432,7 +435,41 @@ function initMap() {
     subdomains: 'abcd', maxZoom: 19,
   }).addTo(_map);
 
-  _markersLayer = L.layerGroup().addTo(_map);
+  // If the markercluster plugin failed to load, fall back to a plain layerGroup
+  // so the map still works (just without clustering).
+  _markersLayer = (typeof L.markerClusterGroup === 'function') ? L.markerClusterGroup({
+    maxClusterRadius: 45,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+    disableClusteringAtZoom: 5,
+    iconCreateFunction: function(cluster) {
+      const children = cluster.getAllChildMarkers();
+      let sum = 0, hasShadow = false;
+      const catWeights = { under: 0, normal: 0, over: 0 };
+      children.forEach(m => {
+        const meta = m._mp;
+        if (!meta) return;
+        sum += meta.count;
+        if (meta.hasShadow) hasShadow = true;
+        catWeights[meta.category] = (catWeights[meta.category] || 0) + meta.count;
+      });
+      const dominant = Object.entries(catWeights).sort((a, b) => b[1] - a[1])[0][0] || 'normal';
+      const color = hasShadow ? '#14b8a6' : REGION_COLOR[dominant] || '#6E54FF';
+      const size = Math.round(Math.min(60, 28 + Math.log2(sum + 1) * 4));
+      const fontSize = size > 40 ? 13 : 11;
+      return L.divIcon({
+        className: 'mp-cluster-wrap',
+        html: `<div class="mp-cluster" style="
+          background:radial-gradient(circle at 35% 35%, ${color}cc, ${color}50);
+          box-shadow:0 0 ${size}px ${color}40, 0 0 ${size/2}px ${color}20;
+          font-size:${fontSize}px;
+        ">${sum}</div>`,
+        iconSize: [size, size],
+      });
+    },
+  }) : L.layerGroup();
+  _markersLayer.addTo(_map);
   buildMap();
   initMapSearch();
 

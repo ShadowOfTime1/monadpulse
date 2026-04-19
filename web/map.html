@@ -22,7 +22,10 @@
 <meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
   #map-container { height: 520px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(110,84,255,0.1); }
   .leaflet-container { background: #0a0814; }
@@ -62,6 +65,17 @@
     font-size: 11px;
     backdrop-filter: blur(10px);
   }
+  /* Custom marker-cluster skin — matches MonadPulse purple/teal palette */
+  .mp-cluster {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; border-radius: 50%;
+    font-family: 'Roboto Mono', monospace; font-weight: 700; color: #fff;
+    border: 2px solid rgba(255,255,255,0.25);
+    animation: pulse 3s ease-in-out infinite;
+  }
+  /* Hide the default markercluster div background — we draw our own */
+  .leaflet-marker-icon.mp-cluster-wrap { background: transparent !important; border: 0 !important; }
+  .leaflet-marker-icon.mp-cluster-wrap div { background: transparent; }
 </style>
 </head>
 <body>
