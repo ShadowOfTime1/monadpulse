@@ -108,6 +108,9 @@ and this project adheres to semantic-ish versioning.
 - Validator page: Block Stats empty-state label no longer says
   "n/a (testnet)" regardless of active network; replaced with a
   neutral em-dash plus a network-agnostic tooltip.
+- **Graph click navigation** — clicks on validator nodes now include
+  `&network=` so shared links and network context stay consistent
+  when opening the validator detail page.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
