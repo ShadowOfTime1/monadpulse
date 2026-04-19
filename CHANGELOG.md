@@ -16,6 +16,9 @@ and this project adheres to semantic-ish versioning.
   pages
 - Clusters page: "Show inactive (0 MON)" toggle — inactive delegators
   hidden by default for a meaningful default view
+- Validator page: `?addr=` URLs now auto-resolve to `?id=N` via the
+  on-chain directory search and `history.replaceState`, so a single
+  unified view is always served regardless of entry-point.
 
 ### Changed
 - `og:image` / `twitter:image` now point to `/og-image.png` — universal
@@ -24,6 +27,14 @@ and this project adheres to semantic-ish versioning.
   6 items now fit on a single row at 1440px and scale to 3 cols (tablet)
   and 1/2 cols (mobile). Labels `nowrap` + ellipsis to survive longer
   captions like "Validators (this epoch)".
+- Dashboard `.metric-val` reduced 32 → 26px (22px ≤1400px) with
+  `font-variant-numeric: tabular-nums` — long values like "26,388,658"
+  no longer get ellipsis-truncated on 1440px viewports.
+- `/validator.html` unified: `?id=N` and `?addr=0x…` now converge on a
+  single renderer that shows Health Score + rank, block stats (when
+  available), on-chain stake/commission/VDP-uptime row, pool-unclaimed
+  vs operator-claimable split, health breakdown bars, consensus keys,
+  and recent blocks — end of the previous "two half-pages" split.
 
 ### Fixed
 - Graph: empty state now clears the stale SVG when no data — previously
@@ -34,9 +45,10 @@ and this project adheres to semantic-ish versioning.
   not available yet" surfaces instead).
 - Graph: Top delegators / Top validators inputs now `min=2 max=100` with
   client-side clamping; label "(2–100)" next to controls.
-- Clusters: delegators with 0 MON total stake are filtered by default,
-  removing the "COORDINATED with 0 MON" paradox from the top of the
-  ranking. Toggle reveals them for historical analysis.
+- Clusters: "Show inactive" toggle now uses a ≥1 MON active threshold
+  (matching the table's rounded display). Sub-1-MON dust stakes that
+  rendered as "0 MON" are no longer visible by default, fixing the
+  checkbox/table-rows desync.
 
 ## [0.4.0] — 2026-04-18
 
