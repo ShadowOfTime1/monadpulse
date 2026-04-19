@@ -83,14 +83,16 @@
   </div>
 
   <div class="gctrl">
-    <label>Top delegators</label><input id="top-del" type="number" min="5" max="60" value="15">
-    <label>Top validators</label><input id="top-val" type="number" min="5" max="60" value="15">
+    <label>Top delegators</label><input id="top-del" type="number" min="2" max="100" step="1" value="15">
+    <label>Top validators</label><input id="top-val" type="number" min="2" max="100" step="1" value="15">
+    <span style="color:var(--text-dim);font-family:var(--mono);font-size:10px">(2–100)</span>
     <button id="apply" class="page-btn" style="padding:6px 14px">Apply</button>
     <span id="meta" style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-left:12px"></span>
   </div>
 
   <div id="sankey-container" style="position:relative">
     <div id="sankey-loading" style="text-align:center;padding:80px;color:var(--text-dim);font-family:var(--mono)">Building graph…</div>
+    <div id="sankey-empty" style="display:none;padding:80px 40px;text-align:center;color:var(--text-dim);font-family:var(--mono);font-size:13px;line-height:1.7"></div>
     <svg id="sankey-svg" style="display:none"></svg>
     <div class="sankey-tooltip" id="tt"></div>
   </div>
@@ -120,15 +122,41 @@ function colorByType(d) {
   return d.type === 'delegator' ? '#6E54FF' : '#14b8a6';
 }
 
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v || min)); }
+
+function showEmpty(msg) {
+  const svg = document.getElementById('sankey-svg');
+  // Clear any previous render so we never show stale data next to "no data"
+  d3.select(svg).selectAll('*').remove();
+  svg.style.display = 'none';
+  document.getElementById('sankey-loading').style.display = 'none';
+  const empty = document.getElementById('sankey-empty');
+  empty.innerHTML = msg;
+  empty.style.display = 'block';
+  document.getElementById('meta').textContent = '';
+}
+
 async function render() {
-  const td = document.getElementById('top-del').value;
-  const tv = document.getElementById('top-val').value;
+  const delInput = document.getElementById('top-del');
+  const valInput = document.getElementById('top-val');
+  const td = clamp(parseInt(delInput.value, 10), 2, 100);
+  const tv = clamp(parseInt(valInput.value, 10), 2, 100);
+  delInput.value = td; valInput.value = tv;
+
+  document.getElementById('sankey-empty').style.display = 'none';
   document.getElementById('sankey-loading').style.display = 'block';
   document.getElementById('sankey-svg').style.display = 'none';
 
-  const data = await apiFetch('/analytics/delegation-graph?top_delegators=' + td + '&top_validators=' + tv);
-  if (!data || !data.nodes) {
-    document.getElementById('sankey-loading').innerHTML = 'No graph data — <code>rebuild_delegation_graph.py</code> has not run yet for this network.';
+  let data;
+  try {
+    data = await apiFetch('/analytics/delegation-graph?top_delegators=' + td + '&top_validators=' + tv);
+  } catch (e) { data = null; }
+
+  if (!data || !data.nodes || !data.edges || data.edges.length === 0) {
+    showEmpty(
+      'No delegation data available for the selected parameters.<br>' +
+      'Try reducing Top delegators / Top validators, or switch networks.'
+    );
     return;
   }
   document.getElementById('meta').textContent =
