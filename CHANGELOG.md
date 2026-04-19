@@ -91,6 +91,23 @@ and this project adheres to semantic-ish versioning.
   label-hiding threshold. rowH 26 pushed many small-stake nodes
   under the threshold and their labels vanished; V9 was tuned
   against 32.
+- **Validator page `?id=`** — now loads the canonical name from
+  `/validators/search?q=<valId>` in parallel with the other fetches
+  so identified validators show their real name (e.g. "Backpack")
+  instead of "Validator #N". The old `valName(auth)` lookup missed
+  on mainnet because `block.miner ≠ auth` there — names map is
+  indexed on miner. first-active endpoint failure is already
+  non-fatal (falls back to "—" in VDP Uptime without breaking
+  the page).
+- **Validator page `?addr=`** — resolved a false "not registered in
+  validator set" banner for real validators whose block-miner addr
+  differs from their registered auth (Backpack mainnet). Two-step
+  resolver: search by addr, then if empty use the names map to get
+  a name and search by name instead. URL is normalized to `?id=N`
+  (network query preserved) so both entry points converge.
+- Validator page: Block Stats empty-state label no longer says
+  "n/a (testnet)" regardless of active network; replaced with a
+  neutral em-dash plus a network-agnostic tooltip.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
