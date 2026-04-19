@@ -1248,6 +1248,11 @@ async function reloadPage() {
   else if (path === '/alerts.html') { _alertsAll = []; loadAlerts(); }
   else if (path === '/stake.html') { if (typeof loadStake === 'function') loadStake(); }
   else if (path === '/validator.html') { if (typeof loadValidator === 'function') loadValidator(); }
+  // Pages that define their own `render()` (Sankey graph, cluster table).
+  // Without these, a network toggle would leave stale data onscreen because
+  // the previous network's fetch finished after the switch visually "took".
+  else if (path === '/graph.html') { if (typeof render === 'function') render(); }
+  else if (path === '/clusters.html') { if (typeof loadClusters === 'function') loadClusters(); }
 }
 
 function initNetSwitch() {
