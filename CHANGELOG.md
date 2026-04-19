@@ -124,6 +124,18 @@ and this project adheres to semantic-ish versioning.
 - **Clusters "Details" button** — truncated to "Deta" because it
   inherited the circular `.page-btn` (32×32 fixed). Overridden with
   a scoped pill-shape class that allows the full word.
+- **Validator page Health Score + Block Stats on mainnet** —
+  `/health/scores` and `/validators/list` are indexed on
+  `block.miner`, but mainnet rotates several ephemeral miner
+  addresses per validator while `/validators/by-id` returns the
+  registered auth. The strict auth-equality lookup missed on
+  mainnet, leaving Backpack and siblings with blank Health Score
+  and "—" Block Stats. Now builds a candidate-address set (auth +
+  every miner addr the names map attributes to the same canonical
+  name) and joins health/list/blocks on any of them. Block totals
+  sum across all candidate miners for truthful figures (blocks +
+  txns); avg_block_time + last_seen come from the most recent
+  entry. Testnet unchanged.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
