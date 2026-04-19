@@ -326,7 +326,9 @@ async function renderGraph() {
     .on('mouseleave', hideTT)
     .on('click', (e, d) => {
       if (d.type === 'validator') {
-        window.location = '/validator.html?id=' + d.val_id;
+        // Carry the active network over so shared links don't fall through
+        // to whatever is sitting in sessionStorage on the recipient's browser.
+        window.location = '/validator.html?id=' + d.val_id + '&network=' + NETWORK;
       } else {
         window.open(EXPLORER + '/address/' + d.label, '_blank');
       }
