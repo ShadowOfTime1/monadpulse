@@ -261,12 +261,19 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
 
   const auth = (v.auth_address || '').toLowerCase();
 
-  // Fetch addr-keyed enrichment in parallel: block stats, health breakdown, rank
-  const [detail, healthList, allValidators] = await Promise.all([
+  // Fetch addr-keyed enrichment in parallel: block stats, health breakdown,
+  // rank + canonical name (search supports val_id as query and returns the
+  // directory entry — we use this because on mainnet block.miner ≠ auth,
+  // so the name map indexed on miner doesn't resolve for auth).
+  const [detail, healthList, allValidators, searchRes] = await Promise.all([
     apiFetch('/validators/' + auth).catch(() => null),
     apiFetch('/health/scores?limit=500').catch(() => null),
     apiFetch('/validators/list?period=24h').catch(() => null),
+    apiFetch('/validators/search?q=' + valId).catch(() => null),
   ]);
+  const canonicalName = searchRes && searchRes.matches
+    ? (searchRes.matches.find(m => m.val_id === valId) || searchRes.matches[0])?.name
+    : null;
 
   const blocksData = detail && detail.stats ? detail.stats : null;
   const recentBlocks = detail && detail.recent_blocks ? detail.recent_blocks : [];
@@ -281,7 +288,9 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     : totalScore >= 50 ? '#FFAE45'
     : '#FF8EE4';
 
-  const name = (typeof valName === 'function' && valName(auth)) || null;
+  // Prefer canonical directory name; fall back to names-map lookup by
+  // auth addr (works on testnet where miner==auth); last resort: ID only.
+  const name = canonicalName || (typeof valName === 'function' && valName(auth)) || null;
   const displayName = name || `Validator #${v.validator_id}`;
   const execStake = v.execution_stake / MON;
   const consStake = v.consensus_stake / MON;
