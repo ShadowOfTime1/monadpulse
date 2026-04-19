@@ -30,6 +30,8 @@ and this project adheres to semantic-ish versioning.
 - Dashboard `.metric-val` reduced 32 → 26px (22px ≤1400px) with
   `font-variant-numeric: tabular-nums` — long values like "26,388,658"
   no longer get ellipsis-truncated on 1440px viewports.
+- Dashboard: metric labels compacted (9px + letter-spacing 0.02em) to
+  prevent truncation of "Validators (this epoch)" at 1440px.
 - `/validator.html` unified: `?id=N` and `?addr=0x…` now converge on a
   single renderer that shows Health Score + rank, block stats (when
   available), on-chain stake/commission/VDP-uptime row, pool-unclaimed

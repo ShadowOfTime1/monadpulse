@@ -311,7 +311,7 @@ main {
 
 @media (max-width: 1400px) {
   .metric-val { font-size: 22px; }
-  .metric-lbl { font-size: 9px; letter-spacing: 1.2px; }
+  .metric-lbl { font-size: 9px; letter-spacing: 0.02em; }
   .metrics { gap: 18px; }
 }
 
@@ -323,10 +323,10 @@ main {
 
 .metric-lbl {
   font-family: var(--mono);
-  font-size: 10px;
+  font-size: 9px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.02em;
   margin-top: 10px;
   white-space: nowrap;
   overflow: hidden;
