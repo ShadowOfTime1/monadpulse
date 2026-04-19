@@ -55,12 +55,19 @@
     color: var(--text-dim); font-size: 10px; letter-spacing: 1px;
     text-transform: uppercase; font-family: var(--mono);
   }
-  .val-quick { display: flex; gap: 32px; flex-wrap: wrap; }
+  .val-hero-badge {
+    display: inline-block; padding: 4px 10px; border-radius: 99px;
+    font-family: var(--mono); font-size: 10px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; margin-left: 10px;
+    vertical-align: middle;
+  }
+  .val-quick { display: flex; gap: 28px; flex-wrap: wrap; }
   .val-quick .q {
     font-family: var(--mono);
   }
   .val-quick .q .v {
-    color: #EEEDF5; font-size: 22px; font-weight: 600; display: block;
+    color: #EEEDF5; font-size: 20px; font-weight: 600; display: block;
+    font-variant-numeric: tabular-nums;
   }
   .val-quick .q .k {
     color: var(--text-dim); font-size: 10px; letter-spacing: 1px;
@@ -95,6 +102,32 @@
   }
   .breakdown-item .bi-weight {
     color: var(--text-dim); font-size: 10px; margin-left: 6px;
+  }
+
+  .rewards-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  @media (max-width: 640px) { .rewards-split { grid-template-columns: 1fr; } }
+  .rewards-card {
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: rgba(110,84,255,0.05);
+    border: 1px solid rgba(110,84,255,0.15);
+  }
+  .rewards-card .rc-k {
+    font-family: var(--mono); font-size: 10px;
+    color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .rewards-card .rc-v {
+    font-family: var(--mono); font-size: 24px; font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .rewards-card .rc-note {
+    font-size: 11px; color: var(--text-dim); margin-top: 8px; line-height: 1.5;
   }
 
   #val-loading { text-align: center; padding: 80px 0; color: var(--text-dim); font-family: var(--mono); font-size: 13px; }
@@ -140,6 +173,8 @@
 </footer>
 <script src="/js/app.js"></script>
 <script>
+const MON = 1e18;
+
 async function loadValidator() {
   const params = new URLSearchParams(location.search);
   const addr = (params.get('addr') || '').toLowerCase();
@@ -148,20 +183,33 @@ async function loadValidator() {
   const content = document.getElementById('val-content');
   const empty = document.getElementById('val-empty');
 
-  // ?id=N path — query staking precompile directly
+  await loadNames();
+
+  // ?id=N path — directly render from staking precompile
   if (idParam && /^\d+$/.test(idParam)) {
-    await loadValidatorById(parseInt(idParam, 10), loading, content, empty);
+    await renderValidator(parseInt(idParam, 10), null, loading, content, empty);
     return;
   }
 
-  if (!addr || !/^0x[0-9a-f]{40}$/i.test(addr)) {
+  // No params
+  if (!addr) {
     loading.innerHTML = `
       <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
         <div style="font-size:15px;color:#DDD7FE;margin-bottom:8px">No validator selected</div>
         <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px;line-height:1.6">
-          This page expects a validator address or ID in the URL<br>
-          (e.g. <code style="color:#a78bfa">?addr=0x…</code> or <code style="color:#a78bfa">?id=267</code>)
+          This page expects a validator ID or address in the URL<br>
+          (e.g. <code style="color:#a78bfa">?id=267</code> or <code style="color:#a78bfa">?addr=0x…</code>)
         </div>
+        <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
+      </div>`;
+    return;
+  }
+
+  if (!/^0x[0-9a-f]{40}$/i.test(addr)) {
+    loading.innerHTML = `
+      <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
+        <div style="font-size:15px;color:#FF8EE4;margin-bottom:8px">Malformed address</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px">Expected 0x + 40 hex characters.</div>
         <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
       </div>`;
     return;
@@ -181,12 +229,248 @@ async function loadValidator() {
     return;
   }
 
-  await loadNames();
+  // ?addr= path — resolve to val_id via directory search, then render unified UI
+  const searchRes = await apiFetch('/validators/search?q=' + addr).catch(() => null);
+  const match = searchRes && searchRes.matches && searchRes.matches[0];
+  if (match && match.val_id != null) {
+    // Normalize URL to ?id=N so future copy/paste and refresh behave consistently
+    history.replaceState(null, '', '/validator.html?id=' + match.val_id);
+    await renderValidator(match.val_id, addr, loading, content, empty);
+    return;
+  }
 
+  // Address not in the on-chain registry — fall back to block-only render
+  await renderBlockOnly(addr, loading, content, empty);
+}
+
+// Unified renderer: given val_id, pull everything from the precompile AND
+// enrich with block/health data keyed on the auth address.
+async function renderValidator(valId, addrHint, loading, content, empty) {
+  const v = await apiFetch('/validators/by-id/' + valId);
+  if (!v || v.validator_id == null) {
+    loading.innerHTML = `
+      <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
+        <div style="font-size:15px;color:#FFAE45;margin-bottom:8px">Validator #${esc(String(valId))} not found</div>
+        <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px">
+          This validator is not registered on the current network (${esc(NETWORK)}).
+        </div>
+        <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
+      </div>`;
+    return;
+  }
+
+  const auth = (v.auth_address || '').toLowerCase();
+
+  // Fetch addr-keyed enrichment in parallel: block stats, health breakdown, rank
+  const [detail, healthList, allValidators] = await Promise.all([
+    apiFetch('/validators/' + auth).catch(() => null),
+    apiFetch('/health/scores?limit=500').catch(() => null),
+    apiFetch('/validators/list?period=24h').catch(() => null),
+  ]);
+
+  const blocksData = detail && detail.stats ? detail.stats : null;
+  const recentBlocks = detail && detail.recent_blocks ? detail.recent_blocks : [];
+  const geo = detail && detail.geo;
+  const health = (healthList || []).find(h => (h.validator_id || '').toLowerCase() === auth) || null;
+  const allList = allValidators || [];
+  const rank = allList.findIndex(x => (x.address || '').toLowerCase() === auth) + 1;
+  const totalVals = allList.length;
+  const totalScore = health ? health.total_score : null;
+  const scoreCol = totalScore == null ? 'var(--text-dim)'
+    : totalScore >= 80 ? '#4ade80'
+    : totalScore >= 50 ? '#FFAE45'
+    : '#FF8EE4';
+
+  const name = (typeof valName === 'function' && valName(auth)) || null;
+  const displayName = name || `Validator #${v.validator_id}`;
+  const execStake = v.execution_stake / MON;
+  const consStake = v.consensus_stake / MON;
+  const snapStake = v.snapshot_stake / MON;
+  const poolUnclaimed = v.unclaimed_rewards / MON;
+  const opClaim = v.operator_claimable_rewards != null ? v.operator_claimable_rewards / MON : null;
+  const comm = (v.execution_commission / 100).toFixed(2);
+  const isActive = v.consensus_stake > 0;
+
+  const avgBt = blocksData ? blocksData.avg_block_time_ms : null;
+  const avgBtStr = avgBt == null ? '—' : avgBt + ' ms';
+  const avgBtCol = avgBt == null ? 'inherit'
+    : (avgBt > 450 || (avgBt < 300 && avgBt > 0)) ? '#FF8EE4' : 'inherit';
+  const lastSeen = blocksData && blocksData.last_seen
+    ? (typeof timeAgo === 'function' ? timeAgo(blocksData.last_seen) : new Date(blocksData.last_seen).toLocaleString())
+    : '—';
+
+  const breakdownComponents = health ? [
+    { name: 'Uptime',     val: health.uptime_score,  weight: '40%' },
+    { name: 'Block Time', val: health.miss_score,    weight: '20%' },
+    { name: 'Upgrade',    val: health.upgrade_score, weight: '15%' },
+    { name: 'Stake',      val: health.stake_score,   weight: '15%' },
+    { name: 'Age',        val: health.age_score,     weight: '10%' },
+  ] : [];
+  const biColor = (val) => val == null ? 'var(--text-dim)'
+    : val >= 80 ? '#4ade80' : val >= 50 ? '#FFAE45' : '#FF8EE4';
+
+  const recentRows = recentBlocks.map(b => {
+    const gasPct = b.gas_used ? Math.min(100, (b.gas_used / 200_000_000) * 100) : 0;
+    const gasCol = gasPct >= 80 ? '#FF7849' : gasPct >= 50 ? '#FFAE45' : '#85E6FF';
+    const t = typeof timeAgo === 'function' ? timeAgo(b.timestamp) : new Date(b.timestamp).toLocaleString();
+    return `<tr>
+      <td>${blockLink(b.number)}</td>
+      <td>${fmtNum(b.tx_count)}</td>
+      <td>${fmtNum(b.gas_used)}</td>
+      <td style="color:${gasCol};font-variant-numeric:tabular-nums">${gasPct.toFixed(1)}%</td>
+      <td style="color:var(--text-dim)">${t}</td>
+    </tr>`;
+  }).join('');
+
+  const geoLine = geo
+    ? `<div class="val-addr-sub" style="margin-top:6px">📍 ${esc(geo.city || '')}${geo.country ? ', ' + esc(geo.country) : ''}${geo.provider ? ' · ' + esc(geo.provider) : ''}</div>`
+    : '';
+
+  const statusBadge = isActive
+    ? '<span class="val-hero-badge" style="background:rgba(74,222,128,0.12);color:#4ade80">Active</span>'
+    : '<span class="val-hero-badge" style="background:rgba(255,174,69,0.12);color:#FFAE45">Pending</span>';
+
+  const blocksMetric = blocksData
+    ? `<div class="q"><span class="v">${fmtNum(blocksData.total_blocks)}</span><div class="k">Blocks</div></div>
+       <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
+       <div class="q"><span class="v">${fmtNum(blocksData.total_tx)}</span><div class="k">Total Txns</div></div>
+       <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>`
+    : `<div class="q" title="On testnet block.miner is ephemeral per-block and doesn't match auth address, so block-level stats aren't collected for this validator.">
+         <span class="v" style="color:var(--text-dim);font-size:14px">n/a (testnet)</span>
+         <div class="k">Block Stats</div>
+       </div>`;
+
+  content.innerHTML = `
+    <div class="val-hero">
+      <div class="val-hero-top">
+        <a href="/validators.html" class="val-back">← Validators</a>
+      </div>
+      <div class="val-name-big">${esc(displayName)}${statusBadge}</div>
+      <div class="val-addr-sub">
+        <span style="color:#6B6580">ID</span>
+        <span style="color:#DDD7FE;margin-left:6px">#${v.validator_id}</span>
+        <span style="margin:0 10px;color:var(--text-dim)">·</span>
+        <span style="color:#6B6580">Auth</span>
+        <a href="${EXPLORER}/address/${auth}" target="_blank" style="color:#a78bfa;text-decoration:none;margin-left:6px">${auth}</a>
+      </div>
+      ${geoLine}
+      <div class="val-hero-row">
+        <div class="val-hero-score">
+          <span class="num" style="color:${scoreCol}">${totalScore != null ? totalScore.toFixed(1) : '—'}</span>
+          <span class="lbl">Health Score${rank > 0 ? ' · Rank #' + rank + (totalVals ? ' / ' + totalVals : '') : ''}</span>
+        </div>
+        <div class="val-quick">
+          ${blocksMetric}
+        </div>
+      </div>
+      <div class="val-hero-row" style="margin-top:18px">
+        <div class="val-quick">
+          <div class="q"><span class="v">${fmtNum(Math.round(execStake))} MON</span><div class="k">Execution Stake</div></div>
+          <div class="q"><span class="v">${fmtNum(Math.round(consStake))} MON</span><div class="k">Consensus Stake</div></div>
+          <div class="q"><span class="v">${fmtNum(Math.round(snapStake))} MON</span><div class="k">Snapshot Stake</div></div>
+          <div class="q"><span class="v">${comm} %</span><div class="k">Commission</div></div>
+          <div class="q"><span class="v" id="vdp-uptime-val" style="color:var(--text-dim)">…</span><div class="k" title="Time since first Reward event / 28 days (VDP 4-week target)">VDP Uptime</div></div>
+        </div>
+      </div>
+    </div>
+
+    ${breakdownComponents.length ? `
+    <section class="data-section">
+      <div class="section-title">Health Breakdown</div>
+      <div class="breakdown-grid">
+        ${breakdownComponents.map(c => {
+          const col = biColor(c.val);
+          const w = c.val != null ? c.val : 0;
+          return `<div class="breakdown-item">
+            <div class="bi-name">${c.name}<span class="bi-weight">${c.weight}</span></div>
+            <div class="bi-bar"><div class="bi-bar-fill" style="width:${w}%;background:${col};box-shadow:0 0 6px ${col}40"></div></div>
+            <div class="bi-val" style="color:${col}">${c.val != null ? c.val.toFixed(1) : '—'}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </section>
+    <div class="flow-sep"></div>
+    ` : ''}
+
+    <section class="data-section">
+      <div class="section-title">Rewards</div>
+      <div class="rewards-split">
+        <div class="rewards-card">
+          <div class="rc-k">Pool Unclaimed (all delegators)</div>
+          <div class="rc-v" style="color:var(--text-dim)">${fmtNum(Math.round(poolUnclaimed))} MON</div>
+          <div class="rc-note">
+            Total unclaimed across self-stake + every external delegator of this validator.
+            Each delegator can only claim their own slice — the staking contract enforces
+            <code>sender == delegator</code>.
+          </div>
+        </div>
+        <div class="rewards-card">
+          <div class="rc-k">Operator Claimable (auth address)</div>
+          <div class="rc-v" style="color:var(--cyan,#85E6FF)">${opClaim != null ? opClaim.toFixed(2) + ' MON' : '—'}</div>
+          <div class="rc-note">
+            The validator auth EOA's own share — proportional to self-stake, plus
+            ${comm}% commission on other delegators' gross rewards.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="flow-sep"></div>
+
+    <section class="data-section">
+      <div class="section-title">Consensus Keys</div>
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <div class="bi-name">SECP Pubkey</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.secp_pubkey)}</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="bi-name">BLS Pubkey</div>
+          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.bls_pubkey)}</div>
+        </div>
+      </div>
+    </section>
+
+    ${blocksData ? `
+    <div class="flow-sep"></div>
+    <section class="data-section">
+      <div class="section-title">Recent Blocks</div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead>
+            <tr><th>Block</th><th>Txns</th><th>Gas Used</th><th>Gas %</th><th>When</th></tr>
+          </thead>
+          <tbody>${recentRows || '<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:24px">No recent blocks</td></tr>'}</tbody>
+        </table>
+      </div>
+    </section>
+    ` : ''}
+  `;
+
+  loading.style.display = 'none';
+  empty.style.display = 'none';
+  content.style.display = 'block';
+
+  // Async VDP uptime fetch (first-active scan can take a few seconds cold)
+  apiFetch('/validators/by-id/' + valId + '/first-active').then(fa => {
+    const el = document.getElementById('vdp-uptime-val');
+    if (!el) return;
+    if (!fa || !fa.first_active_timestamp) { el.textContent = '—'; return; }
+    const VDP_TARGET_MS = 28 * 24 * 3600 * 1000;
+    const age = Date.now() - fa.first_active_timestamp * 1000;
+    const pct = Math.min(age / VDP_TARGET_MS * 100, 100);
+    el.textContent = pct.toFixed(1) + '%';
+    el.style.color = pct >= 100 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
+  }).catch(() => { const el = document.getElementById('vdp-uptime-val'); if (el) el.textContent = '—'; });
+}
+
+// Fallback when ?addr= doesn't resolve to a registered validator — still show
+// whatever block-level data the collector has for the address.
+async function renderBlockOnly(addr, loading, content, empty) {
   const [detail, healthList, allValidators] = await Promise.all([
     apiFetch('/validators/' + addr),
-    apiFetch('/health/scores?limit=500'),
-    apiFetch('/validators/list?period=24h'),
+    apiFetch('/health/scores?limit=500').catch(() => null),
+    apiFetch('/validators/list?period=24h').catch(() => null),
   ]);
 
   if (!detail || !detail.stats) {
@@ -199,7 +483,6 @@ async function loadValidator() {
   const health = (healthList || []).find(h => h.validator_id === addr) || null;
   const rank = (allValidators || []).findIndex(v => v.address === addr) + 1;
   const totalVals = (allValidators || []).length;
-
   const name = (typeof valName === 'function' && valName(addr)) || null;
   const displayName = name || shortAddr(addr);
   const totalScore = health ? health.total_score : null;
@@ -212,23 +495,9 @@ async function loadValidator() {
   const avgBtStr = avgBt == null ? '—' : avgBt + ' ms';
   const avgBtCol = avgBt == null ? 'inherit'
     : (avgBt > 450 || (avgBt < 300 && avgBt > 0)) ? '#FF8EE4' : 'inherit';
-
   const lastSeen = detail.stats.last_seen
     ? (typeof timeAgo === 'function' ? timeAgo(detail.stats.last_seen) : new Date(detail.stats.last_seen).toLocaleString())
     : '—';
-
-  // VDP uptime %: time since first_seen / 28 days
-  const VDP_TARGET_MS = 28 * 24 * 3600 * 1000;
-  let vdpPct = null;
-  if (detail.stats.first_seen) {
-    const age = Date.now() - new Date(detail.stats.first_seen).getTime();
-    vdpPct = Math.min(age / VDP_TARGET_MS * 100, 100);
-  }
-  const vdpColor = vdpPct == null ? 'var(--text-dim)'
-    : vdpPct >= 100 ? '#4ade80'
-    : vdpPct >= 50 ? '#FFAE45'
-    : '#FF8EE4';
-  const vdpStr = vdpPct == null ? '—' : `${vdpPct.toFixed(1)}%`;
 
   const breakdownComponents = health ? [
     { name: 'Uptime',     val: health.uptime_score,  weight: '40%' },
@@ -237,14 +506,10 @@ async function loadValidator() {
     { name: 'Stake',      val: health.stake_score,   weight: '15%' },
     { name: 'Age',        val: health.age_score,     weight: '10%' },
   ] : [];
-
-  function biColor(v) {
-    if (v == null) return 'var(--text-dim)';
-    return v >= 80 ? '#4ade80' : v >= 50 ? '#FFAE45' : '#FF8EE4';
-  }
+  const biColor = (v) => v == null ? 'var(--text-dim)'
+    : v >= 80 ? '#4ade80' : v >= 50 ? '#FFAE45' : '#FF8EE4';
 
   const recentRows = (detail.recent_blocks || []).map(b => {
-    // Gas utilization % — Monad blocks have ~200M gas limit; shows real per-block load
     const gasPct = b.gas_used ? Math.min(100, (b.gas_used / 200_000_000) * 100) : 0;
     const gasCol = gasPct >= 80 ? '#FF7849' : gasPct >= 50 ? '#FFAE45' : '#85E6FF';
     const t = typeof timeAgo === 'function' ? timeAgo(b.timestamp) : new Date(b.timestamp).toLocaleString();
@@ -271,6 +536,10 @@ async function loadValidator() {
         <a href="${EXPLORER}/address/${addr}" target="_blank" style="color:#6B6580;text-decoration:underline;text-decoration-color:rgba(110,84,255,0.3)">${addr}</a>
       </div>
       ${geoLine}
+      <div style="margin-top:14px;padding:10px 14px;background:rgba(255,174,69,0.08);border:1px solid rgba(255,174,69,0.2);border-radius:8px;font-size:11px;color:#FFAE45;max-width:720px">
+        ℹ This address produced blocks but isn't registered in the on-chain validator set —
+        on-chain stake/commission/rewards data is unavailable.
+      </div>
       <div class="val-hero-row">
         <div class="val-hero-score">
           <span class="num" style="color:${scoreCol}">${totalScore != null ? totalScore.toFixed(1) : '—'}</span>
@@ -280,7 +549,6 @@ async function loadValidator() {
           <div class="q"><span class="v">${fmtNum(detail.stats.total_blocks)}</span><div class="k">Blocks</div></div>
           <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
           <div class="q"><span class="v">${fmtNum(detail.stats.total_tx)}</span><div class="k">Total Txns</div></div>
-          <div class="q"><span class="v" style="color:${vdpColor}">${vdpStr}</span><div class="k" title="Time since first block / 28 days (VDP 4-week target)">VDP Uptime</div></div>
           <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>
         </div>
       </div>
@@ -320,114 +588,6 @@ async function loadValidator() {
   loading.style.display = 'none';
   empty.style.display = 'none';
   content.style.display = 'block';
-}
-
-const MON = 1e18;
-
-async function loadValidatorById(valId, loading, content, empty) {
-  await loadNames();
-  const v = await apiFetch('/validators/by-id/' + valId);
-  if (!v || v.validator_id == null) {
-    loading.innerHTML = `
-      <div style="max-width:420px;margin:0 auto;padding:40px 20px;text-align:center">
-        <div style="font-size:15px;color:#FFAE45;margin-bottom:8px">Validator #${esc(String(valId))} not found</div>
-        <div style="font-size:12px;color:var(--text-dim);margin-bottom:24px">
-          This validator is not registered on the current network (${esc(NETWORK)}).
-        </div>
-        <a href="/validators.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Go to Validators</a>
-      </div>`;
-    return;
-  }
-
-  const auth = v.auth_address;
-  const name = (typeof valName === 'function' && valName(auth)) || null;
-  const displayName = name || `Validator #${v.validator_id}`;
-  const execStake = v.execution_stake / MON;
-  const consStake = v.consensus_stake / MON;
-  const snapStake = v.snapshot_stake / MON;
-  const poolUnclaimed = v.unclaimed_rewards / MON;
-  const opStake = v.operator_active_stake != null ? v.operator_active_stake / MON : null;
-  const opClaim = v.operator_claimable_rewards != null ? v.operator_claimable_rewards / MON : null;
-  const comm = (v.execution_commission / 100).toFixed(2);
-  const isActive = v.consensus_stake > 0;
-
-  content.innerHTML = `
-    <div class="val-hero">
-      <div class="val-hero-top">
-        <a href="/validators.html" class="val-back">← Validators</a>
-      </div>
-      <div class="val-name-big">${esc(displayName)}</div>
-      <div class="val-addr-sub">
-        <span style="color:#6B6580">Validator ID</span>
-        <span style="color:#DDD7FE;margin-left:6px">#${v.validator_id}</span>
-        <span style="margin:0 10px;color:var(--text-dim)">·</span>
-        <span style="color:#6B6580">Auth</span>
-        <a href="${EXPLORER}/address/${auth}" target="_blank" style="color:#a78bfa;text-decoration:none;margin-left:6px">${auth}</a>
-      </div>
-      <div class="val-hero-row">
-        <div class="val-hero-score">
-          <span class="num" style="color:${isActive ? '#4ade80' : '#FFAE45'};font-size:34px">${isActive ? 'ACTIVE' : 'PENDING'}</span>
-          <span class="lbl">On-chain Status</span>
-        </div>
-        <div class="val-quick">
-          <div class="q"><span class="v">${fmtNum(Math.round(execStake))} MON</span><div class="k">Execution Stake</div></div>
-          <div class="q"><span class="v">${fmtNum(Math.round(consStake))} MON</span><div class="k">Consensus Stake</div></div>
-          <div class="q"><span class="v">${fmtNum(Math.round(snapStake))} MON</span><div class="k">Snapshot Stake</div></div>
-          <div class="q"><span class="v">${comm} %</span><div class="k">Commission</div></div>
-          <div class="q"><span class="v" id="vdp-uptime-val" style="color:var(--text-dim)">…</span><div class="k" title="Time since first Reward event / 28 days (VDP 4-week target)">VDP Uptime</div></div>
-          <div class="q" title="Total unclaimed rewards across ALL delegators (self-stake + external delegations). Only each delegator can claim their own share.">
-            <span class="v" style="color:var(--text-dim)">${fmtNum(Math.round(poolUnclaimed))} MON</span>
-            <div class="k">Pool Unclaimed (all delegators)</div>
-          </div>
-          <div class="q" title="Claimable by the validator's auth address (own self-stake share + earned commission if any).">
-            <span class="v" style="color:var(--cyan,#85E6FF)">${opClaim != null ? opClaim.toFixed(2) + ' MON' : '—'}</span>
-            <div class="k">Operator Claimable</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <section class="data-section">
-      <div class="section-title">Consensus Keys</div>
-      <div class="breakdown-grid">
-        <div class="breakdown-item">
-          <div class="bi-name">SECP Pubkey</div>
-          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.secp_pubkey)}</div>
-        </div>
-        <div class="breakdown-item">
-          <div class="bi-name">BLS Pubkey</div>
-          <div style="font-family:var(--mono);font-size:10px;color:#DDD7FE;word-break:break-all;line-height:1.5">${esc(v.bls_pubkey)}</div>
-        </div>
-      </div>
-    </section>
-
-    <div style="margin-top:24px;padding:14px 18px;background:rgba(110,84,255,0.05);border:1px solid rgba(110,84,255,0.15);border-radius:10px;font-size:12px;color:var(--text-dim);line-height:1.6">
-      <span style="color:#DDD7FE">ℹ Rewards accounting</span> — the pool number (${fmtNum(Math.round(poolUnclaimed))} MON) is the total
-      across <strong>all delegators</strong> of this validator (self-stake + external delegations). Each delegator can only
-      claim their own share; the Monad staking contract enforces <code>sender == delegator</code>. The operator (auth address)
-      claims proportionally to their self-stake, plus any commission on other delegators' rewards (commission is currently ${comm}%).
-      <br><br>
-      <span style="color:#DDD7FE">ℹ Block production</span> — Monad testnet block.miner is ephemeral per-block and
-      doesn't match auth address, so the <code>Blocks</code> table on this page cannot be populated reliably
-      for this validator. Block/reward accounting is done via the staking precompile directly (shown above).
-    </div>
-  `;
-
-  loading.style.display = 'none';
-  empty.style.display = 'none';
-  content.style.display = 'block';
-
-  // Async VDP uptime fetch (first-active scan can take a few seconds cold)
-  apiFetch('/validators/by-id/' + valId + '/first-active').then(fa => {
-    const el = document.getElementById('vdp-uptime-val');
-    if (!el) return;
-    if (!fa || !fa.first_active_timestamp) { el.textContent = '—'; return; }
-    const VDP_TARGET_MS = 28 * 24 * 3600 * 1000;
-    const age = Date.now() - fa.first_active_timestamp * 1000;
-    const pct = Math.min(age / VDP_TARGET_MS * 100, 100);
-    el.textContent = pct.toFixed(1) + '%';
-    el.style.color = pct >= 100 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
-  }).catch(() => { const el = document.getElementById('vdp-uptime-val'); if (el) el.textContent = '—'; });
 }
 
 document.addEventListener('DOMContentLoaded', loadValidator);
