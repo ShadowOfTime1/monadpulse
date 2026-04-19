@@ -112,9 +112,21 @@
 const TT = document.getElementById('tt');
 function showTT(e, html) {
   TT.innerHTML = html;
-  TT.style.left = (e.pageX + 14) + 'px';
-  TT.style.top = (e.pageY + 10) + 'px';
   TT.classList.add('visible');
+  // Measure AFTER it's visible so the rect is real.
+  const r = TT.getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight, pad = 10;
+  let left = e.clientX + pad;
+  let top  = e.clientY + pad;
+  // Flip horizontally if would overflow the right edge.
+  if (left + r.width  > vw - pad) left = e.clientX - r.width  - pad;
+  if (top  + r.height > vh - pad) top  = e.clientY - r.height - pad;
+  if (left < pad) left = pad;
+  if (top  < pad) top  = pad;
+  // Use fixed positioning so page scroll doesn't shift the tooltip.
+  TT.style.position = 'fixed';
+  TT.style.left = left + 'px';
+  TT.style.top  = top  + 'px';
 }
 function hideTT() { TT.classList.remove('visible'); }
 
@@ -194,14 +206,30 @@ async function render() {
 
   const {nodes, links} = sankey(sankeyData);
 
-  // Label-collision pass: when one huge flow dominates (e.g. Foundation with
-  // 10× the stake of everyone else), the other nodes get <1px tall and their
-  // labels would stack on top of each other. We keep the rects untouched (so
-  // links still terminate correctly) and only push the LABEL Y positions apart.
+  // === Label side classification (by rendered X, not node type) ===
+  // d3-sankey `justify` can drop ORPHAN nodes (a top-N delegator whose
+  // top-N outgoing edges all fell outside top-N validators) onto the RIGHT
+  // column. Their n.type is still "delegator" but their n.x0 is on the
+  // right side. If we position their label by n.type, we end up with
+  // label.x = n.x0 - 8 ≈ 976 — a phantom extra column that stacks every
+  // orphan's label at y=(y0+y1)/2 (which is the same for all since their
+  // height is 0). This was the "column of extruded labels" bug.
+  // Classify by geometry (x position) so orphans get a correct anchor AND
+  // skip labels entirely for zero-height nodes.
   const fontSize = maxSide <= 15 ? 12 : maxSide <= 30 ? 10 : 9;
   const MIN_LABEL_GAP = fontSize + 4;
+  const MIN_RECT_FOR_LABEL = 6; // pixels — below this, no label rendered
   const midX = (margin.left + width - margin.right) / 2;
 
+  nodes.forEach(n => {
+    n.side = n.x0 < midX ? 'left' : 'right';
+    n.rectH = n.y1 - n.y0;
+    n.hideLabel = n.rectH < MIN_RECT_FOR_LABEL;
+    n.labelY = (n.y0 + n.y1) / 2;
+  });
+
+  // Spread only VISIBLE labels — hidden ones must not push visible siblings
+  // around (that was the second half of the bug).
   function spreadLabels(col) {
     col.sort((a, b) => a.labelY - b.labelY);
     for (let i = 1; i < col.length; i++) {
@@ -210,7 +238,6 @@ async function render() {
         col[i].labelY = prev.labelY + MIN_LABEL_GAP;
       }
     }
-    // Pull back if we ran past the bottom
     const bottomLimit = height - margin.bottom;
     for (let i = col.length - 1; i > 0; i--) {
       if (col[i].labelY > bottomLimit) col[i].labelY = bottomLimit;
@@ -221,17 +248,13 @@ async function render() {
     }
   }
 
-  nodes.forEach(n => { n.labelY = (n.y0 + n.y1) / 2; });
-  spreadLabels(nodes.filter(n => n.x0 < midX));
-  spreadLabels(nodes.filter(n => n.x0 >= midX));
+  const visibleLeft  = nodes.filter(n => n.side === 'left'  && !n.hideLabel);
+  const visibleRight = nodes.filter(n => n.side === 'right' && !n.hideLabel);
+  spreadLabels(visibleLeft);
+  spreadLabels(visibleRight);
 
-  // Hide labels for nodes whose share is microscopic on dense renders (100×100).
-  // At 15×15 keep every label.
-  const totalValue = d3.sum(nodes, n => n.value || 0);
-  const minShare = maxSide <= 30 ? 0 : maxSide <= 60 ? 0.002 : 0.005;
-  nodes.forEach(n => {
-    n.showLabel = totalValue <= 0 ? true : ((n.value || 0) / totalValue) >= minShare;
-  });
+  const hiddenLeft  = nodes.filter(n => n.side === 'left'  && n.hideLabel).length;
+  const hiddenRight = nodes.filter(n => n.side === 'right' && n.hideLabel).length;
 
   // Links
   svg.append('g').selectAll('path')
@@ -269,30 +292,57 @@ async function render() {
       }
     });
 
-  // Labels — dynamic font size based on density (fontSize computed above for
-  // label-collision pass). Use labelY from that pass instead of rect center.
+  // Labels — render only for nodes that passed the hideLabel gate.
+  // Anchor by n.side (rendered X position), never by n.type, so orphans
+  // that landed on the "wrong" side get a correct anchor.
   const maxChars = maxSide <= 15 ? 22 : 18;
-  node.filter(d => d.showLabel).append('text')
-    .attr('x', d => d.type === 'delegator' ? d.x0 - 8 : d.x1 + 8)
+  node.filter(d => !d.hideLabel).append('text')
+    .attr('x', d => d.side === 'left' ? d.x0 - 8 : d.x1 + 8)
     .attr('y', d => d.labelY)
     .attr('dy', '0.35em')
-    .attr('text-anchor', d => d.type === 'delegator' ? 'end' : 'start')
+    .attr('text-anchor', d => d.side === 'left' ? 'end' : 'start')
     .attr('font-size', fontSize)
     .text(d => {
       const label = d.type === 'delegator' ? shortAddr(d.label) : d.label;
       return label.length > maxChars ? label.slice(0, maxChars - 1) + '…' : label;
     });
 
-  // Leader line: if the label was pushed far from the node's rect, connect
-  // them with a thin line so users can tell which rect a label belongs to.
-  node.filter(d => d.showLabel).append('line')
-    .attr('x1', d => d.type === 'delegator' ? d.x0 - 3 : d.x1 + 3)
+  // Leader line: connects the visible label back to its rect when
+  // collision-resolution pushed the label far from the node center.
+  node.filter(d => !d.hideLabel).append('line')
+    .attr('x1', d => d.side === 'left' ? d.x0 - 3 : d.x1 + 3)
     .attr('y1', d => Math.max(d.y0 + 0.5, Math.min(d.y1 - 0.5, d.labelY)))
-    .attr('x2', d => d.type === 'delegator' ? d.x0 - 6 : d.x1 + 6)
+    .attr('x2', d => d.side === 'left' ? d.x0 - 6 : d.x1 + 6)
     .attr('y2', d => d.labelY)
     .attr('stroke', 'rgba(110,84,255,0.25)')
     .attr('stroke-width', 0.6)
     .attr('pointer-events', 'none');
+
+  // "+N hidden" summary — one line per column reports how many nodes were
+  // dropped due to zero stake in top-N (delegators whose outgoing all fell
+  // outside top-N validators, and vice versa).
+  if (hiddenLeft > 0) {
+    svg.append('text')
+      .attr('x', margin.left - 8)
+      .attr('y', height - margin.bottom - 2)
+      .attr('dy', '0')
+      .attr('text-anchor', 'end')
+      .attr('font-size', Math.max(10, fontSize - 1))
+      .attr('fill', '#6B6580')
+      .attr('font-style', 'italic')
+      .text(`+${hiddenLeft} delegator${hiddenLeft === 1 ? '' : 's'} without top-N target`);
+  }
+  if (hiddenRight > 0) {
+    svg.append('text')
+      .attr('x', width - margin.right + 8)
+      .attr('y', height - margin.bottom - 2)
+      .attr('dy', '0')
+      .attr('text-anchor', 'start')
+      .attr('font-size', Math.max(10, fontSize - 1))
+      .attr('fill', '#6B6580')
+      .attr('font-style', 'italic')
+      .text(`+${hiddenRight} validator${hiddenRight === 1 ? '' : 's'} without top-N source`);
+  }
 
   document.getElementById('sankey-loading').style.display = 'none';
   document.getElementById('sankey-svg').style.display = 'block';
