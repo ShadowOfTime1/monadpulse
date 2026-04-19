@@ -294,12 +294,41 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     ? (searchRes.matches.find(m => m.val_id === valId) || searchRes.matches[0])?.name
     : null;
 
-  const blocksData = detail && detail.stats ? detail.stats : null;
-  const recentBlocks = detail && detail.recent_blocks ? detail.recent_blocks : [];
+  // === Candidate addresses for health/list/blocks lookups ===
+  // On testnet block.miner == auth, so auth alone works. On mainnet one
+  // validator rotates through several ephemeral miner addresses and
+  // /health/scores + /validators/list are indexed on MINER, not auth.
+  // We collect auth plus every miner address the names map attributes
+  // to the same canonical name, then match against any of them.
+  const candidateAddrs = new Set([auth]);
+  if (canonicalName && typeof _nameMap === 'object' && _nameMap) {
+    for (const [addr, nm] of Object.entries(_nameMap)) {
+      if (nm === canonicalName) candidateAddrs.add(addr.toLowerCase());
+    }
+  }
+  const inCandidates = (a) => candidateAddrs.has((a || '').toLowerCase());
+
   const geo = detail && detail.geo;
-  const health = (healthList || []).find(h => (h.validator_id || '').toLowerCase() === auth) || null;
+  const health = (healthList || []).find(h => inCandidates(h.validator_id)) || null;
   const allList = allValidators || [];
-  const rank = allList.findIndex(x => (x.address || '').toLowerCase() === auth) + 1;
+  // Pick the most recently active list entry among candidate miners
+  // (mainnet: multiple rotate; we want the one that's still producing).
+  const listEntries = allList.filter(x => inCandidates(x.address));
+  listEntries.sort((a, b) => new Date(b.last_seen || 0) - new Date(a.last_seen || 0));
+  const listEntry = listEntries[0] || null;
+  // Sum blocks + txns across every candidate miner for truthful totals,
+  // but take avg_block_time / last_seen from the most-recent entry only.
+  const blocksData = listEntry
+    ? {
+        total_blocks: listEntries.reduce((s, e) => s + (e.blocks_proposed || 0), 0),
+        avg_block_time_ms: listEntry.avg_block_time_ms,
+        total_tx: listEntries.reduce((s, e) => s + (e.total_tx || 0), 0),
+        first_seen: listEntries[listEntries.length - 1]?.first_seen,
+        last_seen: listEntry.last_seen,
+      }
+    : (detail && detail.stats ? detail.stats : null);
+  const recentBlocks = detail && detail.recent_blocks ? detail.recent_blocks : [];
+  const rank = listEntry ? allList.findIndex(x => x === listEntry) + 1 : 0;
   const totalVals = allList.length;
   const totalScore = health ? health.total_score : null;
   const scoreCol = totalScore == null ? 'var(--text-dim)'
