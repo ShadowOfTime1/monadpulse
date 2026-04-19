@@ -136,7 +136,7 @@
 <script>
 let _allClusters = [];
 
-async function loadClusters() {
+window.loadClusters = async function loadClusters() {
   const r = await apiFetch('/analytics/delegator-clusters?min_validators=2&limit=200');
   const tbody = document.querySelector('#clusters-table tbody');
   if (!r || !r.clusters) {

@@ -148,7 +148,7 @@ function showEmpty(msg) {
   document.getElementById('meta').textContent = '';
 }
 
-async function render() {
+async function renderGraph() {
   const delInput = document.getElementById('top-del');
   const valInput = document.getElementById('top-val');
   const td = clamp(parseInt(delInput.value, 10), 2, 100);
@@ -348,8 +348,12 @@ async function render() {
   document.getElementById('sankey-svg').style.display = 'block';
 }
 
-document.getElementById('apply').addEventListener('click', render);
-document.addEventListener('DOMContentLoaded', render);
+// Expose globally so reloadPage() in app.js can find it on network toggle.
+// Previously this was just `render` — a name also used generically enough
+// that reloadPage couldn't reliably hook it from its own scope.
+window.renderGraph = renderGraph;
+document.getElementById('apply').addEventListener('click', renderGraph);
+document.addEventListener('DOMContentLoaded', renderGraph);
 </script>
 </body>
 </html>

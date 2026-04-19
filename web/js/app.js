@@ -1248,11 +1248,10 @@ async function reloadPage() {
   else if (path === '/alerts.html') { _alertsAll = []; loadAlerts(); }
   else if (path === '/stake.html') { if (typeof loadStake === 'function') loadStake(); }
   else if (path === '/validator.html') { if (typeof loadValidator === 'function') loadValidator(); }
-  // Pages that define their own `render()` (Sankey graph, cluster table).
-  // Without these, a network toggle would leave stale data onscreen because
-  // the previous network's fetch finished after the switch visually "took".
-  else if (path === '/graph.html') { if (typeof render === 'function') render(); }
-  else if (path === '/clusters.html') { if (typeof loadClusters === 'function') loadClusters(); }
+  // Pages whose loader is declared inline in the HTML — expose via window.*
+  // so reloadPage can reach them from app.js scope reliably.
+  else if (path === '/graph.html') { if (typeof window.renderGraph === 'function') window.renderGraph(); }
+  else if (path === '/clusters.html') { if (typeof window.loadClusters === 'function') window.loadClusters(); }
 }
 
 function initNetSwitch() {
@@ -1279,6 +1278,15 @@ function initNetSwitch() {
 
 /* ═══ Router ═══ */
 async function init() {
+  // ?network=testnet|mainnet in the URL overrides sessionStorage. Lets users
+  // share deep links like /graph.html?network=mainnet and land on the right
+  // data. Persist it so in-page toggles still behave consistently afterwards.
+  const qnet = new URLSearchParams(location.search).get('network');
+  if (qnet === 'testnet' || qnet === 'mainnet') {
+    NETWORK = qnet;
+    sessionStorage.setItem('mp_net', qnet);
+  }
+
   await loadNames();
   const path = window.location.pathname;
 
