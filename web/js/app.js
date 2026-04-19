@@ -509,22 +509,17 @@ async function _loadDashboard() {
   }
 
   if (healthScores && healthScores.length) {
-    // Normalize for dashboard
-    const rawS = healthScores.map(h => h.total_score);
-    const minS = Math.min(...rawS);
-    const maxS = Math.max(...rawS);
-    const sprdS = maxS - minS;
-    const normalize = (s) => sprdS > 0 ? Math.round(((s - minS) / sprdS) * 100 * 10) / 10 : 50;
-
+    // Show raw total_score (0–100 composite from the API) — no UI-side
+    // normalization. Dashboard, Validators page and API must all agree.
     const tbody = document.querySelector('#top-proposers tbody');
     if (tbody) {
       tbody.innerHTML = healthScores.slice(0, 5).map((h, i) => {
-        const norm = normalize(h.total_score);
-        const color = scoreColor(norm);
+        const score = h.total_score;
+        const color = scoreColor(score);
         return `<tr class="fade-row" style="animation-delay:${i * 30}ms">
           <td><span class="rank">${i + 1}</span></td>
           <td>${validatorLink(h.validator_id)}</td>
-          <td><span style="color:${color};font-weight:600">${norm.toFixed(1)}</span></td>
+          <td><span style="color:${color};font-weight:600">${score.toFixed(1)}</span></td>
         </tr>`;
       }).join('');
     }
@@ -966,19 +961,14 @@ async function loadValidators(period = '24h') {
     }
   });
 
-  // Normalize scores: best=100, worst=0, linear scale
-  const rawScores = data.map(v => v.health_score_raw).filter(s => s != null);
-  const minScore = Math.min(...rawScores);
-  const maxScore = Math.max(...rawScores);
-  const spread = maxScore - minScore;
+  // Use the raw composite score from the API (0-100 theoretical max). Do NOT
+  // min/max normalize against the current population — that would produce a
+  // different number on every page and break the invariant that API ==
+  // Dashboard == Validators for a given validator.
   data.forEach(v => {
-    if (v.health_score_raw != null && spread > 0) {
-      v.health_score = Math.round(((v.health_score_raw - minScore) / spread) * 100 * 10) / 10;
-    } else if (v.health_score_raw != null) {
-      v.health_score = 50; // all same
-    } else {
-      v.health_score = null;
-    }
+    v.health_score = v.health_score_raw != null
+      ? Math.round(v.health_score_raw * 10) / 10
+      : null;
   });
 
   // Sort by health score by default

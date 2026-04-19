@@ -161,6 +161,15 @@
     <p>
       Color coding: <strong style="color:#4ade80">green (80+)</strong> = excellent, <strong style="color:#FFAE45">orange (50-80)</strong> = moderate, <strong style="color:#FF8EE4">pink (&lt;50)</strong> = needs attention.
     </p>
+    <p style="color:var(--text-dim,#6B6580);font-size:13px;line-height:1.7">
+      The 0–100 scale is the <em>theoretical</em> maximum. In practice no validator
+      reaches 100: it would require perfect uptime (40pt) <em>plus</em> perfect block
+      timing (20pt) <em>plus</em> latest client upgrade within hours (15pt) <em>plus</em>
+      maximum delegation stake (15pt) <em>plus</em> 30+ days active (10pt). A validator
+      in the upper-70s is at or near the top of the network. The same composite
+      value appears in the API, on the Dashboard, on the Validators page and on
+      each validator's detail page — no per-page re-scaling.
+    </p>
 
     <h3>Where does the data come from?</h3>
     <div class="score-breakdown">
