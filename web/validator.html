@@ -344,8 +344,8 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
        <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
        <div class="q"><span class="v">${fmtNum(blocksData.total_tx)}</span><div class="k">Total Txns</div></div>
        <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>`
-    : `<div class="q" title="On testnet block.miner is ephemeral per-block and doesn't match auth address, so block-level stats aren't collected for this validator.">
-         <span class="v" style="color:var(--text-dim);font-size:14px">n/a (testnet)</span>
+    : `<div class="q" title="block.miner is ephemeral per-block on this network and doesn't match auth — no block-level stats collected for this validator.">
+         <span class="v" style="color:var(--text-dim);font-size:14px">—</span>
          <div class="k">Block Stats</div>
        </div>`;
 
