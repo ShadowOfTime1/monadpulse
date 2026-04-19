@@ -82,10 +82,15 @@ and this project adheres to semantic-ish versioning.
   instead of near-invisible flat text. Added Enter-to-apply on both
   top-N inputs (blur-apply too, only if the value actually changed).
 - **Graph page viewport fit** — Sankey height now scales with the
-  number of rows (26px per node, clamped [420, 2400]), and the
+  number of rows (32px per node, clamped [420, 3200]), and the
   container has `max-height: calc(100vh - 260px)` with
   `overflow-y: auto` so large graphs scroll inside the container
   rather than pushing the "How to read" block off-screen.
+- **Graph page labels regression** — restored row height coefficient
+  (26 → 32) so low-stake delegator nodes stay above V9's 6px
+  label-hiding threshold. rowH 26 pushed many small-stake nodes
+  under the threshold and their labels vanished; V9 was tuned
+  against 32.
 - Dashboard: Top Validators widget names now always resolved on first
   render, including after a network switch. Previously `_loadDashboard`
   fired its health-score fetch before `loadNames()` completed on the
