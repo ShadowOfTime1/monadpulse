@@ -43,7 +43,18 @@
   #sankey-container::-webkit-scrollbar { width: 8px; }
   #sankey-container::-webkit-scrollbar-thumb { background: rgba(110,84,255,0.35); border-radius: 4px; }
   #sankey-container::-webkit-scrollbar-track { background: transparent; }
+  #sankey-container::-webkit-scrollbar:horizontal { height: 8px; }
   #sankey-svg { display: block; width: 100%; height: auto; }
+
+  /* Mobile: at 390px viewport the Sankey viewBox (1200) scales down ~3×,
+     pushing labels below ~4px — illegible. Force a 900px minimum width
+     so the SVG stays readable and let the container scroll horizontally.
+     Desktop behavior above is untouched (no min-width applies there). */
+  @media (max-width: 768px) {
+    #sankey-container { overflow-x: auto; }
+    #sankey-svg { min-width: 900px; }
+    .sankey-node text { font-size: 12px; }
+  }
   .sankey-link { fill: none; stroke-opacity: 0.25; transition: stroke-opacity 0.15s; }
   .sankey-link:hover { stroke-opacity: 0.55; }
   .sankey-node rect { cursor: pointer; }
