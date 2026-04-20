@@ -339,8 +339,9 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
   // its own big number — operators (and VDP reviewers) want uptime to
   // be the first thing visible, not buried inside the composite.
   const uptimePct = health && health.uptime_score != null ? health.uptime_score : null;
+  // VDP 4-week uptime target is 98% — green only when ≥ target.
   const uptimeCol = uptimePct == null ? 'var(--text-dim)'
-    : uptimePct >= 95 ? '#4ade80'
+    : uptimePct >= 98 ? '#4ade80'
     : uptimePct >= 50 ? '#FFAE45'
     : '#FF8EE4';
 
@@ -623,8 +624,9 @@ async function renderBlockOnly(addr, loading, content, empty) {
   // its own big number — operators (and VDP reviewers) want uptime to
   // be the first thing visible, not buried inside the composite.
   const uptimePct = health && health.uptime_score != null ? health.uptime_score : null;
+  // VDP 4-week uptime target is 98% — green only when ≥ target.
   const uptimeCol = uptimePct == null ? 'var(--text-dim)'
-    : uptimePct >= 95 ? '#4ade80'
+    : uptimePct >= 98 ? '#4ade80'
     : uptimePct >= 50 ? '#FFAE45'
     : '#FF8EE4';
 

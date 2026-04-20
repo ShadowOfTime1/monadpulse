@@ -380,8 +380,9 @@ function renderValidatorsPage() {
     // so outages stand out at a glance.
     const up = v.health_components && v.health_components.uptime;
     const upStr = up == null ? '—' : up.toFixed(1) + '%';
+    // VDP 4-week uptime target is 98% — green only when above.
     const upCol = up == null ? 'var(--text-dim)'
-      : up >= 95 ? '#4ade80' : up >= 50 ? '#FFAE45' : '#FF8EE4';
+      : up >= 98 ? '#4ade80' : up >= 50 ? '#FFAE45' : '#FF8EE4';
     const upCell = `<span style="color:${upCol};font-variant-numeric:tabular-nums;font-weight:600">${upStr}</span>`;
 
     return `<tr class="fade-row${hasAnomaly ? ' anomaly-row' : ''}" style="animation-delay:${Math.min(i * 20, 300)}ms">
