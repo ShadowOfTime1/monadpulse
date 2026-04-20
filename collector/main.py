@@ -663,9 +663,34 @@ async def compute_health_scores(pool, rpc=None):
                 upgrade_pct = _upgrade_pct(local_ver, _last_known_release)
                 log.info(f"local upgrade: version={local_ver} latest={_last_known_release} pct={upgrade_pct}")
 
-            # Stake stability — placeholder until validator_stake_history is
-            # populated. Will turn into a real variance calc in the next pass.
-            stake_pct = 50.0
+            # Stake stability — compare last 3 snapshots in validator_stake_history.
+            # Decline from earliest → latest is penalised; flat or growing stake
+            # reads as fully stable. Neutral 75 until we have ≥2 snapshots (takes
+            # a few epochs to accumulate on first deploy).
+            stake_pct = 75.0
+            try:
+                hist = await conn.fetch(
+                    "SELECT epoch, total_stake FROM validator_stake_history "
+                    "WHERE validator_id = $1 AND network = $2 "
+                    "ORDER BY epoch DESC LIMIT 3",
+                    cluster_addr, NETWORK,
+                )
+                if len(hist) >= 2:
+                    stakes = [int(r["total_stake"]) for r in hist]
+                    latest = stakes[0]
+                    oldest = stakes[-1]
+                    if latest >= oldest:
+                        stake_pct = 100.0
+                    else:
+                        decline = (oldest - latest) / max(oldest, 1) * 100
+                        if decline < 5:
+                            stake_pct = 85.0
+                        elif decline < 15:
+                            stake_pct = 60.0
+                        else:
+                            stake_pct = 30.0
+            except Exception:
+                pass
 
             total = (uptime_pct * 0.4 + bt_quality_pct * 0.2
                      + upgrade_pct * 0.15 + stake_pct * 0.15 + age_pct * 0.1)
@@ -706,6 +731,46 @@ STAKE_CRITICAL_PCT = 15      # alert if action ≥ 15% of validator's stake
 ACTIVE_VALIDATOR_STAKE = 10_000_000 * 10 ** 18  # Monad active-set threshold
 GET_VALIDATOR_SELECTOR = "2b6d639a"
 PRECOMPILE = "0x0000000000000000000000000000000000001000"
+
+
+async def snapshot_stakes(rpc: MonadRPC, pool) -> None:
+    """Snapshot current execution stakes for every directory validator.
+    Writes into validator_stake_history, one row per (validator_id, epoch).
+    Later epochs overwrite the previous row for the same epoch via
+    ON CONFLICT — so the last value within an epoch wins. Across epochs we
+    accumulate a history that compute_health_scores can diff for stability."""
+    epoch = await rpc.get_epoch()
+    if epoch is None:
+        return
+    import json as _json
+    directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
+    if not directory_path.exists():
+        return
+    try:
+        directory = _json.loads(directory_path.read_text())
+    except Exception:
+        return
+    written = 0
+    async with pool.acquire() as conn:
+        for e in directory:
+            vid = e.get("val_id")
+            auth = (e.get("auth") or "").lower()
+            if vid is None or not auth:
+                continue
+            stake = await _current_val_stake(rpc, vid)
+            if stake is None or stake <= 0:
+                continue
+            try:
+                await conn.execute("""
+                    INSERT INTO validator_stake_history
+                        (validator_id, epoch, total_stake, self_stake, delegator_count, network)
+                    VALUES ($1, $2, $3, 0, 0, $4)
+                    ON CONFLICT (validator_id, epoch) DO UPDATE SET total_stake = EXCLUDED.total_stake
+                """, auth, int(epoch), stake, NETWORK)
+                written += 1
+            except Exception as e:
+                log.warning(f"stake-snapshot write err val_id={vid}: {e}")
+    log.info(f"stake snapshot: wrote {written} validators at epoch {epoch}")
 
 
 async def _current_val_stake(rpc: MonadRPC, val_id: int) -> int | None:
@@ -1120,6 +1185,7 @@ async def run():
         last_tps_check = 0
         last_stake_ingest = 0
         last_offline_check = 0
+        last_stake_snapshot = 0
         while not shutdown_event.is_set():
             try:
                 chain_head = await rpc.get_block_number()
@@ -1181,6 +1247,16 @@ async def run():
                 if now - last_epoch_check > 60:
                     await track_epoch(rpc, pool)
                     last_epoch_check = now
+
+                # Stake snapshot — every 30 min. Writes every validator's
+                # current execution_stake to validator_stake_history so the
+                # health-score stake-stability component has historical data.
+                if now - last_stake_snapshot > 1800:
+                    try:
+                        await snapshot_stakes(rpc, pool)
+                    except Exception as e:
+                        log.warning(f"stake snapshot err: {e}")
+                    last_stake_snapshot = now
 
                 # Health scores — every hour
                 if now - last_health_calc > 3600:
