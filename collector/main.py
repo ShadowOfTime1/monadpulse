@@ -270,8 +270,65 @@ async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
 
 
 async def compute_health_scores(pool):
-    """Compute validator health scores from block production data."""
+    """Compute validator health scores from block production data.
+
+    Uptime formula (post-Matthias-feedback 2026-04-20):
+        expected = (network_blocks_since_first_active / active_validators_count)
+        uptime  = min(100, actual_blocks / expected * 100)
+
+    The old formula ("blocks vs top-1 producer") unfairly penalized newer
+    validators — they physically couldn't accumulate as many blocks as a
+    day-1 validator in a rolling 7d window. Now we normalize by time-alive
+    so a validator active 2 days, producing at expected rate, reads as
+    ~100% instead of ~28%.
+
+    Cross-miner clustering: on mainnet (and some testnet cases) one
+    validator rotates across several ephemeral block.miner addresses.
+    Each was previously scored as a separate "validator", always with a
+    fresh first_seen and low block count. We cluster by canonical name
+    from validator_names_{network}.json so Backpack's three miner rotations
+    contribute to one health score keyed on its auth address."""
+    import json as _json
+    names_path = Path(f"/opt/monadpulse/validator_names_{NETWORK}.json")
+    directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
+    names_map: dict = {}
+    auth_by_name: dict = {}
+    if names_path.exists():
+        try:
+            names_map = {k.lower(): v for k, v in _json.loads(names_path.read_text()).items()}
+        except Exception:
+            pass
+    if directory_path.exists():
+        try:
+            for e in _json.loads(directory_path.read_text()):
+                if e.get("name") and e.get("auth"):
+                    auth = e["auth"].lower()
+                    auth_by_name[e["name"]] = auth
+                    # Also let the auth address itself resolve to the canonical
+                    # name — otherwise a row with proposer_address=<auth> (e.g.
+                    # after null-miner backfill rewrote it to auth) wouldn't
+                    # cluster with the rows under real miner addresses.
+                    names_map.setdefault(auth, e["name"])
+        except Exception:
+            pass
+
+    # Retire rows keyed on miner addrs that now cluster into an auth entry.
+    # Without this the API's "latest per validator_id" query keeps returning
+    # one row per miner alongside the canonical auth-keyed row, re-splitting
+    # the validator in the UI after it was just clustered.
+    redundant_miner_ids = set()
+    for addr, name in names_map.items():
+        canonical = auth_by_name.get(name)
+        if canonical and canonical != addr:
+            redundant_miner_ids.add(addr)
+
     async with pool.acquire() as conn:
+        if redundant_miner_ids:
+            await conn.execute(
+                "DELETE FROM health_scores WHERE network = $1 AND validator_id = ANY($2::text[])",
+                NETWORK, list(redundant_miner_ids),
+            )
+
         validators = await conn.fetch("""
             SELECT
                 proposer_address,
@@ -286,46 +343,107 @@ async def compute_health_scores(pool):
             HAVING COUNT(*) >= 5
         """, NETWORK)
 
-        if not validators:
+        # Network-wide baseline for the same 7d window — used to compute
+        # per-validator expected block counts.
+        net_row = await conn.fetchrow("""
+            SELECT
+                COUNT(*) AS total,
+                MIN(timestamp) AS first_ts
+            FROM blocks
+            WHERE timestamp > NOW() - INTERVAL '7 days' AND network = $1
+              AND proposer_address != '0x0000000000000000000000000000000000000000'
+        """, NETWORK)
+
+        if not validators or not net_row or not net_row["total"]:
             return
 
-        max_blocks = max(v["total_blocks"] for v in validators)
-        now_ts = datetime.now(timezone.utc)
-
+        # Cluster proposers into validators by name (auth + all miner rotations).
+        # Each cluster aggregates blocks, earliest first_seen, averaged block time.
+        # Unnamed proposers (no match in names_map) form singleton clusters —
+        # they still benefit from the new time-normalized formula.
+        clusters: dict[str, dict] = {}
         for v in validators:
-            # Uptime: proportion of blocks vs top producer (40%)
-            uptime_score = min((v["total_blocks"] / max(max_blocks, 1)) * 100, 100) * 0.4
+            addr = v["proposer_address"].lower()
+            name = names_map.get(addr)
+            canonical_addr = auth_by_name.get(name) if name else None
+            key = canonical_addr or name or addr
+            c = clusters.setdefault(key, {
+                "validator_id": canonical_addr or addr,  # prefer auth for display
+                "total_blocks": 0,
+                "weighted_bt_sum": 0.0,
+                "first_seen": None,
+                "last_seen": None,
+                "name": name,
+            })
+            c["total_blocks"] += int(v["total_blocks"])
+            if v["avg_bt"] is not None:
+                c["weighted_bt_sum"] += float(v["avg_bt"]) * int(v["total_blocks"])
+            if v["first_seen"] is not None:
+                c["first_seen"] = v["first_seen"] if c["first_seen"] is None else min(c["first_seen"], v["first_seen"])
+            if v["last_seen"] is not None:
+                c["last_seen"] = v["last_seen"] if c["last_seen"] is None else max(c["last_seen"], v["last_seen"])
+
+        now_ts = datetime.now(timezone.utc)
+        network_total_7d = int(net_row["total"])
+        active_validators = len(clusters)
+        # "Slot size" = average expected blocks per validator per unit time.
+        # Per-unit-time rate = network_blocks / 7 days.
+        seconds_in_7d = 7 * 24 * 3600
+        network_rate = network_total_7d / seconds_in_7d  # blocks per second network-wide
+        per_validator_rate = network_rate / max(active_validators, 1)
+
+        for c in clusters.values():
+            first_seen = c["first_seen"]
+            if first_seen is None:
+                continue
+            first_seen_aware = first_seen if first_seen.tzinfo else first_seen.replace(tzinfo=timezone.utc)
+            seconds_alive = max(1, (now_ts - first_seen_aware).total_seconds())
+            # Cap the alive window to the 7d measurement window — a validator
+            # active for years still only accumulates blocks in the last 7 days.
+            effective_seconds = min(seconds_alive, seconds_in_7d)
+            expected = per_validator_rate * effective_seconds
+
+            # Grace period: first 24h show 100% uptime. Not enough data yet to
+            # distinguish a real outage from statistical noise in small samples.
+            hours_alive = seconds_alive / 3600
+            if hours_alive < 24:
+                uptime_pct = 100.0
+            elif expected <= 0:
+                uptime_pct = 0.0
+            else:
+                uptime_pct = min(100.0, c["total_blocks"] / expected * 100.0)
 
             # Block time quality: closer to 400ms is better (20%)
-            avg_bt = float(v["avg_bt"] or 400)
-            bt_quality = max(0, 100 - abs(avg_bt - 400) / 4) * 0.2
+            avg_bt = (c["weighted_bt_sum"] / c["total_blocks"]) if c["total_blocks"] else 400.0
+            bt_quality_pct = max(0.0, 100.0 - abs(avg_bt - 400) / 4)
 
             # Age: longer = better, max at 30 days (10%)
-            age_days = (now_ts - v["first_seen"].replace(tzinfo=timezone.utc)).days if v["first_seen"] else 0
-            age_score = min(age_days / 30, 1) * 100 * 0.1
+            age_days = seconds_alive / 86400
+            age_pct = min(1.0, age_days / 30) * 100.0
 
-            # Simplified: no upgrade/stake data yet, give defaults (30%)
-            upgrade_score = 75 * 0.15  # assume decent
-            stake_score = 50 * 0.15  # neutral
+            # No upgrade/stake data per-validator yet, placeholders (30%)
+            upgrade_pct = 75.0
+            stake_pct = 50.0
 
-            total = uptime_score + bt_quality + age_score + upgrade_score + stake_score
+            total = (uptime_pct * 0.4 + bt_quality_pct * 0.2
+                     + upgrade_pct * 0.15 + stake_pct * 0.15 + age_pct * 0.1)
 
             await conn.execute("""
                 INSERT INTO health_scores
                     (validator_id, timestamp, total_score, uptime_score, miss_score, upgrade_score, stake_score, age_score, network)
                 VALUES ($1, NOW(), $2, $3, $4, $5, $6, $7, $8)
             """,
-                v["proposer_address"],
+                c["validator_id"],
                 round(total, 1),
-                round(uptime_score / 0.4, 1),
-                round(bt_quality / 0.2, 1),
-                round(upgrade_score / 0.15, 1),
-                round(stake_score / 0.15, 1),
-                round(age_score / 0.1, 1),
+                round(uptime_pct, 1),
+                round(bt_quality_pct, 1),
+                round(upgrade_pct, 1),
+                round(stake_pct, 1),
+                round(age_pct, 1),
                 NETWORK,
             )
 
-        log.info(f"Health scores computed for {len(validators)} validators")
+        log.info(f"Health scores computed for {len(clusters)} validators (from {len(validators)} proposer rows)")
 
 
 STAKE_LOGS_CHUNK = 500 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 100
