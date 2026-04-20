@@ -269,6 +269,61 @@ async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
         await tg_send("new_validator", "info", title, desc)
 
 
+# ─── Upgrade score (local node only; others use a neutral placeholder) ──
+# For the validator whose auth == MONADPULSE_LOCAL_AUTH we can compare the
+# live web3_clientVersion with the latest GitHub release and produce a real
+# upgrade score. For every other validator we can't see their client
+# version without their own endpoint — leave the placeholder (75).
+import time as _time_mod
+
+LOCAL_AUTH = (os.environ.get("MONADPULSE_LOCAL_AUTH") or "").lower()
+_LOCAL_VERSION_CACHE: dict = {"version": None, "fetched_at": 0}
+
+
+async def _get_local_version(rpc) -> str | None:
+    if _LOCAL_VERSION_CACHE["version"] and (_time_mod.time() - _LOCAL_VERSION_CACHE["fetched_at"]) < 300:
+        return _LOCAL_VERSION_CACHE["version"]
+    try:
+        v = await rpc.get_client_version()
+        # e.g. "Monad/0.14.1" or raw "0.14.1"
+        version = v.split("/")[-1].strip()
+        _LOCAL_VERSION_CACHE["version"] = version
+        _LOCAL_VERSION_CACHE["fetched_at"] = _time_mod.time()
+        return version
+    except Exception as e:
+        log.warning(f"local version fetch err: {e}")
+        return None
+
+
+def _upgrade_pct(current: str | None, latest: str | None) -> float:
+    """Compare semver-ish strings. 100 = at or above latest; 75 = one minor
+    behind; 50 = two minor behind; 25 = major behind; 75 default on parse
+    failure so we stay neutral when we can't tell."""
+    if not current or not latest:
+        return 75.0
+    def parse(v):
+        v = v.lstrip("v").split("-")[0]  # drop pre-release suffix
+        return tuple(int(p) for p in v.split(".") if p.isdigit())
+    try:
+        c = parse(current); l = parse(latest)
+        if not c or not l:
+            return 75.0
+        if c >= l:
+            return 100.0
+        if len(c) >= 2 and len(l) >= 2:
+            if c[0] < l[0]:
+                return 25.0
+            diff = l[1] - c[1]
+            if diff <= 0:
+                return 100.0
+            if diff == 1:
+                return 75.0
+            return 50.0
+        return 75.0
+    except Exception:
+        return 75.0
+
+
 # ─── First-active lookup (Reward-events scan) ────────────────────────────
 # compute_health_scores wants a TRUE first-active timestamp per validator to
 # compute the Age component honestly. Our blocks table only sees data from
@@ -410,7 +465,7 @@ async def fill_first_active_cache(val_ids: list[int], rpc, max_new: int = 10) ->
         _FIRST_ACTIVE_FILL_RUNNING = False
 
 
-async def compute_health_scores(pool):
+async def compute_health_scores(pool, rpc=None):
     """Compute validator health scores from block production data.
 
     Uptime formula (post-Matthias-feedback 2026-04-20):
@@ -594,8 +649,22 @@ async def compute_health_scores(pool):
             age_days = age_seconds / 86400
             age_pct = min(1.0, age_days / 30) * 100.0
 
-            # No upgrade/stake data per-validator yet, placeholders (30%)
+            # Upgrade — real score for our own node (where we can call
+            # web3_clientVersion); placeholder 75 for everyone else.
             upgrade_pct = 75.0
+            cluster_addr = (c["validator_id"] or "").lower()
+            if LOCAL_AUTH and cluster_addr == LOCAL_AUTH and rpc is not None:
+                # Make sure we have a "latest" to compare against — if the
+                # periodic release-check hasn't run yet (first compute cycle
+                # after boot), fetch it on-demand.
+                if not _last_known_release:
+                    await check_new_release(pool)
+                local_ver = await _get_local_version(rpc)
+                upgrade_pct = _upgrade_pct(local_ver, _last_known_release)
+                log.info(f"local upgrade: version={local_ver} latest={_last_known_release} pct={upgrade_pct}")
+
+            # Stake stability — placeholder until validator_stake_history is
+            # populated. Will turn into a real variance calc in the next pass.
             stake_pct = 50.0
 
             total = (uptime_pct * 0.4 + bt_quality_pct * 0.2
@@ -1041,7 +1110,7 @@ async def run():
         log.info("Backfill complete, running initial aggregations...")
         await aggregate_hourly(pool)
         await track_epoch(rpc, pool)
-        await compute_health_scores(pool)
+        await compute_health_scores(pool, rpc)
         log.info("Entering live mode")
 
         # Live mode
@@ -1115,7 +1184,7 @@ async def run():
 
                 # Health scores — every hour
                 if now - last_health_calc > 3600:
-                    await compute_health_scores(pool)
+                    await compute_health_scores(pool, rpc)
                     if NETWORK == "testnet":  # only check once, not from both collectors
                         await check_new_release(pool)
                     last_health_calc = now
