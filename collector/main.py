@@ -649,19 +649,30 @@ async def compute_health_scores(pool, rpc=None):
             age_days = age_seconds / 86400
             age_pct = min(1.0, age_days / 30) * 100.0
 
-            # Upgrade — real score for our own node (where we can call
-            # web3_clientVersion); placeholder 75 for everyone else.
-            upgrade_pct = 75.0
+            # Upgrade — default 100 for any active validator. Reasoning:
+            # they're producing blocks at the expected rate (uptime 100),
+            # which means their client version is still compatible with
+            # consensus. Outdated nodes fall out of consensus within days
+            # and their uptime drops — so the "upgrade health" signal is
+            # already captured by uptime. Hard-coding a 75 placeholder for
+            # everyone but the local node created an unfair bias where our
+            # own health score systematically beat every peer by ~3.75 pts
+            # even when they were on the same version as us.
+            #
+            # Only penalise when we can *prove* a validator is behind:
+            # that's possible only for the local node (we can query its
+            # web3_clientVersion). If the local node is behind the latest
+            # GitHub release, we penalise OURSELVES accordingly.
+            upgrade_pct = 100.0
             cluster_addr = (c["validator_id"] or "").lower()
             if LOCAL_AUTH and cluster_addr == LOCAL_AUTH and rpc is not None:
-                # Make sure we have a "latest" to compare against — if the
-                # periodic release-check hasn't run yet (first compute cycle
-                # after boot), fetch it on-demand.
                 if not _last_known_release:
                     await check_new_release(pool)
                 local_ver = await _get_local_version(rpc)
-                upgrade_pct = _upgrade_pct(local_ver, _last_known_release)
-                log.info(f"local upgrade: version={local_ver} latest={_last_known_release} pct={upgrade_pct}")
+                proven_pct = _upgrade_pct(local_ver, _last_known_release)
+                if proven_pct < 100:
+                    upgrade_pct = proven_pct
+                    log.info(f"local upgrade penalty: version={local_ver} latest={_last_known_release} pct={proven_pct}")
 
             # Stake stability — compare last 3 snapshots in validator_stake_history.
             # Decline from earliest → latest is penalised; flat or growing stake
