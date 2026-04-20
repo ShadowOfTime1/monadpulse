@@ -350,7 +350,7 @@ function renderValidatorsPage() {
   const tbody = document.querySelector('#validators-table tbody');
   if (!tbody) return;
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:32px">No validators found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:32px">No validators found</td></tr>';
     const pag = document.getElementById('validators-pagination');
     if (pag) pag.innerHTML = '';
     return;
@@ -375,10 +375,20 @@ function renderValidatorsPage() {
     const btClass = v.avg_block_time_ms != null && (v.avg_block_time_ms > 450 || (v.avg_block_time_ms < 300 && v.avg_block_time_ms > 0)) ? ' style="color:var(--pink,#FF8EE4)"' : '';
     const blocksClass = v.blocks_proposed < 50 ? ' style="color:var(--orange,#FFAE45)"' : '';
 
+    // Uptime column — raw uptime_score from health_components (0-100, new
+    // formula = actual vs expected blocks since first-active). Color-coded
+    // so outages stand out at a glance.
+    const up = v.health_components && v.health_components.uptime;
+    const upStr = up == null ? '—' : up.toFixed(1) + '%';
+    const upCol = up == null ? 'var(--text-dim)'
+      : up >= 95 ? '#4ade80' : up >= 50 ? '#FFAE45' : '#FF8EE4';
+    const upCell = `<span style="color:${upCol};font-variant-numeric:tabular-nums;font-weight:600">${upStr}</span>`;
+
     return `<tr class="fade-row${hasAnomaly ? ' anomaly-row' : ''}" style="animation-delay:${Math.min(i * 20, 300)}ms">
       <td><span class="rank">${rank}</span></td>
       <td>${anomalyIcon}${validatorLink(v.address)}</td>
       <td>${scoreBar(v.health_score)}</td>
+      <td>${upCell}</td>
       <td${blocksClass}>${fmtNum(v.blocks_proposed)}</td>
       <td${btClass}>${btVal}</td>
       <td>${fmtNum(v.total_tx)}</td>
@@ -936,7 +946,7 @@ function renderBlocksPage() {
 }
 
 /* ═══ Validators page ═══ */
-let _sortBy = 'health'; // 'health' or 'blocks'
+let _sortBy = 'health'; // 'health' | 'uptime' | 'blocks'
 
 async function loadValidators(period = '24h') {
   const [data, healthData] = await Promise.all([
@@ -1320,8 +1330,14 @@ async function init() {
         btn.classList.add('active');
         _sortBy = btn.dataset.sort;
         const sorted = [..._allValidators];
-        if (_sortBy === 'health') sorted.sort((a, b) => (b.health_score || 0) - (a.health_score || 0));
-        else sorted.sort((a, b) => b.blocks_proposed - a.blocks_proposed);
+        if (_sortBy === 'health') {
+          sorted.sort((a, b) => (b.health_score || 0) - (a.health_score || 0));
+        } else if (_sortBy === 'uptime') {
+          const u = v => (v.health_components && v.health_components.uptime) ?? -1;
+          sorted.sort((a, b) => u(b) - u(a));
+        } else {
+          sorted.sort((a, b) => b.blocks_proposed - a.blocks_proposed);
+        }
         renderValidators(sorted);
       });
     });

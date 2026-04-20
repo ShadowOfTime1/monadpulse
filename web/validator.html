@@ -335,6 +335,14 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     : totalScore >= 80 ? '#4ade80'
     : totalScore >= 50 ? '#FFAE45'
     : '#FF8EE4';
+  // Uptime is the 40%-weighted component of Health Score. Surface it as
+  // its own big number — operators (and VDP reviewers) want uptime to
+  // be the first thing visible, not buried inside the composite.
+  const uptimePct = health && health.uptime_score != null ? health.uptime_score : null;
+  const uptimeCol = uptimePct == null ? 'var(--text-dim)'
+    : uptimePct >= 95 ? '#4ade80'
+    : uptimePct >= 50 ? '#FFAE45'
+    : '#FF8EE4';
 
   // Prefer canonical directory name; fall back to names-map lookup by
   // auth addr (works on testnet where miner==auth); last resort: ID only.
@@ -418,6 +426,10 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
         <div class="val-hero-score">
           <span class="num" style="color:${scoreCol}">${totalScore != null ? totalScore.toFixed(1) : '—'}</span>
           <span class="lbl">Health Score${rank > 0 ? ' · Rank #' + rank + (totalVals ? ' / ' + totalVals : '') : ''}</span>
+        </div>
+        <div class="val-hero-score" title="Actual blocks produced vs expected (stake-weighted share × time-since-first-active). 100% = producing at full rate.">
+          <span class="num" style="color:${uptimeCol}">${uptimePct != null ? uptimePct.toFixed(1) + '%' : '—'}</span>
+          <span class="lbl">Uptime (7d)</span>
         </div>
         <div class="val-quick">
           ${blocksMetric}
@@ -607,6 +619,14 @@ async function renderBlockOnly(addr, loading, content, empty) {
     : totalScore >= 80 ? '#4ade80'
     : totalScore >= 50 ? '#FFAE45'
     : '#FF8EE4';
+  // Uptime is the 40%-weighted component of Health Score. Surface it as
+  // its own big number — operators (and VDP reviewers) want uptime to
+  // be the first thing visible, not buried inside the composite.
+  const uptimePct = health && health.uptime_score != null ? health.uptime_score : null;
+  const uptimeCol = uptimePct == null ? 'var(--text-dim)'
+    : uptimePct >= 95 ? '#4ade80'
+    : uptimePct >= 50 ? '#FFAE45'
+    : '#FF8EE4';
 
   const avgBt = detail.stats.avg_block_time_ms;
   const avgBtStr = avgBt == null ? '—' : avgBt + ' ms';
@@ -661,6 +681,10 @@ async function renderBlockOnly(addr, loading, content, empty) {
         <div class="val-hero-score">
           <span class="num" style="color:${scoreCol}">${totalScore != null ? totalScore.toFixed(1) : '—'}</span>
           <span class="lbl">Health Score${rank > 0 ? ' · Rank #' + rank + (totalVals ? ' / ' + totalVals : '') : ''}</span>
+        </div>
+        <div class="val-hero-score" title="Actual blocks produced vs expected (stake-weighted share × time-since-first-active). 100% = producing at full rate.">
+          <span class="num" style="color:${uptimeCol}">${uptimePct != null ? uptimePct.toFixed(1) + '%' : '—'}</span>
+          <span class="lbl">Uptime (7d)</span>
         </div>
         <div class="val-quick">
           <div class="q"><span class="v">${fmtNum(detail.stats.total_blocks)}</span><div class="k">Blocks</div></div>

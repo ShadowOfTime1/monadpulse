@@ -78,12 +78,13 @@
     <div class="sort-selector">
       <span style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-right:8px">Sort by:</span>
       <button class="sort-btn active" data-sort="health">Health Score</button>
+      <button class="sort-btn" data-sort="uptime">Uptime</button>
       <button class="sort-btn" data-sort="blocks">Blocks</button>
     </div>
     <div style="overflow-x:auto">
       <table id="validators-table">
         <thead>
-          <tr><th></th><th>Address</th><th>Health</th><th>Blocks</th><th>Avg Block Time</th><th>Total Txns</th><th>Last Seen</th></tr>
+          <tr><th></th><th>Address</th><th>Health</th><th title="Actual vs expected blocks since first-active. 100% = producing at full stake-weighted rate.">Uptime</th><th>Blocks</th><th>Avg Block Time</th><th>Total Txns</th><th>Last Seen</th></tr>
         </thead>
         <tbody></tbody>
       </table>
