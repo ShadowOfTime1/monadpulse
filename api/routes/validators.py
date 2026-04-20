@@ -245,6 +245,24 @@ async def validator_first_active(val_id: int, network: str = Query("testnet")):
     }
 
 
+@router.get("/geo")
+async def validator_geo(network: str = Query("testnet")):
+    """Return the manually-verified geography entries for validators whose
+    location we've confirmed from their public website / social profiles.
+    Frontend map reads from this instead of a hardcoded JS blob so the list
+    can be updated by editing one file + git commit, and so the source is
+    visible to anyone inspecting /api/."""
+    path = Path(f"/opt/monadpulse/validator_geo_{network}.json")
+    if not path.exists():
+        return {"network": network, "validators": [], "source": "manually verified"}
+    try:
+        data = json.loads(path.read_text())
+    except Exception:
+        return {"network": network, "validators": [], "source": "manually verified"}
+    data["source"] = "manually verified from operator public profiles"
+    return data
+
+
 GET_PROPOSER_VAL_ID_SELECTOR = "fbacb0be"  # get_proposer_val_id() — reads proposer of the given historical block
 _MINER_DISCOVERY_CACHE: dict[tuple[str, int], tuple[float, list[str]]] = {}
 MINER_DISCOVERY_TTL = 600  # 10 min

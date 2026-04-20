@@ -82,7 +82,12 @@ async function buildMap() {
   // Real validator count from API — used only for the legend total.
   const summary = await apiFetch('/dashboard/summary');
   const totalValidators = summary?.epoch?.validator_count || summary?.stats_24h?.active_validators || 0;
-  const known = KNOWN_VALIDATORS[NETWORK] || KNOWN_VALIDATORS.testnet;
+  // Manually-verified geography now comes from /api/validators/geo
+  // (backed by validator_geo_{network}.json in the repo). Previously this
+  // list was hardcoded in JS; moving it behind an endpoint makes the
+  // source visible and editable without a frontend deploy.
+  const geoResp = await apiFetch('/validators/geo');
+  const known = (geoResp && geoResp.validators) || KNOWN_VALIDATORS[NETWORK] || [];
 
   // Clear previous markers
   if (_markersLayer) _markersLayer.clearLayers();

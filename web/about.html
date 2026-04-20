@@ -135,7 +135,7 @@
       <div class="score-row">
         <span class="score-weight">40%</span>
         <span class="score-name">Uptime</span>
-        <span class="score-desc">Block production rate relative to the top producer. More blocks proposed = higher score.</span>
+        <span class="score-desc">Stake-weighted expected block rate vs actual. 100% = producing at or above the rate their stake entitles them to. Below 50% = probable outage. Monad proposer selection is stake-weighted, so a 10M-MON validator is compared against 10× more blocks than a 1M-MON validator.</span>
       </div>
       <div class="score-row">
         <span class="score-weight">20%</span>
@@ -144,18 +144,18 @@
       </div>
       <div class="score-row">
         <span class="score-weight">15%</span>
-        <span class="score-name">Upgrade Speed</span>
-        <span class="score-desc">How quickly the validator updates to new client versions. Will be fully active when more upgrades happen.</span>
+        <span class="score-name">Client compatibility</span>
+        <span class="score-desc">Active validators who are proposing blocks at expected rate receive 100 — outdated clients fall out of consensus within days, so a healthy uptime implies a compatible version. The only validator we can directly penalize here is our own local node (monadpulse.xyz operator), whose web3_clientVersion is compared to the latest Monad release.</span>
       </div>
       <div class="score-row">
         <span class="score-weight">15%</span>
         <span class="score-name">Stake Stability</span>
-        <span class="score-desc">Whether the validator maintains or grows delegations. Will activate when staking precompile exposes more data.</span>
+        <span class="score-desc">Compared across the last 3 epoch snapshots (written by the collector every 30 min): flat or growing total stake → 100, declining stake → lower score. Needs at least 2 epochs of data to activate — neutral 75 until then. Mainnet is still accumulating snapshots at the moment.</span>
       </div>
       <div class="score-row">
         <span class="score-weight">10%</span>
         <span class="score-name">Age</span>
-        <span class="score-desc">How long the validator has been active. Maxes out at 30 days. Longevity signals reliability.</span>
+        <span class="score-desc">Days since the validator's first on-chain Reward event (read from the staking precompile). Maxes out at 30 days. On networks we only started indexing recently (mainnet went live April 2026), visible age is capped by our data-retention window — validators older than that show the maximum we can see.</span>
       </div>
     </div>
     <p>

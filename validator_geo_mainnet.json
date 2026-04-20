@@ -1,0 +1,117 @@
+{
+  "network": "mainnet",
+  "validators": [
+    {
+      "name": "GalaxyDigital",
+      "city": "New York",
+      "lat": 40.71,
+      "lon": -74.01,
+      "region": "North America"
+    },
+    {
+      "name": "Figment",
+      "city": "Toronto",
+      "lat": 43.65,
+      "lon": -79.38,
+      "region": "North America"
+    },
+    {
+      "name": "Coinbase Cloud",
+      "city": "San Francisco",
+      "lat": 37.77,
+      "lon": -122.42,
+      "region": "North America"
+    },
+    {
+      "name": "Chorus One",
+      "city": "Zug",
+      "lat": 47.17,
+      "lon": 8.52,
+      "region": "Europe"
+    },
+    {
+      "name": "Kiln",
+      "city": "Paris",
+      "lat": 48.86,
+      "lon": 2.35,
+      "region": "Europe"
+    },
+    {
+      "name": "Blockdaemon",
+      "city": "Los Angeles",
+      "lat": 34.05,
+      "lon": -118.24,
+      "region": "North America"
+    },
+    {
+      "name": "Everstake",
+      "city": "Kyiv",
+      "lat": 50.45,
+      "lon": 30.52,
+      "region": "Europe"
+    },
+    {
+      "name": "P2P.org",
+      "city": "Amsterdam",
+      "lat": 52.37,
+      "lon": 4.9,
+      "region": "Europe"
+    },
+    {
+      "name": "Luganodes",
+      "city": "Lugano",
+      "lat": 46.0,
+      "lon": 8.95,
+      "region": "Europe"
+    },
+    {
+      "name": "DSRV",
+      "city": "Seoul",
+      "lat": 37.57,
+      "lon": 126.98,
+      "region": "Asia"
+    },
+    {
+      "name": "Validation Cloud",
+      "city": "Zug",
+      "lat": 47.17,
+      "lon": 8.52,
+      "region": "Europe"
+    },
+    {
+      "name": "Staking Facilities",
+      "city": "Munich",
+      "lat": 48.14,
+      "lon": 11.58,
+      "region": "Europe"
+    },
+    {
+      "name": "InfStones",
+      "city": "Palo Alto",
+      "lat": 37.44,
+      "lon": -122.14,
+      "region": "North America"
+    },
+    {
+      "name": "HashKey Cloud",
+      "city": "Hong Kong",
+      "lat": 22.32,
+      "lon": 114.17,
+      "region": "Asia"
+    },
+    {
+      "name": "Allnodes",
+      "city": "Los Angeles",
+      "lat": 34.05,
+      "lon": -118.24,
+      "region": "North America"
+    },
+    {
+      "name": "Stakely",
+      "city": "Madrid",
+      "lat": 40.42,
+      "lon": -3.7,
+      "region": "Europe"
+    }
+  ]
+}

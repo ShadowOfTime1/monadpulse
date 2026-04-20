@@ -69,7 +69,10 @@ async def summary(request: Request, network: str = Query("testnet")):
     # Compute epoch progress from latest block
     if latest:
         bn = latest["block_number"]
-        current_epoch = bn // 50000
+        # Prefer the collector-recorded epoch number (via staking precompile
+        # getEpoch()) over block-number arithmetic. The two can disagree for
+        # a few seconds around a boundary — epoch.number is authoritative.
+        current_epoch = epoch["epoch_number"] if epoch else bn // 50000
         progress_blocks = bn % 50000
         progress_pct = round(progress_blocks / 50000 * 100, 1)
         remaining = 50000 - progress_blocks

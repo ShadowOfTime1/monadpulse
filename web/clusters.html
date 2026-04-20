@@ -106,7 +106,7 @@
     <span class="signal signal-medium">power</span> 6-20 validators, meaningful stake
     <span class="signal signal-high">coordinated</span> 21-100 validators, meaningful stake
     <span class="signal signal-extreme">foundation</span> 100+ validators AND 10M+ MON
-    <span class="signal signal-dust">dust</span> high validator count, &lt;100 MON total (sybil / airdrop pattern)
+    <span class="signal signal-dust">dust</span> 6+ validators, &lt;1K MON total (sybil / airdrop pattern)
   </div>
 
   <div class="flow-sep"></div>
@@ -178,9 +178,13 @@ function renderClusters() {
   // these top rows FOUNDATION on mainnet.
   function classify(count, stakeMon) {
     if (count >= 100 && stakeMon >= 10_000_000) return { cls: 'signal-extreme', label: 'foundation' };
-    if (count >= 21  && stakeMon >= 100)        return { cls: 'signal-high',    label: 'coordinated' };
-    if (count >= 6   && stakeMon >= 100)        return { cls: 'signal-medium',  label: 'power' };
-    if (count >= 6   && stakeMon <  100)        return { cls: 'signal-dust',    label: 'dust' };
+    // DUST threshold at <1000 MON (not <100). Catches clusters like
+    // "169 validators × 1 MON each" (total 169) which were previously
+    // classified COORDINATED because stake ≥ 100 — that's an airdrop/
+    // sybil pattern and reads as DUST to anyone familiar with the data.
+    if (count >= 6   && stakeMon <  1000)       return { cls: 'signal-dust',    label: 'dust' };
+    if (count >= 21  && stakeMon >= 1000)       return { cls: 'signal-high',    label: 'coordinated' };
+    if (count >= 6   && stakeMon >= 1000)       return { cls: 'signal-medium',  label: 'power' };
     return { cls: 'signal-low', label: 'normal' };
   }
 
