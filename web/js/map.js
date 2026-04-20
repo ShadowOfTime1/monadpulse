@@ -82,6 +82,7 @@ async function buildMap() {
   // Real validator count from API — used only for the legend total.
   const summary = await apiFetch('/dashboard/summary');
   const totalValidators = summary?.epoch?.validator_count || summary?.stats_24h?.active_validators || 0;
+  _totalActiveValidators = totalValidators;
   // Manually-verified geography now comes from /api/validators/geo
   // (backed by validator_geo_{network}.json in the repo). Previously this
   // list was hardcoded in JS; moving it behind an endpoint makes the
@@ -217,6 +218,7 @@ async function buildMap() {
 let _mapTableExpanded = false;
 let _mapTableData = [];
 let _mapFullList = [];
+let _totalActiveValidators = 0;  // set by buildMap, read by the "Show all" button
 
 async function buildValidatorList(knownLocations) {
   // Fetch all active validators from API
@@ -334,13 +336,15 @@ function _renderMapRows() {
         if (_mapTableExpanded) {
           btn.textContent = 'Show less';
         } else {
-          // Clarify how many of the listed validators are actually plotted
-          // on the map above — the rest are known names without geo data.
+          // Use the same active-validator count as the legend header —
+          // dedup'd list length could differ by a few entries at epoch
+          // boundaries; legend count is the authoritative one.
+          const total = _totalActiveValidators || data.length;
           const withGeo = data.filter(v => v.hasLocation).length;
-          const noGeo = data.length - withGeo;
+          const noGeo = Math.max(0, total - withGeo);
           btn.textContent = noGeo > 0
-            ? `Show all ${data.length} validators (${withGeo} on map · ${noGeo} without geo)`
-            : `Show all ${data.length} validators`;
+            ? `Show all ${total} validators (${withGeo} on map · ${noGeo} without geo)`
+            : `Show all ${total} validators`;
         }
       }
     }
