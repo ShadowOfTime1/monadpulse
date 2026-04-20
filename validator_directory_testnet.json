@@ -540,292 +540,340 @@
     "secp": "02173522f978b116958d3e1a061c06731afdb27edf2d83de6ab1d2199f65375299"
   },
   {
-    "val_id": 158,
-    "name": "02b7d38749f27d659e6311ecec475a40bd7f13339eb309da15c4f12eb46215b71b",
-    "auth": "0x9c9401051d74ec2b2c02d8577e9df35d9ba64eaf",
-    "secp": "02b7d38749f27d659e6311ecec475a40bd7f13339eb309da15c4f12eb46215b71b"
+    "val_id": 93,
+    "name": "Twinstake",
+    "auth": "0xb8beb15c08c059f0b9868fa1136df0df97cab214",
+    "secp": "027613b507c4290025e057623a5e5444d73ad7314b959d0a06e10624eedfe97f17"
   },
   {
-    "val_id": 159,
-    "name": "StakeUs",
-    "auth": "0x0c171a2d256550dd3fe0670eaa765def1d224c83",
-    "secp": "02151326669ec050aaa48c7effd9da02cac831182fff58f319a4e2a892e78818fe"
+    "val_id": 94,
+    "name": "Syncnode",
+    "auth": "0x2dca087678c72a6969ae4585fc618ca08f878019",
+    "secp": "0386af4956f43a81217828b03fccb2469fe570cf9815784fb6608ed01716fa7bc8"
   },
   {
-    "val_id": 160,
-    "name": "OriginStake",
-    "auth": "0x7749a4b46c976d0bb62226ae4a581e1c1bcb1b09",
-    "secp": "03226b01cd4f0ba0d782f10ae3f4d14d36db5d1a95f31da9c792ea4c198aa584d3"
+    "val_id": 95,
+    "name": "Talentum Labs",
+    "auth": "0xe77b9372a3d19c2d31bc98f0847e3a9b15802267",
+    "secp": "0368ffc7d4e1852ac83a0ae915e06ae018207895954f89b3f34829a9e609e42934"
   },
   {
-    "val_id": 161,
-    "name": "NodesHub",
-    "auth": "0xa48c1ebfce0baf744111a02b0a092e7b4f41e789",
-    "secp": "0372f10d16ac2635c3dcd7980555365a3ffbc3b920e4d105c084c198b306776f0d"
+    "val_id": 96,
+    "name": "Hex Trust",
+    "auth": "0xada04b8911b8f8408866974b77533b74d1cfb687",
+    "secp": "02ac587c2acbbf104977470488277a9384b37f522cf325f97898a6ad8b689e1059"
   },
   {
-    "val_id": 162,
-    "name": "Coinage x DAIC",
-    "auth": "0x25fa8827ff13bf428ec5f9d3666c2a0a7439e509",
-    "secp": "03eeec13feefcecd1f4973135ea272391cf1d63a51e497438e970d30981c110dc8"
+    "val_id": 97,
+    "name": "Validation Cloud",
+    "auth": "0x877b7d057223182c92b822e6cacbe8163acf14a5",
+    "secp": "03d7fd594a816db2ebe26efdcf5c5040eafb176ab7ebce207b9c1d1642ef3ce71e"
   },
   {
-    "val_id": 163,
-    "name": "Pier Two",
-    "auth": "0x0aa2abaf175124abc9198cac888ba768e0d8d5e5",
-    "secp": "024c7809eaec64f03d1799dba942436cc932a1b1c4d7ed2a9dd6598d5ecd129855"
+    "val_id": 98,
+    "name": "Ghost",
+    "auth": "0xb6a9fad534babdd23688e68bc1a97ca2d976a1b1",
+    "secp": "03e6b8e88efc0f3194980e8810263da9ee243d28ac6cf367f618fd24b19a5b7aac"
   },
   {
-    "val_id": 164,
-    "name": "polkachu.com",
-    "auth": "0xc653e9188532238a36dd2c02d63ee1931f3e46f0",
-    "secp": "03a82063a420c8f9c97923e1c7522e020090f0c9ed048d8875347581ccd34a07e6"
+    "val_id": 99,
+    "name": "Informal Systems",
+    "auth": "0xc94767c489656061d70d53b687e7a5a13e2504a7",
+    "secp": "029e8bf3753b5ec6d992e8677c77723b8f41aa46aaa002c1d85900a521bc8f4149"
   },
   {
-    "val_id": 165,
-    "name": "03a0f49fbaa2b2171fa59b950df2b468be4087e629a30e571633a14575e98ce8b2",
-    "auth": "0x2470d1233c023282dd51965157bf2ea297b526c1",
-    "secp": "03a0f49fbaa2b2171fa59b950df2b468be4087e629a30e571633a14575e98ce8b2"
+    "val_id": 100,
+    "name": "cp0x_by_STAKRspace",
+    "auth": "0x206fe803162ede22065187d1efc7efbf83fac2b5",
+    "secp": "0305eef04b0f63558c9c07a2bc24c417b11aacaff0882fc4cc4bd4d79c073677d6"
   },
   {
-    "val_id": 166,
-    "name": "blockscape",
-    "auth": "0x4298ab37274dcbec0d33e24f2d9eddf7f932b17a",
-    "secp": "03c17b4aa19a0d1e5819e894cd9e2d18ff5f1f1eb8325ad5a6cf4888c0766075c3"
+    "val_id": 101,
+    "name": "Qubelabs",
+    "auth": "0x85c8ab4a8c1c1144ec94a2fa0de2618ae0905979",
+    "secp": "03b8c3365ae52ba5cc8aadd2f392ce41bc060e4f6d0d6bc674e84d4b8d6f922676"
   },
   {
-    "val_id": 167,
-    "name": "Ledgerwise",
-    "auth": "0xb9613b821fa96d5962dabe2f1311385a8cb8b46f",
-    "secp": "02aae9e7ff2b97ea4b70eead70d3a146667fd1525247e658ddedcb36d7e67a110e"
+    "val_id": 102,
+    "name": "BlackBlocks",
+    "auth": "0x68be266a8953bb9337a1e691d8e79bddf4f75672",
+    "secp": "0262cc5cb3ef7ef5d5f130260e4132a37ec3af07334085d33c952ffd83ff2854b2"
   },
   {
-    "val_id": 168,
-    "name": "r93AX Nodes",
-    "auth": "0x568faa5eb9226a145e1908f0ab63f6a7d2d96782",
-    "secp": "028d4554eee24d21f8dfe77bc3ab292290bb315bdff922c2c1217435c4cd39d13e"
+    "val_id": 103,
+    "name": "MCF Testnet Validator",
+    "auth": "0xd0c898ec7b4d967d7c932a759f27a53cc7259527",
+    "secp": "0303615217583589657a5208a22c437019b6d51328dec7723d25b9f7e0495c2824"
   },
   {
-    "val_id": 169,
-    "name": "Tessellated",
-    "auth": "0x00486f66e484705cfcbbc5a8c306f68204982581",
-    "secp": "0346f52d31b3707ca936366ac2fd094b93dcc16ba6ba0ff52ce9f0b339b9c6963c"
+    "val_id": 104,
+    "name": "amonstaker",
+    "auth": "0x036aad0919ba9caa431727eec45bb4fc22a48ef1",
+    "secp": "025de979756f102325383ffde42b6d355e7948f745cb2c9005a1ef2f9359a1d2d8"
   },
   {
-    "val_id": 170,
-    "name": "Omakase",
-    "auth": "0x0ffaa5e691a30c8b5949bbb01872b5616ddb240e",
-    "secp": "02bf524b39454bda7a7b5a6f469624e4fd19a4c1daa7825239fc7e2e1ead9beb34"
+    "val_id": 105,
+    "name": "Alchemy",
+    "auth": "0xbc6263da7a73306e4006c75e333a94ffa0241608",
+    "secp": "02b5f6a8d8b46efa6c485bd24ffbfc298bdd568a7250d2ecd128a043bf6dee4539"
   },
   {
-    "val_id": 171,
-    "name": "Chorus One",
-    "auth": "0xa6e539edcd5964386570f3f808b0773823a8d801",
-    "secp": "0258ea86b5b71ca6a55d04af94eb788465f3517f29e89aab47f10b75f68a0c61ae"
+    "val_id": 106,
+    "name": "Encapsulate",
+    "auth": "0xc92b4b9bf688bb222e2177d42974a0c8a78619c9",
+    "secp": "03268b3d4c1fac09f737dbba157ec5992e794b8b7877ebeea6a2c4dd5a00ad53d0"
   },
   {
-    "val_id": 172,
-    "name": "Backpack",
-    "auth": "0xbb8ee00846bf924f34ba4f8a86d690ff11eed7ca",
-    "secp": "030d7f7ceb66fe645c244e93057e3f53866fef36c16d53cd2c4272ae2c455f1a4d"
+    "val_id": 107,
+    "name": "Cassini",
+    "auth": "0xb1f394bd2527f8586d4fd2ea56af9e1f01507cdb",
+    "secp": "02c439b777a04b2ead24a576984a982eac0e915a54f1847be0351398f56dccd9b1"
   },
   {
-    "val_id": 173,
-    "name": "H2O Nodes",
-    "auth": "0x72ebc90f0e3457a1ff6b000dc9b1aa152ee82974",
-    "secp": "02299f78e17e2d17c1a5b97b6851d5f53b772320c8b29de748a0b3ad67580f3302"
+    "val_id": 108,
+    "name": "Enigma",
+    "auth": "0x8e671a2d69dc6a0d3dc9d1a71e5c98f151df44e6",
+    "secp": "02be703c7ed5bd58b66017bee6d456578ed0f308659f9629cb29f1b5f57947174f"
   },
   {
-    "val_id": 174,
-    "name": "Goldsky",
-    "auth": "0xe127fb2de8f831852aad552554f411185dddd154",
-    "secp": "03854dfbd9c857ec25c50085841cff014939ddefcada27beb5c3e10ff0f07477ff"
+    "val_id": 109,
+    "name": "DTEAM",
+    "auth": "0x4d105f6a7e4a5377e51f1a753b9774a72b12efdb",
+    "secp": "03678f2423c884e6a3aee16861c97da9c38506c09401dd0bed87ac035cfc31ddf0"
   },
   {
-    "val_id": 175,
-    "name": "rskl",
-    "auth": "0xc1184ef5090b7b9bdc86fbbc4b04884d4327e94b",
-    "secp": "02c9817dde1a59c870c8865adededd97613538d9f399c23c3223eb1af7309f24f3"
+    "val_id": 110,
+    "name": "Nansen | Stake to Stack Points",
+    "auth": "0xd71164b756f6c3a7a90e8a21d6a5fb58af8350c6",
+    "secp": "03cf4a8fb3cba67623f1e9c8cc933e0d6795d4e67d822691e91a5a42660dde4dc1"
   },
   {
-    "val_id": 176,
-    "name": "0235a74e1b55cbcef556dc2b6f30e872a86aa2ac027b5339992abc443ad70b4a8a",
-    "auth": "0x30c6c01c82ed8046ef7ecd510a2b5f027f18e204",
-    "secp": "0235a74e1b55cbcef556dc2b6f30e872a86aa2ac027b5339992abc443ad70b4a8a"
+    "val_id": 111,
+    "name": "kjnodes",
+    "auth": "0xf123316d05425f6b8232f022013bceb76d46de42",
+    "secp": "0255f659e40da0c24d591911d2a67284f50e8e7b31390693ef4c932c10bfb42a2f"
   },
   {
-    "val_id": 177,
-    "name": "GlobalStake",
-    "auth": "0x672a87d1e76391e4265c66eba160beb624a5a4df",
-    "secp": "03d95b80275720d1c93d9e83039535f58bda3acc4f4a8b7ae9a958b1ea85a86dce"
+    "val_id": 112,
+    "name": "033609885fbf0154b526af334b7a6eb96985377902185ea44bd60edf732cbd346c",
+    "auth": "0x0e624fe12f6fa63c548b6b507ec0b40e9017d009",
+    "secp": "033609885fbf0154b526af334b7a6eb96985377902185ea44bd60edf732cbd346c"
   },
   {
-    "val_id": 178,
-    "name": "NEXPACE",
-    "auth": "0x4c3ab8eeff2ea8de67d84063864f94f2b7c173e4",
-    "secp": "029b6cbe344b179f1184e4a37a84da072f4e4cd98e88d7ff98731bb32a9cd281d2"
+    "val_id": 113,
+    "name": "P-ops Team",
+    "auth": "0x2380babf65275f7595a128d80ed3478f696bd6a2",
+    "secp": "032ee042b1b27c8b3eabfb0424566c9ef52dcce1722ada9e86c883fc6124c619af"
   },
   {
-    "val_id": 179,
-    "name": "02c911111b6b7e50d5a7083de7060f7f305fa7697c010c5fa4b304d556d99e91e4",
-    "auth": "0xa1885be53967568ab28ae48d74d625f1706d6d3a",
-    "secp": "02c911111b6b7e50d5a7083de7060f7f305fa7697c010c5fa4b304d556d99e91e4"
+    "val_id": 114,
+    "name": "Spider Node 🕷️",
+    "auth": "0xe102a4930128f48dd1ec7aecbb5856ecaa4a8125",
+    "secp": "023369f3d1dad2903bf339a2d8045fc5ba0256e1b96d8a994c096c1b59263e20ba"
   },
   {
-    "val_id": 180,
-    "name": "LootGO",
-    "auth": "0x3bff4e998466765db090f01e11e2ebf8dd341a5f",
-    "secp": "02969a5d6bb09a4117373cb9bf4e864357b5766a6d6e3bc99858c4aaeea9108305"
+    "val_id": 115,
+    "name": "RHINO 🦏",
+    "auth": "0x536d600bd873be6bb4bf2ce1e7d0fa85f4039187",
+    "secp": "0242b021c193c06e8d35a352be91f0ed77b03e72c29306a7f40a1a14339a297764"
   },
   {
-    "val_id": 181,
-    "name": "Kamunagi",
-    "auth": "0x2217cb1777056e1b5dcabe56b6e949df4034eb15",
-    "secp": "03e54befad18fc8fd70e5bcf33d9b37d9ef411918e01309151b0cc391d93da7459"
+    "val_id": 116,
+    "name": "gmonads.com",
+    "auth": "0xebec96146335fa97a61a42b733e8cf47152017e9",
+    "secp": "02cff23c6914c1e536323d6f9c15b12647bbdd8bdd905c9cd3363a4870e4753056"
   },
   {
-    "val_id": 182,
-    "name": "Cointelegraph Decentralization Guardians",
-    "auth": "0xafe181de33939fa1d693452f9815edaf62eb7c87",
-    "secp": "03546f8e0e3d5816c062511710c1509c5e9c216578056c37af5ed9539d9930320c"
+    "val_id": 117,
+    "name": "Validatrium",
+    "auth": "0x38184dd19c8293f4eb201acbb5256646f13b0b75",
+    "secp": "0227225d0025144b1c02ebe32e4e877897f635b82783d73ba4ca6a0e77e1e107a7"
   },
   {
-    "val_id": 183,
-    "name": "HusoNode",
-    "auth": "0x9af276a0d327605dc650290df4e9f1506866146e",
-    "secp": "03e5e45f82c0a2da57395c72a4cdf656fb72a5d2368aa5f908e1f9687871ef2608"
+    "val_id": 118,
+    "name": "forthenads",
+    "auth": "0xbb32ec7f1ea8c13cee7c620d8bd8a53b6e11927b",
+    "secp": "03fe14086453ac079f16d6442c60a65f4aa5038b71f4dadfbc684a540953864549"
   },
   {
-    "val_id": 184,
-    "name": "Winsnip",
-    "auth": "0x14416ec93d7a56d8f503ff942db888ad9f05a8d1",
-    "secp": "03cb24c9b41b23d7990d57afc8786a6ddfa760b171bb4f1cb1068e5d3e26de0979"
+    "val_id": 119,
+    "name": "Obelisk",
+    "auth": "0x424c7f359c25515051172d78ce95f78631c3c7fb",
+    "secp": "02108891a6e494b1a85e3f6c48f6412b8cb3b2dd50629b7e4995a592642f851e0e"
   },
   {
-    "val_id": 185,
-    "name": "Blocash",
-    "auth": "0x3a0db6afa0a85642ec0bd6edf2125ce8d64434ad",
-    "secp": "03b67dab1566cc31b4fd5a819db540160f841971f8671fb579a3be6deee9285537"
+    "val_id": 120,
+    "name": "Lavender.Five Nodes",
+    "auth": "0xb74cd21732e72746561bf9ad87ee6cc9649208e5",
+    "secp": "0388c4aae482721bb36c32558a9f5c43536910bfb809a7d9da398ee0a44e3d0a07"
   },
   {
-    "val_id": 186,
-    "name": "Paradise Nodes",
-    "auth": "0x2862679bebb2abec21fb73e6a241a772f5ce2d93",
-    "secp": "02b2256fb624f1aa114e8941537a873d8669a20b68c26c16eab476a4cdfae441e5"
+    "val_id": 121,
+    "name": "Cogent ⚙️  by SOL Strategies",
+    "auth": "0x523b5333410418e8db6373be81044b577b09dcda",
+    "secp": "0221a2de693145e577ec668ace10b925f51882f681816685659dfb7579930a40eb"
   },
   {
-    "val_id": 187,
-    "name": "OshVanK",
-    "auth": "0xa91cf8bb5df24c8ded4768763148f3871a427983",
-    "secp": "03c480ab1fc0f25df146e210bbb0b83e51111389fe07e620c21a8ac74f966cd349"
+    "val_id": 122,
+    "name": "Kairos Research X Firstset",
+    "auth": "0x3988a8d5dc2cd3bd9a301c05a2e9480b0b69e69f",
+    "secp": "024798649ae77bfbf7801707c946654fbaf56f6aa8a02231c759500b6f9faf4e4e"
   },
   {
-    "val_id": 188,
-    "name": "MSC-Industries",
-    "auth": "0x96415cf3532987f2849ff863bd76c24612887195",
-    "secp": "0395bbff15961131e8b64229e68f2b062a2990b617ede62727dad1627d9d98729c"
+    "val_id": 123,
+    "name": "Firstset",
+    "auth": "0x64dcdf3f687604eb7603347c8241445bed13386a",
+    "secp": "035894f6ab3cf70823277071e72e735ae061b0ec429bcc8b89903a16481be534a4"
   },
   {
-    "val_id": 189,
-    "name": "TServices",
-    "auth": "0x129352380b7aae673677536cc56eafd99a5bcbb2",
-    "secp": "02dffcb8ecaffd9eaf85c13b10c9c8ce7d1b874543c3661daeccb34e54339a7a54"
+    "val_id": 124,
+    "name": "Laine ❤️ by SOL Strategies",
+    "auth": "0x247119b70cc9b37017d9609a7d7989de8a14866f",
+    "secp": "03052cba6a48b26e62e631d46d89664b2993a1d943bffc6bb9442b43a17133b51c"
   },
   {
-    "val_id": 190,
-    "name": "Starke Finance",
-    "auth": "0x35a46a843c25c078d067bcd8f438745b0c457017",
-    "secp": "02daf657701f2ce17872151b1067a5e269d02c87bca1aa11e25cf02501b277772d"
+    "val_id": 125,
+    "name": "FP Validated",
+    "auth": "0x8d661a1dfb429700f5ef0c87e6d554a57b3f3ee6",
+    "secp": "039fc4ea2633218c3c720e0cdbb195289dfa135bc2ca40c7af959c099a41e25c9f"
   },
   {
-    "val_id": 191,
-    "name": "Krews",
-    "auth": "0x24e2cdbbfa82e87eac074d674bde21923d5c3458",
-    "secp": "0396fb95c0d0fd15a7a27bfef369c03d323d1372eab8b9636e817a26492f47f8a5"
+    "val_id": 126,
+    "name": "039db953a2c0133b75ce2dcdd89f61799c57aaf914ccb7c57f1fefb031d0aaba80",
+    "auth": "0x72c2903e31e37f649ddff4286cd7eda703f23128",
+    "secp": "039db953a2c0133b75ce2dcdd89f61799c57aaf914ccb7c57f1fefb031d0aaba80"
   },
   {
-    "val_id": 192,
-    "name": "BitCtrl",
-    "auth": "0x970666116d815a078e1f23ae6cb3975f8f3c8b1f",
-    "secp": "03c295a6bf80974717b76bd770e786d63075fa589f9c5b1615ab84fc43b0f736e8"
+    "val_id": 127,
+    "name": "Triton One",
+    "auth": "0x83a73a9994a9498cdbf5235f49dd87ed23af65cf",
+    "secp": "036e888a8565269dba0133a5c456877abe8a69803b06c8667e42e8ec30b8723bef"
   },
   {
-    "val_id": 193,
-    "name": "pi69",
-    "auth": "0xfa7d8840d90d2c1ab8c7370ddf0bf085dc77da5a",
-    "secp": "03f7e9cb9a8224e2243efb123daacf65804e4c63f0f138f7125f622328e1b9cc0f"
+    "val_id": 128,
+    "name": "L0vd",
+    "auth": "0x43ee9a735e07813473ec8b89fbb49c81fa69913e",
+    "secp": "0303220db61b8a72a71a99efe322f3c30048e8a0bd0a56bd19832da48bee9afb43"
   },
   {
-    "val_id": 194,
-    "name": "Metatarz",
-    "auth": "0xef704a2737e33760754f0e2907896f82b5e37ead",
-    "secp": "03bc9ca09da396d273b7b6c29e0f75126261f099eb6e252c90f7b392c2118449c8"
+    "val_id": 129,
+    "name": "QuantNode",
+    "auth": "0xf297553bde1d8cc05c1e63c8932ac88701914863",
+    "secp": "029526762caf4923182b495dadd137b37ff5a91be324e7b3aa9f0fe13f94291461"
   },
   {
-    "val_id": 195,
-    "name": "LuckyResearch Labs",
-    "auth": "0xa2c3330ddbb1ceab502689b10c55aff05fee6c53",
-    "secp": "020c45ab0c5331a5b60b57b4186ccb9dd009d9add2856bc3ef8d1c0ea5649acbc6"
+    "val_id": 130,
+    "name": "Blockdaemon",
+    "auth": "0xf1f917f0a6fb2995a8003fb9f19c8ef26979905b",
+    "secp": "039d6ac4f587883a74a0120e665ff25fedaeea6257d8b6135391fd0523bcb355de"
   },
   {
-    "val_id": 196,
-    "name": "JustANode",
-    "auth": "0x18fcc3c263244df42a18b3c6659adf7d07359897",
-    "secp": "0350c2542813b7fe3a5087d4335d4d5bda0efa7107dfde207daf5f4414bf9dea3d"
+    "val_id": 131,
+    "name": "0280dc33699b6b49de7b36707ec52862fcfc4c2766e63220b03273974318c02b2f",
+    "auth": "0x8f46f6c5ebfdcecd934b7cb6d2e0518d4ac29e85",
+    "secp": "0280dc33699b6b49de7b36707ec52862fcfc4c2766e63220b03273974318c02b2f"
   },
   {
-    "val_id": 197,
-    "name": "Cosmic Validator",
-    "auth": "0x0d420faec4edc09fa8887ac9880b9f57400d1ff3",
-    "secp": "0347a74cf11740630e60166dc25eef9e9f0a0c096040a5a136b16796c26c734551"
+    "val_id": 132,
+    "name": "zim.one",
+    "auth": "0x2eb5e5b3040aa7f0e3b3baf3f8498df66702bb5c",
+    "secp": "03f880900a22788b16d2c109bcda8f0637bc5719766093677213028922b471252d"
   },
   {
-    "val_id": 198,
-    "name": "InfraSingularity",
-    "auth": "0xac08a9657fa41eda72648fc33d4e81f1ca57de55",
-    "secp": "03630f5d83ea4ca359b60d53df32416d6f0f833ff4e7b484fe2bb7a78644253e89"
+    "val_id": 133,
+    "name": "EmberStake",
+    "auth": "0x4ec57fdb27b851f7f5f6ba3e849dae86b0b84c91",
+    "secp": "035fc13324b9e2a5f054ba7cf99f9735fe2ef1928f8b83aca6450addfb6976fd4e"
   },
   {
-    "val_id": 199,
-    "name": "unityfarms",
-    "auth": "0x580d1ea3e5051c86cac03a4f06361b0a7f4768b3",
-    "secp": "036b1905b608d129464150c1a8a5a0c1e779f4c5810edea22e9516c32d6c0eca98"
+    "val_id": 134,
+    "name": "Swissstarnode",
+    "auth": "0x40a8157d3340bcda3e4058122dcd79d14b038e79",
+    "secp": "038a536cf9770fef59869ee27873b046601570b90ca04a3677647320e8873c062e"
   },
   {
-    "val_id": 200,
-    "name": "EVOS",
-    "auth": "0xcd769b0851a6363662bcade6750f802e20d52f61",
-    "secp": "03e8cbeb2d963b91fa6c760490db50988940a7480352a4dd3893b89b3662370d40"
+    "val_id": 135,
+    "name": "Asymmetric Research",
+    "auth": "0x81c958e22d4ef48cd7f22e886d8dacd728756668",
+    "secp": "022a095eecb94d6dbda07840cc9fba9c8a7938eba721fe88b59c818f3000388bc5"
   },
   {
-    "val_id": 201,
-    "name": "AiNodes",
-    "auth": "0x94fb00705411c2c07007490acd6f8e550be8817b",
-    "secp": "02ffb328e34b4314f1912e118355665a206489b8a0305c914ca7d0bd72fd6f7e70"
+    "val_id": 136,
+    "name": "HoodRun",
+    "auth": "0x6f5ae3ea1472411def19a4af46d891372f7f0121",
+    "secp": "024910830d9aa50148b53227cc53981adafc703e2cbdb1f7a94377095810a0d981"
   },
   {
-    "val_id": 202,
-    "name": "Phase Stake",
-    "auth": "0x7a020aa78a7de9d1e8c952759ce08b855552eb74",
-    "secp": "022dc4f6e3309d994ce08819e4d7b786ae498b2a8cf1aa6d3e46c255d4ca3e571a"
+    "val_id": 137,
+    "name": "ASXN",
+    "auth": "0x9f5432fe2715f290c9550fac21a27f855c6a0361",
+    "secp": "026c5c4951461d4630eba87b490396d44260a3265ad27486b90595260788415a10"
   },
   {
-    "val_id": 203,
-    "name": "StakeChain",
-    "auth": "0xd838ebf4a7adfe0ad2c1dbc5f95eaf399e3d8bfd",
-    "secp": "0358f6fd184afe5544a91594ea9208a64a699ddad5a363df5293ec0fd39b339811"
+    "val_id": 138,
+    "name": "Brightlystake",
+    "auth": "0xb0af97cd7d7670a4274e6105e56dc3be2fcada10",
+    "secp": "03c6469b1bfbf53ec3fde8c35749412dddacaf13e89e7cc8268ade3e52995140af"
   },
   {
-    "val_id": 204,
-    "name": "Liquify",
-    "auth": "0x0b4a128f2f50cc12def9ada1f7952bfad43e5d7f",
-    "secp": "036e9a29494a621d10ec4c80f5ec5cdb2288024c587ded91aa32d77c5b542cea25"
+    "val_id": 139,
+    "name": "StakeCraft",
+    "auth": "0x1a8d544290fa0e47269b2d89c26229dee6d2e448",
+    "secp": "03bf3ef8f758412ea3336d87fbe0b0b3ac75c062d7e63a2715c2a738e35695f142"
   },
   {
-    "val_id": 205,
-    "name": "medium",
-    "auth": "0x18af5f42dbede0f1cf53b3626458f8f47b570007",
-    "secp": "02654192b8489bea7aea77153fc12acf2729f892f674ae12c4a681117c69f9a0f6"
+    "val_id": 140,
+    "name": "[NODERS]",
+    "auth": "0xe4eac50586e360b6d79f272d5cc231246b59324e",
+    "secp": "02a89bf258b39cef2ee513d06dcd78769992f4983fa705cfb25ef2db0cabd21570"
+  },
+  {
+    "val_id": 141,
+    "name": "AltLayer",
+    "auth": "0x493d7ac0d5ce981ffc3df83d769f7fe3306eaf71",
+    "secp": "03abedbddd88c175378c8e612fab1318c158b65ca1b41fb7bbdf7b1281201e0aa7"
+  },
+  {
+    "val_id": 142,
+    "name": "Pacific Meta",
+    "auth": "0x9b2926762675cf572a5f29a4617dbc334c384b1e",
+    "secp": "02c887f6001b23d4b7a4a15cba287a8abbbe244ba60235026da46d1cf306b7c7a6"
+  },
+  {
+    "val_id": 143,
+    "name": "Moonlet",
+    "auth": "0x24089889ee9dc4c20ab20c871686b03af2d204c2",
+    "secp": "028a938a76c07651a27f5a20c875f14c5d336505527ea4c89040302a4b735837ed"
+  },
+  {
+    "val_id": 144,
+    "name": "BlockPI",
+    "auth": "0x3d3a8d1c1d3d75b2f0db0eff4d892a2790584fa1",
+    "secp": "0294879eb58f3a16424e6f6861e58e7d9917e36c5b06f1d56cf1d66112b859c25c"
+  },
+  {
+    "val_id": 145,
+    "name": "node101",
+    "auth": "0x2dec2927a6099f6fdbf4696ccf759d1aa96b2f04",
+    "secp": "02e34b2e6272b9fbd0eca4677dd422ba2df4d1e91de0cb86b48b3dd92d494012cd"
+  },
+  {
+    "val_id": 146,
+    "name": "Kiln",
+    "auth": "0x794fcadf922cdbec2f476f1a63298f1c5f43492c",
+    "secp": "032ab878d87cb9f91454f18ff7c89b0bd27b97961530ef06b25012461f90717d5c"
+  },
+  {
+    "val_id": 147,
+    "name": "Chainflow",
+    "auth": "0x0ed29c8de0aa718093586ba309be2e36a49fa8b0",
+    "secp": "035026c472e7f8c398e2ccd25d5289ccdf5e0c2c1fc7dd9f8c05f04133ff1fc17a"
+  },
+  {
+    "val_id": 148,
+    "name": "Meria",
+    "auth": "0x8c1104f9166d431260a88a6d66190bbb52ab00a6",
+    "secp": "02f1c539f44ed099000d9595951a4a386b73d2ff3691bb862ec4fe4fc551680603"
   },
   {
     "val_id": 206,
@@ -1195,7 +1243,7 @@
   },
   {
     "val_id": 267,
-    "name": null,
+    "name": "shadowoftime",
     "auth": "0x92936497b6ad2ba84b3f7af22c9aff15f00b13b5",
     "secp": "029337dc788d1dd262280524a47cefa68b7ea5651016279b54cc20305a2e1aa7b6"
   }

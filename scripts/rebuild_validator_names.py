@@ -168,6 +168,32 @@ def build(network: str) -> None:
             for miner, vid in miner_to_vid.items()
             if vid in val_to_name
         }
+    # Merge local overrides. upstream monad-developers/validator-info can't
+    # cover every operator (PRs take time to land, privacy preferences, etc).
+    # A manually-maintained override file lets us surface names immediately.
+    #
+    # Override format: { "auth_address_lowercase": "Display Name", ... }
+    #
+    # We resolve overrides both into the address→name map (what the UI reads)
+    # and into the directory's val_to_name map (what search matches).
+    override_path = OUT_DIR / f"validator_names_override_{network}.json"
+    overrides: dict = {}
+    if override_path.exists():
+        try:
+            overrides = {k.lower(): v for k, v in json.loads(override_path.read_text()).items()}
+            log(f"  overrides loaded: {len(overrides)} from {override_path.name}")
+        except Exception as e:
+            log(f"  override read err: {e}")
+    # address→name map: simple dict merge (override wins)
+    for addr, name in overrides.items():
+        addr_to_name[addr] = name
+    # val_to_name: look up by auth — so search-by-name finds the val_id too
+    auth_to_vid = {auth.lower(): vid for vid, (auth, _secp) in val_to_secp.items()}
+    for addr, name in overrides.items():
+        vid = auth_to_vid.get(addr)
+        if vid is not None:
+            val_to_name[vid] = name
+
     log(f"  addr→name: {len(addr_to_name)}")
 
     out_path = OUT_DIR / f"validator_names_{network}.json"
