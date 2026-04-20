@@ -605,24 +605,50 @@ async def compute_health_scores(pool, rpc=None):
                 c["first_active_ts"] = cached["timestamp"]
             else:
                 c["first_active_ts"] = None
-        # "Slot size" = average expected blocks per validator per unit time.
-        # Per-unit-time rate = network_blocks / 7 days.
         seconds_in_7d = 7 * 24 * 3600
         network_rate = network_total_7d / seconds_in_7d  # blocks per second network-wide
-        per_validator_rate = network_rate / max(active_validators, 1)
+
+        # Stake-weighted baseline. Monad proposer selection is stake-weighted
+        # (not round-robin), so expected blocks = stake_share × network_blocks.
+        # The old uniform baseline (1/N for all) unfairly flagged low-stake
+        # validators at ~20% uptime on mainnet where max/median stake ratio
+        # is ~30×. We read current stakes from the latest snapshot in
+        # validator_stake_history; if empty (fresh install), fall back to
+        # uniform per-validator rate.
+        stake_rows = await conn.fetch(
+            """
+            SELECT validator_id, total_stake FROM validator_stake_history
+            WHERE network = $1 AND epoch = (
+                SELECT MAX(epoch) FROM validator_stake_history WHERE network = $1
+            )
+            """,
+            NETWORK,
+        )
+        stakes_by_auth = {r["validator_id"].lower(): int(r["total_stake"]) for r in stake_rows}
+        total_active_stake = sum(stakes_by_auth.values())
+        per_validator_rate_uniform = network_rate / max(active_validators, 1)
+
+        def expected_rate_for(cluster_addr: str) -> float:
+            """Blocks-per-second this validator is expected to produce."""
+            if total_active_stake > 0:
+                stake = stakes_by_auth.get(cluster_addr.lower(), 0)
+                if stake > 0:
+                    share = stake / total_active_stake
+                    return network_rate * share
+            return per_validator_rate_uniform
 
         for c in clusters.values():
             first_seen = c["first_seen"]
             if first_seen is None:
                 continue
             first_seen_aware = first_seen if first_seen.tzinfo else first_seen.replace(tzinfo=timezone.utc)
-            # Uptime calc still uses the 7d-window first_seen: we're asking
-            # "did you propose at the expected rate for as long as you were
-            # visible to us?", not "ever". Age uses the true first-active
-            # below, which goes back to the first Reward event on-chain.
+            # Uptime: "did this validator produce its stake-weighted share of
+            # blocks in the window we've observed them?" 7d-window first_seen
+            # is intentional — we can't claim "you missed blocks on day 2"
+            # if we only saw you starting day 5.
             seconds_alive_uptime = max(1, (now_ts - first_seen_aware).total_seconds())
             effective_seconds = min(seconds_alive_uptime, seconds_in_7d)
-            expected = per_validator_rate * effective_seconds
+            expected = expected_rate_for(c["validator_id"]) * effective_seconds
 
             # Grace period: first 24h show 100% uptime. Not enough data yet to
             # distinguish a real outage from statistical noise in small samples.
@@ -720,6 +746,22 @@ async def compute_health_scores(pool, rpc=None):
                 round(age_pct, 1),
                 NETWORK,
             )
+
+        # Cleanup stale entries. Any validator_id that appears in
+        # health_scores but is NOT one of the current clusters' canonical
+        # IDs is a leftover: old miner address from before clustering, or
+        # a one-hit proposer whose collector window included them once and
+        # never again. The API returns LATEST per validator_id, so leaving
+        # them in the table surfaces them in the UI forever as "bad
+        # validators with 0.8% uptime". Delete them.
+        current_ids = {(c["validator_id"] or "").lower() for c in clusters.values() if c.get("validator_id")}
+        if current_ids:
+            deleted = await conn.execute(
+                "DELETE FROM health_scores WHERE network = $1 "
+                "AND LOWER(validator_id) <> ALL($2::text[])",
+                NETWORK, list(current_ids),
+            )
+            log.info(f"stale health_scores cleanup: {deleted}")
 
         log.info(f"Health scores computed for {len(clusters)} validators (from {len(validators)} proposer rows)")
 
