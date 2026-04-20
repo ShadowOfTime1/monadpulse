@@ -466,9 +466,40 @@ async def validator_list(request: Request, period: str = Query("24h"), network: 
             "GROUP BY proposer_address ORDER BY blocks_proposed DESC",
             network, start,
         )
+
+    # Build miner→auth map so frontend can join with /health/scores (which is
+    # keyed on auth after cross-miner clustering). Same logic as in the
+    # collector: names_map gives us miner→canonical_name, directory gives us
+    # canonical_name→auth. Falls through to the miner address itself when a
+    # validator isn't in the upstream directory yet.
+    names_path = Path(f"/opt/monadpulse/validator_names_{network}.json")
+    dir_path = Path(f"/opt/monadpulse/validator_directory_{network}.json")
+    names_map: dict = {}
+    auth_by_name: dict = {}
+    try:
+        if names_path.exists():
+            names_map = {k.lower(): v for k, v in json.loads(names_path.read_text()).items()}
+    except Exception:
+        pass
+    try:
+        if dir_path.exists():
+            for e in json.loads(dir_path.read_text()):
+                if e.get("name") and e.get("auth"):
+                    auth_by_name[e["name"]] = e["auth"].lower()
+                    # Let auth addresses resolve to themselves via names_map
+                    # (useful when null-proposer backfill rewrote a block to auth)
+                    names_map.setdefault(e["auth"].lower(), e["name"])
+    except Exception:
+        pass
+
+    def resolve_auth(miner_addr: str) -> str:
+        name = names_map.get(miner_addr.lower())
+        return auth_by_name.get(name, miner_addr.lower()) if name else miner_addr.lower()
+
     return [
         {
             "address": r["validator"],
+            "auth_address": resolve_auth(r["validator"]),
             "blocks_proposed": r["blocks_proposed"],
             "avg_block_time_ms": r["avg_block_time_ms"],
             "total_tx": r["total_tx"],

@@ -956,13 +956,19 @@ async function loadValidators(period = '24h') {
   ]);
   if (!data) return;
 
-  // Merge health scores into validator data
+  // Merge health scores into validator data. /health/scores is keyed on
+  // auth_address (canonical, after cross-miner clustering), while
+  // /validators/list still returns per-miner rows with address=miner_addr.
+  // Backend now exposes an auth_address field on each list row so we can
+  // do the join directly — fall back to address if the backend version is
+  // older or the validator isn't in the directory.
   const scoreMap = {};
   if (healthData) {
-    healthData.forEach(h => { scoreMap[h.validator_id] = h; });
+    healthData.forEach(h => { scoreMap[(h.validator_id || '').toLowerCase()] = h; });
   }
   data.forEach(v => {
-    const h = scoreMap[v.address];
+    const key = (v.auth_address || v.address || '').toLowerCase();
+    const h = scoreMap[key];
     if (h) {
       v.health_score_raw = h.total_score;
       v.health_components = {
