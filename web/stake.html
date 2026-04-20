@@ -255,13 +255,23 @@ function renderEventsPage() {
       ? `<span style="margin-left:10px;color:${meta.color};font-size:10px;cursor:pointer;user-select:none;transition:transform 0.2s;display:inline-block;${isOpen ? 'transform:rotate(90deg)' : ''}" onclick="window._toggleEventGroup(${gid})">▶</span>`
       : '';
 
+    // Resolve name by val_id via the directory loaded in loadNames().
+    // Shows "Backpack (#97)" when we know the name, plain "Validator #97"
+    // otherwise — much friendlier than bare numeric IDs.
+    const singleVid = parseInt(first.validator, 10);
+    const singleName = typeof valNameById === 'function' ? valNameById(singleVid) : null;
     const validatorInfo = isGrouped
       ? `across ${new Set(g.items.map(x => x.validator)).size} validators`
-      : `Validator #${esc(first.validator)}`;
+      : (singleName ? `${esc(singleName)} (#${singleVid})` : `Validator #${esc(first.validator)}`);
 
     const expanded = (isGrouped && isOpen)
-      ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(110,84,255,0.12);display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:4px 16px;font-size:11px;color:var(--text-dim);font-family:var(--mono)">
-          ${g.items.map(it => `<div>#${esc(it.validator)} · block ${fmtNum(it.block)} · ${fmtTime(it.timestamp)}</div>`).join('')}
+      ? `<div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(110,84,255,0.12);display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:4px 16px;font-size:11px;color:var(--text-dim);font-family:var(--mono)">
+          ${g.items.map(it => {
+            const vid = parseInt(it.validator, 10);
+            const nm = typeof valNameById === 'function' ? valNameById(vid) : null;
+            const label = nm ? `${nm} (#${vid})` : `#${esc(it.validator)}`;
+            return `<div>${label} · block ${fmtNum(it.block)} · ${fmtTime(it.timestamp)}</div>`;
+          }).join('')}
         </div>`
       : '';
 

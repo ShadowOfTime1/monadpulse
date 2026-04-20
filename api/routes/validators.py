@@ -245,6 +245,21 @@ async def validator_first_active(val_id: int, network: str = Query("testnet")):
     }
 
 
+@router.get("/directory")
+async def validator_directory(network: str = Query("testnet")):
+    """Return the full validator_directory_{network}.json — every registered
+    validator's val_id / name / auth / SECP. Lets the frontend resolve names
+    by val_id without making N round-trips to /validators/search."""
+    path = Path(f"/opt/monadpulse/validator_directory_{network}.json")
+    if not path.exists():
+        return {"network": network, "validators": []}
+    try:
+        data = json.loads(path.read_text())
+    except Exception:
+        return {"network": network, "validators": []}
+    return {"network": network, "validators": data}
+
+
 @router.get("/geo")
 async def validator_geo(network: str = Query("testnet")):
     """Return the manually-verified geography entries for validators whose

@@ -399,15 +399,26 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     ? '<span class="val-hero-badge" style="background:rgba(74,222,128,0.12);color:#4ade80">Active</span>'
     : '<span class="val-hero-badge" style="background:rgba(255,174,69,0.12);color:#FFAE45">Pending</span>';
 
-  const blocksMetric = blocksData
-    ? `<div class="q"><span class="v">${fmtNum(blocksData.total_blocks)}</span><div class="k">Blocks</div></div>
-       <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
-       <div class="q"><span class="v">${fmtNum(blocksData.total_tx)}</span><div class="k">Total Txns</div></div>
-       <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>`
-    : `<div class="q" title="block.miner is ephemeral per-block on this network and doesn't match auth — no block-level stats collected for this validator.">
-         <span class="v" style="color:var(--text-dim);font-size:14px">—</span>
-         <div class="k">Block Stats</div>
-       </div>`;
+  // For PENDING validators (consensus_stake=0 — they can't propose blocks
+  // in the current epoch) any blocks found under their miner addresses
+  // came from a previous active period. Showing them as "Blocks / Last
+  // Seen" at the top of the page contradicts the Signing Activity
+  // section below (which correctly reports 0 blocks in the last 24h).
+  // Hide the live-activity cells for PENDING; show the past-role blocks
+  // as a note instead if there are any.
+  const blocksMetric = !isActive
+    ? (blocksData && blocksData.total_blocks
+        ? `<div class="q" title="Blocks attributed to this validator during a previous active period. Not counted toward current uptime."><span class="v" style="color:var(--text-dim);font-size:14px">${fmtNum(blocksData.total_blocks)} (past role)</span><div class="k">Historical Blocks</div></div>`
+        : `<div class="q"><span class="v" style="color:var(--text-dim);font-size:14px">pending</span><div class="k">No active blocks</div></div>`)
+    : blocksData
+      ? `<div class="q"><span class="v">${fmtNum(blocksData.total_blocks)}</span><div class="k">Blocks</div></div>
+         <div class="q"><span class="v" style="color:${avgBtCol}">${avgBtStr}</span><div class="k">Avg Block Time</div></div>
+         <div class="q"><span class="v">${fmtNum(blocksData.total_tx)}</span><div class="k">Total Txns</div></div>
+         <div class="q"><span class="v">${lastSeen}</span><div class="k">Last Seen</div></div>`
+      : `<div class="q" title="block.miner is ephemeral per-block on this network and doesn't match auth — no block-level stats collected for this validator.">
+           <span class="v" style="color:var(--text-dim);font-size:14px">—</span>
+           <div class="k">Block Stats</div>
+         </div>`;
 
   content.innerHTML = `
     <div class="val-hero">

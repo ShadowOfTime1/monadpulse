@@ -29,12 +29,41 @@ async function loadNames() {
     const r = await fetch(API + '/names/map?network=' + NETWORK);
     if (r.ok) _nameMap = await r.json();
   } catch (e) {}
+  // Also load the directory so we can resolve names by validator ID
+  // (stake events, and validators not in names_map yet).
+  try {
+    const dr = await fetch(API + '/validators/directory?network=' + NETWORK);
+    if (dr.ok) {
+      const dd = await dr.json();
+      _directoryById = {};
+      _directoryByAuth = {};
+      (dd.validators || []).forEach(e => {
+        if (e.val_id != null) _directoryById[e.val_id] = e;
+        if (e.auth) _directoryByAuth[e.auth.toLowerCase()] = e;
+      });
+    }
+  } catch (e) {}
   _namesLoaded = true;
 }
 
+let _directoryById = {};
+let _directoryByAuth = {};
+
 function valName(addr) {
   if (!addr) return null;
-  return _nameMap[addr.toLowerCase()] || null;
+  const a = addr.toLowerCase();
+  if (_nameMap[a]) return _nameMap[a];
+  // Fallback via directory: auth addresses aren't in names_map on mainnet
+  // because names_map is indexed on block.miner, but directory gives us
+  // auth→name directly for anyone the upstream repo knows about.
+  const dir = _directoryByAuth[a];
+  return dir?.name || null;
+}
+
+function valNameById(valId) {
+  if (valId == null) return null;
+  const e = _directoryById[valId];
+  return e?.name || null;
 }
 
 function blockLink(num) {

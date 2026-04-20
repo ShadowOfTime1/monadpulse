@@ -55,11 +55,16 @@
     <div id="alerts-summary" class="alerts-summary"></div>
   </div>
 
-  <div id="alerts-filter" class="period-selector" style="margin-bottom:16px">
+  <div id="alerts-filter" class="period-selector" style="margin-bottom:16px;flex-wrap:wrap">
     <button class="period-btn active" data-type="">All</button>
+    <button class="period-btn" data-type="whale_stake">WHALE_STAKE</button>
+    <button class="period-btn" data-type="validator_offline">VALIDATOR_OFFLINE</button>
+    <button class="period-btn" data-type="new_validator">NEW_VALIDATOR</button>
     <button class="period-btn" data-type="new_epoch">NEW_EPOCH</button>
+    <button class="period-btn" data-type="epoch_summary">EPOCH_SUMMARY</button>
     <button class="period-btn" data-type="tps_spike">TPS_SPIKE</button>
     <button class="period-btn" data-type="slow_block">SLOW_BLOCK</button>
+    <button class="period-btn" data-type="commission_change">COMMISSION_CHANGE</button>
     <button class="period-btn" data-type="new_version">NEW_VERSION</button>
   </div>
 
