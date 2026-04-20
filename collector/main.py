@@ -1338,6 +1338,16 @@ async def run():
                 if NETWORK == "testnet" and now - last_retention > 21600:
                     try:
                         async with pool.acquire() as conn:
+                            # Blocks: keep 90 days of raw per-block rows. API
+                            # queries cap at 30 days (INTERVALS dict in
+                            # blocks.py), so 90 gives a safe buffer + a month
+                            # of debug/backfill room. At ~80 MB/day this caps
+                            # the table at ~7 GB instead of unbounded.
+                            # Hourly gas stats (hourly_gas_stats) already hold
+                            # long-term aggregates.
+                            b = await conn.execute(
+                                "DELETE FROM blocks WHERE timestamp < NOW() - INTERVAL '90 days'"
+                            )
                             # Hourly health snapshots: keep 30 days → ~324k max
                             # rows (450 validators × 24h × 30 days × 2 nets)
                             h = await conn.execute(
@@ -1347,13 +1357,14 @@ async def run():
                             a = await conn.execute(
                                 "DELETE FROM alerts WHERE timestamp < NOW() - INTERVAL '90 days'"
                             )
-                            # Stake snapshots: keep 60 days (about one month of
-                            # validator_stake_history usage — stability scoring)
+                            # Stake snapshots: keep last 3000 epochs (~60 days
+                            # on testnet). Used by health-score stake
+                            # stability check (3-snapshot window).
                             s = await conn.execute(
                                 "DELETE FROM validator_stake_history WHERE epoch < "
                                 "(SELECT COALESCE(MAX(epoch), 0) FROM validator_stake_history) - 3000"
                             )
-                        log.info(f"retention: health={h} alerts={a} stake_hist={s}")
+                        log.info(f"retention: blocks={b} health={h} alerts={a} stake_hist={s}")
                     except Exception as e:
                         log.warning(f"retention error: {e}")
                     last_retention = now
