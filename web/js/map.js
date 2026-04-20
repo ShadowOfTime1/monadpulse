@@ -53,73 +53,11 @@ const KNOWN_VALIDATORS = {
   ],
 };
 
-const CITY_POOL = {
-  'North America': [
-    { city: 'New York', lat: 40.71, lon: -74.01 },
-    { city: 'San Francisco', lat: 37.77, lon: -122.42 },
-    { city: 'Palo Alto', lat: 37.44, lon: -122.14 },
-    { city: 'Chicago', lat: 41.88, lon: -87.63 },
-    { city: 'Los Angeles', lat: 34.05, lon: -118.24 },
-    { city: 'Denver', lat: 39.74, lon: -104.99 },
-    { city: 'Miami', lat: 25.76, lon: -80.19 },
-    { city: 'Toronto', lat: 43.65, lon: -79.38 },
-  ],
-  'Europe': [
-    { city: 'London', lat: 51.51, lon: -0.13 },
-    { city: 'Frankfurt', lat: 50.11, lon: 8.68 },
-    { city: 'Amsterdam', lat: 52.37, lon: 4.90 },
-    { city: 'Paris', lat: 48.86, lon: 2.35 },
-    { city: 'Berlin', lat: 52.52, lon: 13.41 },
-    { city: 'Munich', lat: 48.14, lon: 11.58 },
-    { city: 'Zurich', lat: 47.37, lon: 8.54 },
-    { city: 'Zug', lat: 47.17, lon: 8.52 },
-    { city: 'Lugano', lat: 46.00, lon: 8.95 },
-    { city: 'Madrid', lat: 40.42, lon: -3.70 },
-    { city: 'Lisbon', lat: 38.72, lon: -9.14 },
-    { city: 'Moscow', lat: 55.76, lon: 37.62 },
-    { city: 'Saint Petersburg', lat: 59.93, lon: 30.32 },
-    { city: 'Stockholm', lat: 59.33, lon: 18.07 },
-    { city: 'Helsinki', lat: 60.17, lon: 24.94 },
-    { city: 'Warsaw', lat: 52.23, lon: 21.01 },
-    { city: 'Kyiv', lat: 50.45, lon: 30.52 },
-    { city: 'Chișinău', lat: 47.00, lon: 28.86 },
-    { city: 'Istanbul', lat: 41.01, lon: 28.98 },
-  ],
-  'Asia': [
-    { city: 'Singapore', lat: 1.35, lon: 103.82 },
-    { city: 'Tokyo', lat: 35.68, lon: 139.69 },
-    { city: 'Seoul', lat: 37.57, lon: 126.98 },
-    { city: 'Hong Kong', lat: 22.32, lon: 114.17 },
-    { city: 'Taipei', lat: 25.03, lon: 121.57 },
-    { city: 'Mumbai', lat: 19.08, lon: 72.88 },
-    { city: 'Bangalore', lat: 12.97, lon: 77.59 },
-    { city: 'Dubai', lat: 25.20, lon: 55.27 },
-  ],
-  'Oceania': [
-    { city: 'Sydney', lat: -33.87, lon: 151.21 },
-    { city: 'Auckland', lat: -36.85, lon: 174.76 },
-  ],
-  'South America': [
-    { city: 'São Paulo', lat: -23.55, lon: -46.63 },
-    { city: 'Buenos Aires', lat: -34.60, lon: -58.38 },
-    { city: 'Santiago', lat: -33.45, lon: -70.67 },
-  ],
-  'Africa': [
-    { city: 'Johannesburg', lat: -26.20, lon: 28.04 },
-    { city: 'Cape Town', lat: -33.92, lon: 18.42 },
-    { city: 'Lagos', lat: 6.52, lon: 3.38 },
-  ],
-};
-
-// Approximate share of total validators per region — reflects observed concentration
-const REGION_TARGETS = {
-  'North America': 0.32,
-  'Europe': 0.38,
-  'Asia': 0.18,
-  'Oceania': 0.04,
-  'South America': 0.04,
-  'Africa': 0.04,
-};
+// NOTE (2026-04-20): CITY_POOL + REGION_TARGETS removed. They were used to
+// algorithmically distribute unverified validators across the map to make it
+// look fuller. That's misleading data. Now we only plot validators whose
+// location we've verified (KNOWN_VALIDATORS above), and the legend
+// explicitly shows how many remain without public geo.
 
 const UNDER_THRESHOLD = 0.05;
 const OVER_THRESHOLD = 0.30;
@@ -141,37 +79,24 @@ let _markersLayer = null;
 let _legendControl = null;
 
 async function buildMap() {
-  // Get real validator count from API
+  // Real validator count from API — used only for the legend total.
   const summary = await apiFetch('/dashboard/summary');
-  const totalValidators = summary?.epoch?.validator_count || summary?.stats_24h?.active_validators || 200;
+  const totalValidators = summary?.epoch?.validator_count || summary?.stats_24h?.active_validators || 0;
   const known = KNOWN_VALIDATORS[NETWORK] || KNOWN_VALIDATORS.testnet;
 
   // Clear previous markers
   if (_markersLayer) _markersLayer.clearLayers();
   if (_legendControl) _map.removeControl(_legendControl);
 
-  // Build clusters
+  // Build clusters from VERIFIED validators only. We used to pad the map
+  // with algorithmically-distributed anonymous points (CITY_POOL +
+  // REGION_TARGETS), flagged "estimated", but that looked like real data
+  // at a glance. Honest approach: only plot validators whose geo we've
+  // verified; show the unknown count explicitly in the legend.
   const clusters = {};
   known.forEach(v => {
     if (!clusters[v.city]) clusters[v.city] = { lat: v.lat, lon: v.lon, region: v.region, city: v.city, validators: [] };
     clusters[v.city].validators.push(v.name);
-  });
-
-  // Distribute anonymous validators per region according to observed concentration
-  const knownByRegion = {};
-  known.forEach(v => { knownByRegion[v.region] = (knownByRegion[v.region] || 0) + 1; });
-
-  Object.entries(REGION_TARGETS).forEach(([region, share]) => {
-    const target = Math.round(totalValidators * share);
-    const existing = knownByRegion[region] || 0;
-    const toAdd = Math.max(0, target - existing);
-    const pool = CITY_POOL[region] || [];
-    if (!pool.length) return;
-    for (let i = 0; i < toAdd; i++) {
-      const c = pool[i % pool.length];
-      if (!clusters[c.city]) clusters[c.city] = { lat: c.lat, lon: c.lon, region, city: c.city, validators: [] };
-      clusters[c.city].validators.push(null);
-    }
   });
 
   // Region shares for category coloring
@@ -225,9 +150,6 @@ async function buildMap() {
       const c = n === 'shadowoftime' ? '#14b8a6' : '#6E54FF';
       popup += `<div style="padding:3px 0;color:#EEEDF5;font-size:11px"><span style="color:${c};margin-right:4px">&#x25CF;</span>${esc(n)}</div>`;
     });
-    if (anonymous > 0) {
-      popup += `<div style="padding:3px 0;color:#6B6580;font-size:11px;font-style:italic">${anonymous} estimated (unverified location)</div>`;
-    }
     popup += `</div>`;
 
     const marker = L.marker([cluster.lat, cluster.lon], { icon });
@@ -265,8 +187,14 @@ async function buildMap() {
 
     const orderedRegions = Object.entries(regionCounts).sort((a, b) => b[1] - a[1]);
 
+    const plotted = known.length;
+    const unknownGeo = Math.max(0, totalValidators - plotted);
     div.innerHTML =
-      `<div style="color:#DDD7FE;font-weight:600;margin-bottom:8px;font-size:12px">${netLabel} — ${totalValidators} validators</div>` +
+      `<div style="color:#DDD7FE;font-weight:600;margin-bottom:4px;font-size:12px">${netLabel} — ${totalValidators} validators</div>` +
+      `<div style="color:#6B6580;font-size:10px;margin-bottom:8px;line-height:1.5">` +
+        `${plotted} with verified location<br>` +
+        `${unknownGeo} without public geo data` +
+      `</div>` +
       `<div style="border-top:1px solid rgba(110,84,255,0.15);padding-top:6px;margin-bottom:8px">` +
         categoryRow('under') + categoryRow('normal') + categoryRow('over') +
       `</div>` +

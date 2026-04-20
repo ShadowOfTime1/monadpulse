@@ -176,12 +176,12 @@
       <div class="data-source">
         <span class="ds-icon"></span>
         <span class="ds-label">Block data</span>
-        <span class="ds-value">Local Monad node RPC (eth_getBlockByNumber) — every block, real-time</span>
+        <span class="ds-value">Testnet: local Monad node RPC (eth_getBlockByNumber) — real-time, every block. Mainnet: public rpc.monad.xyz — rate-limited, polled continuously.</span>
       </div>
       <div class="data-source">
         <span class="ds-icon"></span>
         <span class="ds-label">Epoch data</span>
-        <span class="ds-value">Staking precompile (0x...1000) getEpoch() — checked every 5 minutes</span>
+        <span class="ds-value">Staking precompile (0x...1000) getEpoch() — polled every 60 seconds as fallback; epoch boundaries also detected immediately on block ingest.</span>
       </div>
       <div class="data-source">
         <span class="ds-icon"></span>
@@ -201,7 +201,17 @@
       <div class="data-source">
         <span class="ds-icon"></span>
         <span class="ds-label">Staking events</span>
-        <span class="ds-value">Staking precompile event logs via eth_getLogs — rewards, delegations</span>
+        <span class="ds-value">Staking precompile event logs via eth_getLogs (Delegate / Undelegate / ClaimRewards / Withdraw / CommissionChanged) — ingested every 60 seconds.</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Delegation graph</span>
+        <span class="ds-value">Aggregated from the staking precompile via <code>get_delegators</code> per validator — rebuilt weekly and on every epoch boundary.</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Validator location</span>
+        <span class="ds-value">Manually verified from each operator's public information (website, social profiles). Only validators with confirmed geography are plotted on the Map; the legend shows how many remain unmapped.</span>
       </div>
     </div>
 
