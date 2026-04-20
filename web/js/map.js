@@ -195,7 +195,7 @@ async function buildMap() {
     const plotted = known.length;
     const unknownGeo = Math.max(0, totalValidators - plotted);
     div.innerHTML =
-      `<div style="color:#DDD7FE;font-weight:600;margin-bottom:4px;font-size:12px">${netLabel} — ${totalValidators} validators</div>` +
+      `<div style="color:#DDD7FE;font-weight:600;margin-bottom:4px;font-size:12px">${netLabel} — ${totalValidators} active validators</div>` +
       `<div style="color:#6B6580;font-size:10px;margin-bottom:8px;line-height:1.5">` +
         `${plotted} with verified location<br>` +
         `${unknownGeo} without public geo data` +
@@ -237,12 +237,22 @@ async function buildValidatorList(knownLocations) {
   }));
   withLocation.sort((a, b) => a.name.localeCompare(b.name));
 
-  // API validators — add name from nameMap, mark those without known location
+  // API validators — add name from nameMap, mark those without known location.
+  // Dedup by canonical name because /validators/list is per-miner-address
+  // and one validator can rotate through several miner addrs on mainnet —
+  // we don't want to count Backpack (3 miner rows) as 3 validators.
   const rest = [];
+  const seenNames = new Set();
   apiValidators.forEach(v => {
     const name = valName(v.address);
     // Skip if already in known locations
     if (name && knownNames.has(name.toLowerCase())) return;
+    // Skip duplicate miner rotations of the same named validator
+    if (name) {
+      const key = name.toLowerCase();
+      if (seenNames.has(key)) return;
+      seenNames.add(key);
+    }
 
     rest.push({
       name: name || v.address,
