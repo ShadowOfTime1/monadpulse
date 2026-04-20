@@ -497,38 +497,113 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
 
 async def detect_offline_validators(pool):
     """Flag validators that are in execution valset but produced 0 blocks in
-    the last 24h. One alert per validator per 24h (dedup via alerts table)."""
+    the last 24h. One alert per validator per 24h (dedup via alerts table).
+
+    The tricky bit: on testnet + mainnet block.miner rotates across several
+    ephemeral addresses per validator and never equals auth_address. So we
+    can't just check "is auth in active proposers". Resolution chain:
+    1. Gather every address the names map attributes to this validator's
+       canonical name (auth + all known miner addresses).
+    2. If the names map only knows auth, probe get_proposer_val_id() at
+       ~200 unique recent proposers and harvest real miner addrs.
+    3. Count blocks_24h matching ANY of those. Only alert if that's zero.
+    """
     global _SEEN_VAL_IDS
     if _SEEN_VAL_IDS is None:
         return  # no seed yet
 
-    async with pool.acquire() as conn:
-        # Blocks produced per auth_address in last 24h
-        # Note: on testnet miner != auth; we check via directory file if present.
-        # Fallback: count via proposer_address == auth (works for mainnet + some testnet cases)
-        active_directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
-        if not active_directory_path.exists():
-            return
-        import json as _json
-        directory = _json.loads(active_directory_path.read_text())
-        auth_to_vid = {e["auth"]: e["val_id"] for e in directory if e.get("auth")}
-        vid_to_name = {e["val_id"]: e.get("name") for e in directory}
+    import json as _json
+    active_directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
+    names_map_path = Path(f"/opt/monadpulse/validator_names_{NETWORK}.json")
+    if not active_directory_path.exists():
+        return
+    directory = _json.loads(active_directory_path.read_text())
+    auth_to_vid = {e["auth"]: e["val_id"] for e in directory if e.get("auth")}
+    vid_to_name = {e["val_id"]: e.get("name") for e in directory}
+    vid_to_auth = {e["val_id"]: e.get("auth") for e in directory if e.get("auth")}
 
+    names_map: dict = {}
+    if names_map_path.exists():
+        try:
+            names_map = _json.loads(names_map_path.read_text())
+        except Exception:
+            pass
+
+    # Lazy RPC discovery to learn miner addrs for validators not in the names map
+    async def discover_miners(conn, vid: int) -> list[str]:
+        import httpx as _httpx
         rows = await conn.fetch("""
-            SELECT proposer_address, COUNT(*) AS blk
+            SELECT proposer_address, MAX(block_number) AS bn
             FROM blocks
-            WHERE network = $1
-              AND timestamp > NOW() - INTERVAL '24 hours'
+            WHERE network = $1 AND timestamp > NOW() - INTERVAL '6 hours'
               AND proposer_address != '0x0000000000000000000000000000000000000000'
             GROUP BY proposer_address
         """, NETWORK)
-        active_auths = {r["proposer_address"] for r in rows if r["blk"] > 0}
+        if not rows:
+            return []
+        url = os.environ.get("MONADPULSE_RPC_URL") or os.environ.get("RPC_URL") \
+              or "http://localhost:8080"
+        miners: list[str] = []
+        sem = asyncio.Semaphore(20)
 
+        async def probe(client, addr, bn):
+            async with sem:
+                try:
+                    r = await client.post(url, json={
+                        "jsonrpc": "2.0", "method": "eth_call",
+                        "params": [{"to": "0x0000000000000000000000000000000000001000",
+                                    "data": "0xfbacb0be"}, hex(bn)],
+                        "id": 1,
+                    })
+                    raw = (r.json() or {}).get("result", "0x0")
+                    if raw and raw != "0x" and int(raw, 16) == vid:
+                        miners.append(addr.lower())
+                except Exception:
+                    pass
+
+        async with _httpx.AsyncClient(timeout=15) as client:
+            await asyncio.gather(*(probe(client, r["proposer_address"], int(r["bn"])) for r in rows))
+        return miners
+
+    async with pool.acquire() as conn:
         for vid in _SEEN_VAL_IDS:
-            # Find auth for this vid
-            auth = next((a for a, v in auth_to_vid.items() if v == vid), None)
-            if not auth or auth in active_auths:
+            auth = vid_to_auth.get(vid)
+            if not auth:
                 continue
+            name = vid_to_name.get(vid) or f"#{vid}"
+
+            # Step 1: candidate addrs from names map + auth
+            candidates = {auth.lower()}
+            for addr, nm in names_map.items():
+                if nm == name:
+                    candidates.add(addr.lower())
+
+            # Step 2: count blocks for ANY candidate
+            count = await conn.fetchval("""
+                SELECT COUNT(*) FROM blocks
+                WHERE network = $1 AND proposer_address = ANY($2::text[])
+                  AND timestamp > NOW() - INTERVAL '24 hours'
+            """, NETWORK, list(candidates))
+
+            # Step 3: if zero and we only had auth, try RPC discovery
+            if count == 0 and len(candidates) == 1:
+                try:
+                    discovered = await discover_miners(conn, vid)
+                except Exception as e:
+                    log.warning(f"offline-detect discover err vid={vid}: {e}")
+                    discovered = []
+                if discovered:
+                    for m in discovered:
+                        candidates.add(m)
+                    count = await conn.fetchval("""
+                        SELECT COUNT(*) FROM blocks
+                        WHERE network = $1 AND proposer_address = ANY($2::text[])
+                          AND timestamp > NOW() - INTERVAL '24 hours'
+                    """, NETWORK, list(candidates))
+
+            if count > 0:
+                continue
+
             # Dedup — already alerted within 24h?
             already = await conn.fetchval("""
                 SELECT 1 FROM alerts
@@ -539,7 +614,6 @@ async def detect_offline_validators(pool):
             """, NETWORK, str(vid))
             if already:
                 continue
-            name = vid_to_name.get(vid) or f"#{vid}"
             title = f"⚠ Validator {name} offline — 0 blocks in 24h"
             desc = f"val_id={vid}, auth={auth[:10]}…{auth[-4:]}"
             await insert_alert(
