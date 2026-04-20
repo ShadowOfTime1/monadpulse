@@ -269,6 +269,147 @@ async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
         await tg_send("new_validator", "info", title, desc)
 
 
+# ─── First-active lookup (Reward-events scan) ────────────────────────────
+# compute_health_scores wants a TRUE first-active timestamp per validator to
+# compute the Age component honestly. Our blocks table only sees data from
+# when the collector started, and on testnet all blocks with block.miner=0x0
+# lose their attribution until backfill_null_proposers resolves them — so
+# MIN(timestamp) from blocks under-reports validator age. Instead we scan
+# eth_getLogs for the staking-precompile Reward event (topic[1] = val_id)
+# and take the earliest block number emitted. Cached to disk so we pay the
+# scan cost once per validator.
+
+FIRST_ACTIVE_CACHE_PATH = Path(f"/opt/monadpulse/first_active_{os.environ.get('MONADPULSE_NETWORK', 'testnet')}.json")
+REWARD_EVENT_SIG = "0x3a420a01486b6b28d6ae89c51f5c3bde3e0e74eecbb646a0c481ccba3aae3754"
+STAKING_PRECOMPILE = "0x0000000000000000000000000000000000001000"
+_FIRST_ACTIVE_MEM: dict[int, dict] = {}
+_FIRST_ACTIVE_LOADED = False
+_FIRST_ACTIVE_FILL_RUNNING = False  # guard so duplicate compute cycles don't stack scans
+
+
+def _load_first_active_cache() -> None:
+    global _FIRST_ACTIVE_MEM, _FIRST_ACTIVE_LOADED
+    if _FIRST_ACTIVE_LOADED:
+        return
+    if FIRST_ACTIVE_CACHE_PATH.exists():
+        try:
+            import json as _json
+            _FIRST_ACTIVE_MEM = {
+                int(k): v for k, v in _json.loads(FIRST_ACTIVE_CACHE_PATH.read_text()).items()
+            }
+        except Exception as e:
+            log.warning(f"first-active cache load err: {e}")
+    _FIRST_ACTIVE_LOADED = True
+
+
+def _save_first_active_cache() -> None:
+    import json as _json
+    try:
+        FIRST_ACTIVE_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp = FIRST_ACTIVE_CACHE_PATH.with_suffix(".json.tmp")
+        tmp.write_text(_json.dumps({str(k): v for k, v in _FIRST_ACTIVE_MEM.items()}))
+        tmp.replace(FIRST_ACTIVE_CACHE_PATH)
+    except Exception as e:
+        log.warning(f"first-active cache save err: {e}")
+
+
+async def _scan_first_reward_event(val_id: int, rpc=None) -> dict | None:
+    """Reward-event scan. Returns {'block': N, 'timestamp': T} or None.
+    Chunked backward scan; stops after 5 empty chunks past the last hit.
+    Chunk sizes match the RPC's eth_getLogs block-range cap — bigger values
+    get rejected with 'block range too large' and produce a false-negative."""
+    import httpx as _httpx
+    chunk = 100 if NETWORK == "mainnet" else 1000
+    EMPTY_STREAK = 5
+    HARD_CAP = 2_000_000
+    val_topic = "0x" + format(val_id, "064x")
+    url = os.environ.get("MONADPULSE_RPC_URL") or os.environ.get("RPC_URL") or "http://localhost:8080"
+
+    async with _httpx.AsyncClient(timeout=10) as client:
+        r = await client.post(url, json={
+            "jsonrpc": "2.0", "method": "eth_blockNumber", "params": [], "id": 1,
+        })
+        latest = int(r.json().get("result", "0x0"), 16)
+        if latest <= 0:
+            return None
+
+        # Forward scan from (latest − HARD_CAP). First chunk with a Reward
+        # event for val_id gives us the earliest visible block — short-
+        # circuit immediately. For active validators this terminates after
+        # a handful of chunks; for never-active ones it scans the whole
+        # HARD_CAP window (~2000 calls testnet) and returns None.
+        start = max(0, latest - HARD_CAP)
+        earliest = None
+        cur_lo = start
+        while cur_lo <= latest:
+            cur_hi = min(latest, cur_lo + chunk - 1)
+            try:
+                rr = await client.post(url, json={
+                    "jsonrpc": "2.0", "method": "eth_getLogs",
+                    "params": [{
+                        "address": STAKING_PRECOMPILE,
+                        "fromBlock": hex(cur_lo), "toBlock": hex(cur_hi),
+                        "topics": [REWARD_EVENT_SIG, val_topic],
+                    }], "id": 1,
+                })
+                logs = (rr.json() or {}).get("result") or []
+            except Exception:
+                logs = []
+
+            if logs:
+                earliest = min(int(lg["blockNumber"], 16) for lg in logs)
+                break
+
+            cur_lo = cur_hi + 1
+
+        if earliest is None:
+            return None
+
+        r = await client.post(url, json={
+            "jsonrpc": "2.0", "method": "eth_getBlockByNumber",
+            "params": [hex(earliest), False], "id": 1,
+        })
+        ts = int(r.json()["result"]["timestamp"], 16)
+    return {"block": earliest, "timestamp": ts}
+
+
+async def fill_first_active_cache(val_ids: list[int], rpc, max_new: int = 10) -> None:
+    """Progressive enhancement — on each compute cycle, resolve up to max_new
+    new validators that don't have first_active cached yet. Expensive
+    (one Reward-event scan per call) so bounded per cycle and guarded so
+    overlapping compute cycles don't stack parallel scans."""
+    global _FIRST_ACTIVE_FILL_RUNNING
+    if _FIRST_ACTIVE_FILL_RUNNING:
+        return
+    _FIRST_ACTIVE_FILL_RUNNING = True
+    try:
+        _load_first_active_cache()
+        unresolved = [vid for vid in val_ids if vid not in _FIRST_ACTIVE_MEM][:max_new]
+        log.info(f"first-active fill start: {len(unresolved)} to resolve")
+        if not unresolved:
+            return
+        any_changed = False
+        for vid in unresolved:
+            try:
+                res = await asyncio.wait_for(_scan_first_reward_event(vid, rpc), timeout=120)
+                if res:
+                    _FIRST_ACTIVE_MEM[vid] = res
+                    log.info(f"first-active resolved vid={vid}: block {res['block']}, ts {res['timestamp']}")
+                else:
+                    _FIRST_ACTIVE_MEM[vid] = {"block": None, "timestamp": None}
+                any_changed = True
+            except asyncio.TimeoutError:
+                log.warning(f"first-active scan timeout vid={vid}")
+            except Exception as e:
+                log.warning(f"first-active scan err vid={vid}: {e!r}")
+        if any_changed:
+            _save_first_active_cache()
+            log.info(f"first-active cache filled {len(unresolved)} validators "
+                     f"(total cached: {len(_FIRST_ACTIVE_MEM)})")
+    finally:
+        _FIRST_ACTIVE_FILL_RUNNING = False
+
+
 async def compute_health_scores(pool):
     """Compute validator health scores from block production data.
 
@@ -386,6 +527,29 @@ async def compute_health_scores(pool):
         now_ts = datetime.now(timezone.utc)
         network_total_7d = int(net_row["total"])
         active_validators = len(clusters)
+
+        # Build addr→val_id reverse map from directory, then attach val_id to
+        # each cluster (when resolvable) so we can look up the TRUE first-active
+        # via the Reward-events cache — far more accurate than MIN(timestamp)
+        # from our own collector window.
+        addr_to_vid: dict[str, int] = {}
+        try:
+            directory = _json.loads(directory_path.read_text()) if directory_path.exists() else []
+            for e in directory:
+                if e.get("auth") and e.get("val_id") is not None:
+                    addr_to_vid[e["auth"].lower()] = int(e["val_id"])
+        except Exception:
+            pass
+
+        _load_first_active_cache()
+        for c in clusters.values():
+            vid = addr_to_vid.get((c["validator_id"] or "").lower())
+            c["val_id"] = vid
+            cached = _FIRST_ACTIVE_MEM.get(vid) if vid is not None else None
+            if cached and cached.get("timestamp"):
+                c["first_active_ts"] = cached["timestamp"]
+            else:
+                c["first_active_ts"] = None
         # "Slot size" = average expected blocks per validator per unit time.
         # Per-unit-time rate = network_blocks / 7 days.
         seconds_in_7d = 7 * 24 * 3600
@@ -397,15 +561,17 @@ async def compute_health_scores(pool):
             if first_seen is None:
                 continue
             first_seen_aware = first_seen if first_seen.tzinfo else first_seen.replace(tzinfo=timezone.utc)
-            seconds_alive = max(1, (now_ts - first_seen_aware).total_seconds())
-            # Cap the alive window to the 7d measurement window — a validator
-            # active for years still only accumulates blocks in the last 7 days.
-            effective_seconds = min(seconds_alive, seconds_in_7d)
+            # Uptime calc still uses the 7d-window first_seen: we're asking
+            # "did you propose at the expected rate for as long as you were
+            # visible to us?", not "ever". Age uses the true first-active
+            # below, which goes back to the first Reward event on-chain.
+            seconds_alive_uptime = max(1, (now_ts - first_seen_aware).total_seconds())
+            effective_seconds = min(seconds_alive_uptime, seconds_in_7d)
             expected = per_validator_rate * effective_seconds
 
             # Grace period: first 24h show 100% uptime. Not enough data yet to
             # distinguish a real outage from statistical noise in small samples.
-            hours_alive = seconds_alive / 3600
+            hours_alive = seconds_alive_uptime / 3600
             if hours_alive < 24:
                 uptime_pct = 100.0
             elif expected <= 0:
@@ -417,8 +583,15 @@ async def compute_health_scores(pool):
             avg_bt = (c["weighted_bt_sum"] / c["total_blocks"]) if c["total_blocks"] else 400.0
             bt_quality_pct = max(0.0, 100.0 - abs(avg_bt - 400) / 4)
 
-            # Age: longer = better, max at 30 days (10%)
-            age_days = seconds_alive / 86400
+            # Age: use the TRUE first-active timestamp from the Reward-events
+            # cache when available. Otherwise fall back to our 7d-window
+            # first_seen (undercounts but monotonic — improves as cache fills).
+            first_active_ts = c.get("first_active_ts")
+            if first_active_ts:
+                age_seconds = max(1, now_ts.timestamp() - first_active_ts)
+            else:
+                age_seconds = seconds_alive_uptime
+            age_days = age_seconds / 86400
             age_pct = min(1.0, age_days / 30) * 100.0
 
             # No upgrade/stake data per-validator yet, placeholders (30%)
@@ -444,6 +617,15 @@ async def compute_health_scores(pool):
             )
 
         log.info(f"Health scores computed for {len(clusters)} validators (from {len(validators)} proposer rows)")
+
+    # Progressive first-active cache fill. Fire-and-forget — blocks too
+    # long to run inline in the health-compute cycle (worst case ~30s per
+    # validator at the 300k HARD_CAP). We schedule it on the event loop
+    # and move on; the cache benefits from it on the NEXT compute cycle.
+    vids_with_val_id = [c["val_id"] for c in clusters.values() if c.get("val_id") is not None]
+    log.info(f"first-active: {len(vids_with_val_id)} clusters with val_id, cache size {len(_FIRST_ACTIVE_MEM)}")
+    if vids_with_val_id:
+        asyncio.create_task(fill_first_active_cache(vids_with_val_id, None, max_new=3))
 
 
 STAKE_LOGS_CHUNK = 500 if os.environ.get("MONADPULSE_NETWORK", "testnet") != "mainnet" else 100
