@@ -1239,6 +1239,7 @@ async def run():
         last_stake_ingest = 0
         last_offline_check = 0
         last_stake_snapshot = 0
+        last_retention = 0
         while not shutdown_event.is_set():
             try:
                 chain_head = await rpc.get_block_number()
@@ -1330,6 +1331,32 @@ async def run():
                     except Exception as e:
                         log.warning(f"Offline detect error: {e}")
                     last_offline_check = now
+
+                # Retention — prune old rows from append-only tables every 6h.
+                # Keeps the DB bounded without losing useful recent history.
+                # Only runs on testnet collector to avoid double-delete.
+                if NETWORK == "testnet" and now - last_retention > 21600:
+                    try:
+                        async with pool.acquire() as conn:
+                            # Hourly health snapshots: keep 30 days → ~324k max
+                            # rows (450 validators × 24h × 30 days × 2 nets)
+                            h = await conn.execute(
+                                "DELETE FROM health_scores WHERE timestamp < NOW() - INTERVAL '30 days'"
+                            )
+                            # Alerts: keep 90 days
+                            a = await conn.execute(
+                                "DELETE FROM alerts WHERE timestamp < NOW() - INTERVAL '90 days'"
+                            )
+                            # Stake snapshots: keep 60 days (about one month of
+                            # validator_stake_history usage — stability scoring)
+                            s = await conn.execute(
+                                "DELETE FROM validator_stake_history WHERE epoch < "
+                                "(SELECT COALESCE(MAX(epoch), 0) FROM validator_stake_history) - 3000"
+                            )
+                        log.info(f"retention: health={h} alerts={a} stake_hist={s}")
+                    except Exception as e:
+                        log.warning(f"retention error: {e}")
+                    last_retention = now
 
                 # Stake event ingestion — every 60 seconds
                 if now - last_stake_ingest > 60:
