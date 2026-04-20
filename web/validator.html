@@ -414,7 +414,7 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
       <div class="val-hero-top">
         <a href="/validators.html" class="val-back">← Validators</a>
       </div>
-      <div class="val-name-big">${esc(displayName)}${statusBadge}</div>
+      <div class="val-name-big" title="${name ? 'Name from monad-developers/validator-info (mapped by SECP pubkey)' : 'No name registered in upstream validator-info repo — using validator ID'}">${esc(displayName)}${statusBadge}</div>
       <div class="val-addr-sub">
         <span style="color:#6B6580">ID</span>
         <span style="color:#DDD7FE;margin-left:6px">#${v.validator_id}</span>
