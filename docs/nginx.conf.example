@@ -16,11 +16,25 @@ server {
     add_header Permissions-Policy "camera=(), microphone=(), geolocation=()" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net unpkg.com; style-src 'self' 'unsafe-inline' fonts.googleapis.com unpkg.com; font-src 'self' fonts.gstatic.com; img-src 'self' data: *.basemaps.cartocdn.com *.tile.openstreetmap.org; connect-src 'self'" always;
 
+    # Slow-changing endpoints get a brief shared cache via headers — these
+    # are aggregates over hours/days that don't shift second-to-second, so
+    # 5-15 s of staleness is invisible to users but slashes load time on
+    # cold-cache page loads. Realtime endpoints (default below) stay live.
+    location ~* ^/api/(dashboard/summary|validators/list|blocks/timeline|gas/hourly|health/scores)\b {
+        limit_req zone=api burst=20 nodelay;
+        expires 5s;
+        add_header Cache-Control "public, max-age=5, stale-while-revalidate=10" always;
+        proxy_pass http://127.0.0.1:8890$request_uri;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
     location /api/ {
         limit_req zone=api burst=20 nodelay;
-        # Short cache for JSON — data refreshes every few seconds anyway
-        # No cache: dashboard polls /blocks/recent every 2 s; a 30 s API
-        # cache made the live ticker visibly skip 60-70 blocks per refresh.
+        # Realtime endpoints (blocks/recent, alerts/recent, governance/*,
+        # stake/events) — no cache so dashboard polling sees fresh data.
         expires off;
         proxy_pass http://127.0.0.1:8890/;
         proxy_set_header Host $host;
@@ -33,6 +47,20 @@ server {
     location /api/docs { return 404; }
     location /api/redoc { return 404; }
     location /api/openapi.json { return 404; }
+
+    # Static JS/CSS/SVG/fonts — long cache. Pages reference these with
+    # ?v=<sha256_8> query strings (see scripts/deploy_assets.sh) so a
+    # content change automatically forces a fresh download. Until then,
+    # repeat visitors skip the network entirely.
+    location ~* \.(js|css|svg|png|jpg|jpeg|gif|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        # Reuse the security headers normally added by the server block —
+        # these are not inherited inside a regex location, so we re-state.
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        try_files $uri =404;
+    }
 
     location / {
         # No cache for HTML/JS/CSS — users always get latest deploy
