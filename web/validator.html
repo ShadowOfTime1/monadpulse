@@ -150,6 +150,7 @@
       <a href="/clusters.html">Clusters</a>
       <a href="/gas.html">Gas</a>
       <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html">Governance</a>
     </nav>
     <div class="net-switch">
       <button class="net-btn active" data-net="testnet">Testnet</button>
@@ -167,8 +168,8 @@
 </main>
 <footer>
   <div class="footer-inner-new">
-    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
-    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
   </div>
 </footer>
 <script src="/js/app.js"></script>
@@ -458,6 +459,18 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
       </div>
     </div>
 
+    <section class="data-section" id="vdp-compliance-section" style="display:none">
+      <div class="section-title">VDP Compliance
+        <span style="color:var(--text-dim);font-weight:400;font-size:11px;margin-left:10px">uptime = blocks produced / blocks assigned &middot; target &ge;98% weekly</span>
+      </div>
+      <div class="vdp-grid" id="vdp-grid"></div>
+      <div style="color:var(--text-dim);font-size:11px;margin-top:12px;line-height:1.6">
+        <b>Formula:</b> VDP uptime = <code style="color:var(--purple-light)">blocks_produced / blocks_assigned</code>, as understood by the validator community. MonadPulse approximates <em>blocks_assigned</em> via stake-weighted expectation (<code>validator_stake / total_stake &times; network_blocks</code>) &mdash; correct in long-window averages.
+        <br>During Foundation <strong>stake rotation</strong> (validator out of consensus set), <code>blocks_assigned = 0</code> &rarr; ratio is undefined &rarr; operator is <em>excluded</em> from the metric for that period, not penalised.
+        <br>Source: <a href="https://docs.monad.xyz/node-ops/validator-delegation-program" target="_blank" rel="noopener" style="color:var(--purple-light)">docs.monad.xyz &ndash; Validator Delegation Program</a>.
+      </div>
+    </section>
+
     <section class="data-section" id="signing-uptime-section" style="display:none">
       <div class="section-title">Signing Activity
         <span style="color:var(--text-dim);font-weight:400;font-size:11px;margin-left:10px">proposing rate vs validator's own 24h baseline</span>
@@ -556,9 +569,13 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     el.style.color = pct >= 100 ? '#4ade80' : pct >= 50 ? '#FFAE45' : '#FF8EE4';
   }).catch(() => { const el = document.getElementById('vdp-uptime-val'); if (el) el.textContent = '—'; });
 
-  // Async signing-uptime fetch (1h / 8h / 24h). Cold RPC discovery may take
-  // 1-2s, so this doesn't block the initial render.
-  apiFetch('/validators/by-id/' + valId + '/signing-uptime').then(s => {
+  // Async signing-uptime fetch (1h / 8h / 24h / 7d + VDP state). Cold RPC
+  // discovery may take 1-2s, so this doesn't block the initial render.
+  // Also fetch upgrade status for VDP compliance (client version check).
+  Promise.all([
+    apiFetch('/validators/by-id/' + valId + '/signing-uptime'),
+    apiFetch('/upgrades/status'),
+  ]).then(([s, up]) => {
     const section = document.getElementById('signing-uptime-section');
     const grid = document.getElementById('signing-uptime-grid');
     const note = document.getElementById('signing-uptime-note');
@@ -595,6 +612,75 @@ async function renderValidator(valId, addrHint, loading, content, empty) {
     }
     note.textContent = noteText;
     section.style.display = 'block';
+
+    // ─── VDP Compliance section ─────────────────────────────────────────
+    // Show only if validator is enrolled in VDP (has Foundation delegation).
+    const vdpState = s.vdp || {};
+    const vdpSection = document.getElementById('vdp-compliance-section');
+    const vdpGrid = document.getElementById('vdp-grid');
+    if (!vdpSection || !vdpGrid || !vdpState.enrolled) return;
+
+    // Weekly uptime: 7d window pct. ≥98% target.
+    const w7 = s.windows['7d'];
+    const weeklyPct = w7 && w7.pct != null ? w7.pct : null;
+    const weeklyOk = weeklyPct != null && weeklyPct >= 98;
+    const weeklyCol = weeklyPct == null ? 'var(--text-dim)'
+      : weeklyOk ? '#4ade80' : weeklyPct >= 90 ? '#FFAE45' : '#FF8EE4';
+    const weeklyIcon = weeklyOk ? '✅' : weeklyPct == null ? '' : '⚠';
+    const weeklySub = w7
+      ? `${fmtNum(w7.actual)} / ${fmtNum(Math.round(w7.expected))} blocks over 7d`
+      : '—';
+
+    // Client version: from /upgrades/status. Green if up_to_date OR within 48h.
+    const curVer = up && up.current_version || '—';
+    const latest = up && up.latest_release && up.latest_release.tag || '—';
+    const hrsSince = up && up.hours_since_release;
+    const upToDate = up && up.up_to_date;
+    const within48h = upToDate || (hrsSince != null && hrsSince < 48);
+    const verCol = within48h ? '#4ade80' : hrsSince != null && hrsSince < 72 ? '#FFAE45' : '#FF8EE4';
+    const verIcon = within48h ? '✅' : '⚠';
+    const verSub = upToDate
+      ? `Running latest ${latest}`
+      : hrsSince != null
+        ? `${latest} released ${Math.round(hrsSince)}h ago — upgrade within 48h`
+        : `Running ${curVer}`;
+
+    // Rotation / enrollment status.
+    const rotating = !!vdpState.rotation_active;
+    const days = vdpState.days_enrolled;
+    const statusText = rotating ? 'In rotation cycle 🔄' : 'Active participant';
+    const statusCol = rotating ? '#85E6FF' : '#4ade80';
+    const statusSub = days != null
+      ? `${days} day${days === 1 ? '' : 's'} since Foundation delegation`
+      : '—';
+
+    // If validator is in rotation right now, the ratio is undefined (no
+    // assigned slots). Show "excluded" with historic pre-rotation rate.
+    const rotatingVdp = !!vdpState.rotation_active;
+    const vdpUptimeDisplay = rotatingVdp && weeklyPct != null
+      ? `${weeklyPct.toFixed(1)}% <span style="color:var(--text-dim);font-size:11px;font-weight:400">pre-rotation</span>`
+      : weeklyPct != null
+        ? `${weeklyPct.toFixed(1)}% ${weeklyIcon}`
+        : '— ';
+
+    vdpGrid.innerHTML = `
+      <div class="vdp-item">
+        <div class="vdp-label">Uptime: produced / assigned <span style="color:var(--text-dim);font-weight:400">(target ≥98% weekly)</span></div>
+        <div class="vdp-value" style="color:${rotatingVdp ? '#85E6FF' : weeklyCol}">${vdpUptimeDisplay}</div>
+        <div class="vdp-sub">${weeklySub}${rotatingVdp ? ' · currently in rotation, 0 slots assigned' : ''}</div>
+      </div>
+      <div class="vdp-item">
+        <div class="vdp-label">Client version <span style="color:var(--text-dim);font-weight:400">(upgrade within 48h)</span></div>
+        <div class="vdp-value" style="color:${verCol}">${esc(curVer)} ${verIcon}</div>
+        <div class="vdp-sub">${esc(verSub)}</div>
+      </div>
+      <div class="vdp-item">
+        <div class="vdp-label">VDP status</div>
+        <div class="vdp-value" style="color:${statusCol}">${statusText}</div>
+        <div class="vdp-sub">${statusSub}</div>
+      </div>
+    `;
+    vdpSection.style.display = 'block';
   }).catch(() => {
     const section = document.getElementById('signing-uptime-section');
     const note = document.getElementById('signing-uptime-note');

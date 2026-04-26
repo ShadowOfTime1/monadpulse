@@ -104,6 +104,7 @@
       <a href="/clusters.html">Clusters</a>
       <a href="/gas.html">Gas</a>
       <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html">Governance</a>
     </nav>
     <div class="net-switch">
       <button class="net-btn active" data-net="testnet">Testnet</button>
@@ -124,10 +125,10 @@
       MonadPulse is an independent analytics platform for the <strong>Monad network</strong>. It shows what no standard block explorer does: validator performance patterns, health scores, block production anomalies, gas trends, and real-time alerts.
     </p>
     <p>
-      Built by <a href="https://shadowoftime1.github.io" target="_blank">shadowoftime</a>, an independent Monad validator based in Sydney, Australia. The platform runs on the same server as the validator node, pulling data directly from the local RPC with zero external dependencies.
+      Built by <a href="https://shadowoftime1.github.io" target="_blank">shadowoftime</a>, an independent Monad testnet validator based in Sydney, Australia. The platform runs on the same server as the validator node, pulling data directly from the local RPC with zero external dependencies.
     </p>
 
-    <h3>How does Health Score work?</h3>
+    <h3 id="health">How does Health Score work?</h3>
     <p>
       Each validator gets a score from <strong>0 to 100</strong> recalculated every hour. The score is a weighted composite of five factors:
     </p>
@@ -135,7 +136,7 @@
       <div class="score-row">
         <span class="score-weight">40%</span>
         <span class="score-name">Uptime</span>
-        <span class="score-desc">Stake-weighted expected block rate vs actual. 100% = producing at or above the rate their stake entitles them to. Below 50% = probable outage. Monad proposer selection is stake-weighted, so a 10M-MON validator is compared against 10× more blocks than a 1M-MON validator.</span>
+        <span class="score-desc"><strong>blocks produced / blocks assigned.</strong> This matches the VDP uptime formula as understood by the validator community. We approximate <em>blocks_assigned</em> via stake-weighted expectation (<code>validator_stake / total_stake × network_blocks</code>) since per-block leader election isn't exposed on-chain — correct in long-window averages. Target ≥98% weekly. During Foundation stake rotation when the validator is out of consensus, <code>blocks_assigned = 0</code> and the validator is excluded from this metric, not penalised.</span>
       </div>
       <div class="score-row">
         <span class="score-weight">20%</span>
@@ -155,11 +156,23 @@
       <div class="score-row">
         <span class="score-weight">10%</span>
         <span class="score-name">Age</span>
-        <span class="score-desc">Days since the validator's first on-chain Reward event (read from the staking precompile). Maxes out at 30 days. On networks we only started indexing recently (mainnet went live April 2026), visible age is capped by our data-retention window — validators older than that show the maximum we can see.</span>
+        <span class="score-desc">Days since the validator's first on-chain Reward event (read from the staking precompile). Maxes out at 30 days. On networks we only started indexing recently (MonadPulse began continuously indexing Monad mainnet in April 2026; Monad mainnet itself produced its first block on 14 May 2025, with public launch and TGE on 24 November 2025), visible age is capped by our data-retention window — validators older than that show the maximum we can see.</span>
       </div>
     </div>
     <p>
       Color coding: <strong style="color:#4ade80">green (80+)</strong> = excellent, <strong style="color:#FFAE45">orange (50-80)</strong> = moderate, <strong style="color:#FF8EE4">pink (&lt;50)</strong> = needs attention.
+    </p>
+
+    <p>
+      A <span class="rotation-badge" style="margin:0 2px">&#x1F504;</span> badge next to a
+      validator's name means they are currently in Monad Foundation's
+      <strong>stake-rotation cycle</strong>. Until the active-set is expanded
+      via MIP9, Foundation periodically pulls part of its VDP delegation from
+      some validators and redistributes it to others — so every delegated
+      validator gets time in the active-set. Validators flagged here are
+      <em>intentionally</em> idle, not failing: uptime scoring skips the
+      recency penalty for them, so their Health reflects pre-rotation
+      performance, not the forced gap.
     </p>
     <p style="color:var(--text-dim,#6B6580);font-size:13px;line-height:1.7">
       The 0–100 scale is the <em>theoretical</em> maximum. In practice no validator
@@ -248,8 +261,8 @@
 </main>
 <footer>
   <div class="footer-inner-new">
-    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
-    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
   </div>
 </footer>
 <script src="/js/app.js"></script>

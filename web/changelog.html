@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Changelog — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="MonadPulse public changelog — site changes, audit fixes, new features, dated.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Changelog — MonadPulse">
+<meta property="og:description" content="Public log of MonadPulse site changes, audit fixes, and new features.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:url" content="https://monadpulse.xyz/changelog.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Changelog — MonadPulse">
+<meta name="twitter:description" content="Public log of MonadPulse site changes.">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .changelog-list { max-width: 720px; }
+  .change-entry {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(110,84,255,0.08);
+  }
+  .change-entry:last-child { border-bottom: none; }
+  .change-date {
+    font-family: var(--mono, 'Roboto Mono', monospace);
+    font-size: 11px;
+    color: var(--purple-light, #DDD7FE);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .change-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text, #EEEDF5);
+    margin-bottom: 8px;
+  }
+  .change-body {
+    color: var(--text-mid, #9994AE);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+  .change-body ul {
+    padding-left: 18px;
+    margin: 6px 0 0;
+  }
+  .change-body li { margin-bottom: 4px; }
+  .change-body code {
+    font-family: var(--mono); font-size: 12px;
+    background: rgba(110,84,255,0.08);
+    padding: 1px 5px; border-radius: 3px;
+  }
+  .changelog-intro {
+    color: var(--text-mid);
+    font-size: 13px;
+    line-height: 1.7;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(110,84,255,0.06);
+  }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse
+      <svg class="heartbeat-line" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline class="hb-trace" points="0,14 18,14 26,14 30,2 34,26 38,8 42,18 46,14 120,14"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/graph.html">Graph</a>
+      <a href="/clusters.html">Clusters</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html">Governance</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Changelog</h1>
+    <p class="page-desc">Site changes, audit fixes, and new features — dated</p>
+  </div>
+
+  <div class="changelog-list">
+    <p class="changelog-intro">
+      Human-maintained log so external readers can tell what was on the site
+      at any given date. Newer entries on top. Source repo: <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">ShadowOfTime1/monadpulse</a>.
+    </p>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-26</div>
+      <div class="change-title">Audit follow-up — terminology, changelog, clean URLs</div>
+      <div class="change-body">
+        <ul>
+          <li>Dashboard "Validators (this epoch)" → "Active validators · epoch N" with tooltip clarifying active vs registered.</li>
+          <li>This <code>/changelog.html</code> published; footer link added on every page.</li>
+          <li>Clean-URL routing: <code>/blocks</code>, <code>/governance</code>, etc. now load with full data (not the empty dashboard).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-26</div>
+      <div class="change-title">Block Time tooltip + about.html dates corrected</div>
+      <div class="change-body">
+        Block Time tooltip now correctly notes that earlier mainnet blocks <em>targeted 500ms</em> and were later reduced to 400ms (previous wording said "earlier blocks were notably faster" — wrong direction). About page now distinguishes mainnet's first block (<code>14 May 2025</code>, ground-truth from <code>eth_getBlockByNumber("0x1")</code>) from public launch / TGE (<code>24 November 2025</code>).
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-26</div>
+      <div class="change-title">Audit fixes — 8 items</div>
+      <div class="change-body">
+        <ul>
+          <li><strong>Governance:</strong> MIPs activated in MONAD_NINE (3, 4, 5, 6) now show <code>Activated</code> with cyan badge listing fork + activation date. Source: <a href="https://github.com/category-labs/monad/releases/tag/v0.13.0" target="_blank">monad v0.13.0 release notes</a>.</li>
+          <li><strong>About page:</strong> mainnet launch date corrected; VDP attribution cleaned up.</li>
+          <li><strong>Footer:</strong> "independent Monad validator" → "independent Monad <em>testnet</em> validator" on all 13 pages.</li>
+          <li><strong>Alerts:</strong> HTML formatting (<code>&lt;blockquote&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;a&gt;</code>) now renders properly via a 6-tag whitelist sanitizer; previously displayed as escaped text.</li>
+          <li><strong>Dashboard:</strong> "Block Time" → "Block Time (recent)" with tooltip distinguishing recent vs historical average.</li>
+          <li><strong>Routing:</strong> nginx <code>try_files</code> updated to map <code>/blocks → /blocks.html</code> and similar (server-side fix; client-side dispatch follow-up below).</li>
+          <li><strong>Governance reply counts:</strong> scraper switched from Discourse <code>reply_count</code> (top-level only) to <code>posts_count - 1</code> to match what the forum's listing UI shows.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-25</div>
+      <div class="change-title">Governance impact analyser switched to mainnet context</div>
+      <div class="change-body">
+        LLM-generated impact bullets for MIPs are now grounded against mainnet validator landscape (203 validators, 1.09B MON top stake, ~25M MON active-set threshold). Previously used testnet (197 validators, flat ~9-25M plateau). All 9 MIP analyses regenerated; validator-link URLs include <code>&amp;network=mainnet</code> so clicks land on the right operator. Three-layer rank integrity: explicit rank-keyed context payload, hard prompt rule against rank manipulation, post-generation corrector that overwrites cited rank/stake from the live snapshot.
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-25</div>
+      <div class="change-title">Governance section v1 — full launch</div>
+      <div class="change-body">
+        New <a href="/governance.html">Governance</a> page tracking all MIPs from forum.monad.xyz: per-proposal detail page (<a href="/governance-mip.html?id=416">MIP-9 example</a>) with plain-language summary, per-stakeholder impact analysis (validators / delegators / builders), unified timeline merging topic creation + replies + Discourse post revisions with real forum timestamps. Substantive vs cosmetic edits visually distinguished. Validator names in impact bullets are clickable links.
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-23</div>
+      <div class="change-title">VDP uptime metric on validator detail page</div>
+      <div class="change-body">
+        New "VDP Uptime" section on <code>/validator.html?id=N</code> with weekly target (≥98%) and 1h / 8h / 24h / 7d signing-uptime windows. Approximation noted explicitly: per-block leader election isn't exposed on-chain, so we use stake-weighted expectation as the assigned-blocks denominator.
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-20</div>
+      <div class="change-title">MonadPulse public launch</div>
+      <div class="change-body">
+        Initial release of monadpulse.xyz — independent analytics platform for Monad: dashboard, blocks, validators, map, stake, gas, alerts. Open-source MIT (<a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">repo</a>). Built solo by <a href="https://shadowoftime1.github.io" target="_blank">shadowoftime</a> on the same OVH server that runs the testnet validator (val_id 267).
+      </div>
+    </div>
+  </div>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+</body>
+</html>

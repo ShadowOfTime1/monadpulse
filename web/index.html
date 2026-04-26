@@ -48,6 +48,7 @@
       <a href="/clusters.html">Clusters</a>
       <a href="/gas.html">Gas</a>
       <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html">Governance</a>
     </nav>
     <div class="net-switch">
       <button class="net-btn active" data-net="testnet">Testnet</button>
@@ -77,13 +78,13 @@
       <div class="metric-val cyan" id="m-tps">—</div>
       <div class="metric-lbl"><span class="metric-icon">&#x26A1;</span> TPS (24h)</div>
     </div>
-    <div class="metric">
+    <div class="metric" title="Recent average. Historical average since mainnet block #1 (14 May 2025) is ~425ms — earlier blocks targeted 500ms, later reduced to 400ms.">
       <div class="metric-val" id="m-blocktime">—</div>
-      <div class="metric-lbl"><span class="metric-icon">&#x23F1;</span> Block Time</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x23F1;</span> Block Time (recent)</div>
     </div>
-    <div class="metric" title="Active validator set for the current epoch (from staking precompile). Updates at each epoch boundary (~5.5 hours).">
+    <div class="metric" id="m-validators-card" title="Validators currently producing blocks in this epoch. Total registered validators (including idle / Foundation rotation) — see Validators page.">
       <div class="metric-val" id="m-validators">—</div>
-      <div class="metric-lbl"><span class="metric-icon">&#x2726;</span> Validators (this epoch)</div>
+      <div class="metric-lbl"><span class="metric-icon">&#x2726;</span> <span id="m-validators-lbl">Active validators</span></div>
     </div>
     <div class="metric">
       <div class="metric-val" id="m-blocks24">—</div>
@@ -142,7 +143,9 @@
   <!-- Bottom 2 columns: Top 5 Validators | Latest 5 Blocks -->
   <div class="chart-row">
     <section class="data-section">
-      <div class="section-title">Top Validators — Health</div>
+      <div class="section-title">Top Validators — Health
+        <span style="color:var(--text-dim);font-weight:400;font-size:11px;margin-left:8px">click name for details</span>
+      </div>
       <table id="top-proposers">
         <thead>
           <tr><th></th><th>Validator</th><th>Score</th></tr>
@@ -166,8 +169,8 @@
 
 <footer>
   <div class="footer-inner-new">
-    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
-    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
   </div>
 </footer>
 

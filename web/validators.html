@@ -38,6 +38,7 @@
       <a href="/clusters.html">Clusters</a>
       <a href="/gas.html">Gas</a>
       <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html">Governance</a>
     </nav>
     <div class="net-switch">
       <button class="net-btn active" data-net="testnet">Testnet</button>
@@ -48,7 +49,7 @@
 <main>
   <div style="padding-top:48px">
     <h1 class="page-title">Validators</h1>
-    <p class="page-desc">Block production rankings and performance metrics</p>
+    <p class="page-desc">Block production rankings and performance metrics &middot; <span style="color:var(--text-dim);font-size:12px">click any validator name for details &rarr;</span></p>
   </div>
 
   <div class="search-wrap">
@@ -62,17 +63,6 @@
     <button class="period-btn" data-period="30d">30 days</button>
   </div>
 
-  <section class="chart-area">
-    <div class="chart-full">
-      <div class="chart-wrap">
-        <div class="chart-label">Top Validators by Health Score</div>
-        <canvas id="chart-validators"></canvas>
-      </div>
-    </div>
-  </section>
-
-  <div class="flow-sep"></div>
-
   <section class="data-section">
     <div class="section-title">All Validators</div>
     <div class="sort-selector">
@@ -80,6 +70,13 @@
       <button class="sort-btn active" data-sort="health">Health Score</button>
       <button class="sort-btn" data-sort="uptime">Uptime</button>
       <button class="sort-btn" data-sort="blocks">Blocks</button>
+    </div>
+    <div class="table-legend">
+      <span class="legend-item"><span class="rotation-badge">&#x1F504;</span> stake rotation &mdash; temporarily out of active-set by Foundation policy, not an outage</span>
+      <span class="legend-item"><span class="anomaly-icon">&#9888;</span> anomaly &mdash; low blocks or unusual block time</span>
+      <span class="legend-item"><span style="color:#85E6FF;font-weight:600">100% idle</span> score is pre-rotation; currently paused</span>
+      <span class="legend-item"><span style="color:#4ade80;font-weight:600">green</span> &ge;98% uptime &middot; <span style="color:#FFAE45;font-weight:600">orange</span> 50&ndash;98% &middot; <span style="color:#FF8EE4;font-weight:600">pink</span> &lt;50%</span>
+      <a href="/about.html#health" class="legend-more">What is Health Score? &rarr;</a>
     </div>
     <div style="overflow-x:auto">
       <table id="validators-table">
@@ -94,8 +91,8 @@
 </main>
 <footer>
   <div class="footer-inner-new">
-    <div class="footer-links"><a href="/about.html">About</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
-    <div class="footer-copy">built by shadowoftime — independent Monad validator, Sydney AU</div>
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
   </div>
 </footer>
 <script src="/js/app.js"></script>
