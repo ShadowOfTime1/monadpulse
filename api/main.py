@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from api.routes import dashboard, blocks, epochs, gas, alerts, validators, health, names, upgrades, stakeflow, analytics
+from api.routes import dashboard, blocks, epochs, gas, alerts, validators, health, names, upgrades, stakeflow, analytics, governance
 
 pool: asyncpg.Pool | None = None
 
@@ -52,3 +52,4 @@ async def ping():
     return {"status": "ok"}
 
 app.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
+app.include_router(governance.router, prefix="/governance", tags=["governance"])

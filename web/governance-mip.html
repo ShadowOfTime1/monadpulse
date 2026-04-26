@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIP — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Monad Improvement Proposal detail with plain-language summary and per-stakeholder impact.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MIP — MonadPulse">
+<meta property="og:description" content="Monad Improvement Proposal detail with plain-language summary and per-stakeholder impact.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:url" content="https://monadpulse.xyz/governance-mip.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+  .mip-hero {
+    padding: 32px 0 24px;
+    border-bottom: 1px solid rgba(110,84,255,0.1);
+    margin-bottom: 28px;
+  }
+  .mip-back {
+    color: var(--text-dim); font-size: 12px; text-decoration: none;
+    font-family: var(--mono); letter-spacing: 0.5px;
+    display: inline-block; margin-bottom: 16px; transition: color 0.2s;
+  }
+  .mip-back:hover { color: var(--purple-light); }
+  .mip-hero h1 {
+    font-family: var(--mono); font-size: 30px; font-weight: 700;
+    color: var(--text); letter-spacing: -0.4px; line-height: 1.2;
+    margin: 0 0 12px;
+  }
+  .mip-hero h1 .mip-num {
+    color: var(--purple-light); margin-right: 10px;
+  }
+  .mip-meta {
+    display: flex; flex-wrap: wrap; gap: 18px;
+    color: var(--text-mid); font-family: var(--mono); font-size: 12px;
+    align-items: center;
+  }
+  .mip-meta .author { color: var(--text); }
+  .mip-meta a { color: var(--purple-light); }
+  .mip-meta a:hover { color: var(--cyan); text-decoration: none; }
+
+  .mip-section { margin: 36px 0; }
+  .mip-section h2 {
+    font-family: var(--font, 'Inter', sans-serif);
+    font-size: 18px; font-weight: 600; color: var(--text);
+    letter-spacing: -0.2px; margin: 0 0 16px;
+    padding-bottom: 8px; border-bottom: 1px solid rgba(110,84,255,0.08);
+  }
+
+  .mip-summary {
+    padding: 20px 24px;
+    background: rgba(110,84,255,0.04);
+    border-left: 3px solid var(--purple);
+    border-radius: 4px;
+    color: var(--text-mid); font-size: 14px; line-height: 1.7;
+  }
+  .mip-summary p { margin: 0 0 12px; }
+  .mip-summary p:last-child { margin-bottom: 0; }
+  .mip-summary-meta {
+    margin-top: 14px; padding-top: 12px;
+    border-top: 1px solid rgba(110,84,255,0.08);
+    color: var(--text-dim); font-family: var(--mono); font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  .mip-impact-grid {
+    display: grid; gap: 14px;
+  }
+  .mip-impact details {
+    border: 1px solid rgba(110,84,255,0.12);
+    border-radius: 10px;
+    background: rgba(20,14,40,0.35);
+    overflow: hidden;
+  }
+  .mip-impact details[open] {
+    border-color: rgba(110,84,255,0.25);
+  }
+  .mip-impact summary {
+    padding: 14px 18px; cursor: pointer; user-select: none;
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    color: var(--text); letter-spacing: 0.2px;
+    display: flex; align-items: center; gap: 10px;
+    list-style: none;
+  }
+  .mip-impact summary::-webkit-details-marker { display: none; }
+  .mip-impact summary::before {
+    content: '▸'; color: var(--purple-light); font-size: 11px;
+    transition: transform 0.18s;
+  }
+  .mip-impact details[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .mip-impact summary .icon { font-size: 16px; }
+  .mip-impact summary .count {
+    margin-left: auto; color: var(--text-dim); font-size: 11px;
+    font-weight: 400;
+  }
+  .mip-impact .body {
+    padding: 4px 18px 18px 38px;
+    color: var(--text-mid); font-size: 13px; line-height: 1.7;
+  }
+  .mip-impact .body ul { padding-left: 0; list-style: none; }
+  .mip-impact .body li {
+    position: relative; padding-left: 18px; margin-bottom: 8px;
+  }
+  .mip-impact .body li::before {
+    content: '—'; position: absolute; left: 0; color: var(--purple-light);
+  }
+  .mip-impact .empty {
+    color: var(--text-dim); font-style: italic; font-size: 12px;
+  }
+  .mip-impact a.validator-link {
+    color: var(--purple-light);
+    text-decoration: underline;
+    text-decoration-color: rgba(180,150,255,0.4);
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    transition: color 120ms ease, text-decoration-color 120ms ease;
+  }
+  .mip-impact a.validator-link:hover {
+    color: var(--cyan);
+    text-decoration-color: rgba(120,200,255,0.85);
+  }
+
+  .mip-original {
+    padding: 20px 24px;
+    border: 1px solid rgba(110,84,255,0.1);
+    border-radius: 10px;
+    color: var(--text-mid); font-size: 14px; line-height: 1.75;
+    overflow-wrap: break-word;
+  }
+  .mip-original h1, .mip-original h2, .mip-original h3, .mip-original h4 {
+    color: var(--text); font-family: var(--font, 'Inter', sans-serif);
+    margin: 22px 0 10px; line-height: 1.3;
+  }
+  .mip-original h1 { font-size: 20px; }
+  .mip-original h2 { font-size: 17px; }
+  .mip-original h3 { font-size: 15px; }
+  .mip-original p { margin: 0 0 12px; }
+  .mip-original a { color: var(--purple-light); }
+  .mip-original a:hover { color: var(--cyan); text-decoration: none; }
+  .mip-original code {
+    font-family: var(--mono); font-size: 12px;
+    background: rgba(110,84,255,0.08); padding: 1px 5px; border-radius: 3px;
+    color: var(--purple-light);
+  }
+  .mip-original pre {
+    background: rgba(20,14,40,0.6); border: 1px solid rgba(110,84,255,0.1);
+    border-radius: 6px; padding: 12px 14px; overflow-x: auto;
+    font-family: var(--mono); font-size: 11px; line-height: 1.5;
+  }
+  .mip-original pre code { background: none; padding: 0; color: var(--text); }
+  .mip-original blockquote {
+    margin: 12px 0; padding: 8px 14px; border-left: 3px solid var(--purple);
+    color: var(--text-dim);
+  }
+  .mip-original ul, .mip-original ol { padding-left: 24px; margin: 0 0 12px; }
+  .mip-original img { max-width: 100%; height: auto; border-radius: 6px; }
+  .mip-original table {
+    border-collapse: collapse; margin: 12px 0; font-size: 12px;
+  }
+  .mip-original th, .mip-original td {
+    border: 1px solid rgba(110,84,255,0.15); padding: 6px 10px;
+  }
+
+  .mip-replies { display: flex; flex-direction: column; gap: 12px; }
+  .mip-reply {
+    padding: 14px 18px;
+    border: 1px solid rgba(110,84,255,0.08);
+    border-radius: 10px;
+    background: rgba(20,14,40,0.25);
+  }
+  .mip-reply.is-reply-to-reply { margin-left: 24px; border-left: 2px solid rgba(110,84,255,0.25); }
+  .mip-reply-head {
+    display: flex; gap: 10px; align-items: center;
+    color: var(--text-dim); font-family: var(--mono); font-size: 11px;
+    margin-bottom: 8px;
+  }
+  .mip-reply-head .who { color: var(--text); font-weight: 600; }
+  .mip-reply-body { color: var(--text-mid); font-size: 13px; line-height: 1.65; overflow-wrap: break-word; }
+  .mip-reply-body p { margin: 0 0 10px; }
+  .mip-reply-body p:last-child { margin-bottom: 0; }
+  .mip-reply-body a { color: var(--purple-light); }
+  .mip-reply-body code { font-family: var(--mono); font-size: 12px; background: rgba(110,84,255,0.08); padding: 1px 5px; border-radius: 3px; }
+
+  .mip-timeline {
+    display: flex; flex-direction: column; gap: 4px;
+    font-family: var(--mono); font-size: 12px;
+    position: relative;
+  }
+  .mip-timeline::before {
+    content: '';
+    position: absolute;
+    left: 9px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, rgba(110,84,255,0.2) 12%, rgba(110,84,255,0.2) 88%, transparent);
+  }
+  .mip-tl-event {
+    display: grid;
+    grid-template-columns: 22px 180px 110px 1fr;
+    gap: 12px; padding: 8px 10px 8px 0;
+    border-radius: 6px;
+    align-items: baseline;
+    text-decoration: none;
+    color: inherit;
+    transition: background-color 120ms ease;
+  }
+  .mip-tl-event:hover { background: rgba(110,84,255,0.06); }
+  .mip-tl-icon {
+    width: 18px; height: 18px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 50%;
+    font-size: 11px; line-height: 1;
+    background: rgba(20,14,40,0.8);
+    border: 1px solid rgba(110,84,255,0.25);
+    position: relative; z-index: 1;
+  }
+  .mip-tl-event[data-kind="created"]  .mip-tl-icon { color: var(--cyan); border-color: rgba(120,200,255,0.4); }
+  .mip-tl-event[data-kind="reply"]    .mip-tl-icon { color: var(--purple-light); }
+  .mip-tl-event[data-kind="edited"]   .mip-tl-icon { color: var(--orange); border-color: rgba(255,150,80,0.4); }
+  /* Substantive proposal change — yellow/amber accent ring, brighter */
+  .mip-tl-event[data-severity="substantive"] .mip-tl-icon {
+    color: #ffc864;
+    border-color: rgba(255,200,100,0.7);
+    background: rgba(70,55,20,0.55);
+    box-shadow: 0 0 10px rgba(255,200,100,0.25);
+  }
+  .mip-tl-event[data-severity="substantive"] .badge.severity-tag {
+    color: #ffc864;
+    font-weight: 500;
+  }
+  /* Cosmetic edit — muted grey, less visual weight */
+  .mip-tl-event[data-severity="cosmetic"] .mip-tl-icon {
+    color: var(--text-dim);
+    border-color: rgba(160,160,160,0.25);
+    opacity: 0.75;
+  }
+  .mip-tl-event[data-severity="cosmetic"] .mip-tl-actor,
+  .mip-tl-event[data-severity="cosmetic"] .mip-tl-desc {
+    opacity: 0.78;
+  }
+  .mip-tl-event[data-severity="cosmetic"] .badge.severity-tag {
+    color: var(--text-dim);
+  }
+  /* Pair grouping — when an edit is followed within ~2 min by a reply
+     from the post's author, render the pair joined with a soft bracket
+     and an "edited then announced" label on the left margin. */
+  .mip-tl-cluster {
+    position: relative;
+    display: flex; flex-direction: column;
+    padding-left: 14px;
+    margin: 4px 0;
+    border-left: 2px solid rgba(255,200,100,0.35);
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(to right, rgba(255,200,100,0.04), transparent 60%);
+  }
+  .mip-tl-cluster::before {
+    content: 'edited then announced';
+    position: absolute;
+    left: -2px; top: -10px;
+    transform: translateX(0);
+    background: var(--bg, #0c0820);
+    padding: 0 6px;
+    font-family: var(--mono); font-size: 10px;
+    color: rgba(255,200,100,0.85);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .mip-tl-cluster .mip-tl-event { padding-left: 0; }
+  .mip-tl-when { color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mip-tl-when .when-rel { color: var(--text-dim); opacity: 0.65; margin-left: 6px; font-size: 11px; }
+  .mip-tl-actor {
+    color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mip-tl-actor .badge {
+    color: var(--text-dim); font-size: 11px; margin-left: 4px;
+  }
+  .mip-tl-desc { color: var(--text-mid); overflow-wrap: anywhere; }
+  .mip-tl-desc .arrow-from { color: var(--text-dim); }
+  .mip-tl-desc .arrow-to   { color: var(--orange); font-weight: 500; }
+  .mip-timeline-empty {
+    padding: 16px; text-align: center; color: var(--text-dim);
+    font-family: var(--mono); font-size: 12px; font-style: italic;
+  }
+  @media (max-width: 720px) {
+    .mip-tl-event { grid-template-columns: 22px 1fr; gap: 8px; }
+    .mip-tl-when, .mip-tl-actor, .mip-tl-desc { grid-column: 2; }
+  }
+  /* Anchor target highlight when navigating from timeline */
+  .mip-original:target,
+  .mip-reply:target {
+    animation: mip-highlight 1800ms ease-out;
+  }
+  @keyframes mip-highlight {
+    0%   { box-shadow: 0 0 0 2px rgba(110,84,255,0.6), 0 0 24px rgba(110,84,255,0.35); }
+    100% { box-shadow: 0 0 0 0 rgba(110,84,255,0); }
+  }
+  .mip-original { scroll-margin-top: 80px; }
+  .mip-reply    { scroll-margin-top: 80px; }
+
+  #mip-loading, #mip-error {
+    text-align: center; padding: 80px 20px;
+    color: var(--text-dim); font-family: var(--mono); font-size: 13px;
+  }
+  #mip-error { color: var(--pink); }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse</a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/graph.html">Graph</a>
+      <a href="/clusters.html">Clusters</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html" class="active">Governance</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div id="mip-loading">Loading proposal…</div>
+  <div id="mip-content" style="display:none"></div>
+  <div id="mip-error" style="display:none"></div>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+<script>
+async function renderGovernanceMip() {
+  const params = new URLSearchParams(location.search);
+  const idParam = params.get('id');
+  const loading = document.getElementById('mip-loading');
+  const content = document.getElementById('mip-content');
+  const errorEl = document.getElementById('mip-error');
+
+  if (!idParam || !/^\d+$/.test(idParam)) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    errorEl.innerHTML = `Missing or invalid <code>?id=N</code> parameter.
+      <br><br><a href="/governance.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Back to Governance</a>`;
+    return;
+  }
+
+  let data;
+  try {
+    const r = await fetch('/api/governance/mip/' + idParam);
+    if (!r.ok) {
+      if (r.status === 404) {
+        throw new Error('not_found');
+      }
+      throw new Error('http_' + r.status);
+    }
+    data = await r.json();
+  } catch (e) {
+    loading.style.display = 'none';
+    errorEl.style.display = 'block';
+    errorEl.innerHTML = e.message === 'not_found'
+      ? `Proposal #${idParam} not found.
+         <br><br><a href="/governance.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Back to Governance</a>`
+      : `Failed to load proposal: ${e.message}.
+         <br><br><a href="/governance.html" class="page-btn" style="display:inline-block;padding:10px 24px;text-decoration:none;min-width:180px">← Back to Governance</a>`;
+    return;
+  }
+
+  loading.style.display = 'none';
+  content.style.display = 'block';
+
+  const t = data.topic;
+  const posts = data.posts || [];
+  const op = posts.find(p => p.post_number === 1) || posts[0];
+  const replies = posts.filter(p => p.post_number > 1);
+  const summary = data.summary;
+  const changes = data.changes || [];
+
+  const titleStr = t.mip_number != null
+    ? `<span class="mip-num">MIP-${t.mip_number}</span>${esc(t.title.replace(/^MIP[\s\-_]*\d+[\s:\-]*/i, ''))}`
+    : esc(t.title);
+
+  // Set page title for SEO/tab
+  document.title = (t.mip_number != null ? `MIP-${t.mip_number}` : 'Proposal') + ' — MonadPulse';
+
+  // Hero
+  const lastEditedAgo = t.forum_updated_at ? timeAgo(t.forum_updated_at) : '—';
+  let html = `
+    <div class="mip-hero">
+      <a href="/governance.html" class="mip-back">← All proposals</a>
+      <h1>${titleStr}</h1>
+      <div class="mip-meta">
+        <span class="status-pill" data-pill="${esc(t.status)}">${esc(t.status)}</span>${typeof window._activationBadge === 'function' ? window._activationBadge(t.activation_info) : ''}
+        ${t.category ? `<span>${esc(t.category)}</span>` : ''}
+        <span>by <span class="author">${esc(t.author_username || '—')}</span></span>
+        <span>last activity ${lastEditedAgo}</span>
+        <span>${t.reply_count} ${t.reply_count === 1 ? 'reply' : 'replies'} · ${fmtNum(t.views)} views</span>
+        <a href="${t.forum_url}" target="_blank" rel="noopener">View on forum.monad.xyz ↗</a>
+      </div>
+    </div>
+  `;
+
+  // Plain-language summary (or placeholder)
+  if (summary && summary.summary) {
+    const paragraphs = summary.summary.split(/\n\n+/).map(p => `<p>${esc(p)}</p>`).join('');
+    html += `
+      <section class="mip-section">
+        <h2>Plain-language summary</h2>
+        <div class="mip-summary">
+          ${paragraphs}
+          <div class="mip-summary-meta">
+            generated by ${esc(summary.model)} · last updated ${timeAgo(summary.generated_at)}
+          </div>
+        </div>
+      </section>
+    `;
+  } else {
+    html += `
+      <section class="mip-section">
+        <h2>Plain-language summary</h2>
+        <div class="mip-summary" style="border-left-color:var(--text-dim);color:var(--text-dim);font-style:italic">
+          A plain-language summary will appear here once we run our MIP analyser
+          on this proposal. The original proposal is available below in the
+          meantime.
+        </div>
+      </section>
+    `;
+  }
+
+  // Validator name → href map (provided by API, only names that actually
+  // appear in any impact bullet). After we esc() the bullet text we walk
+  // the map and wrap each match in an anchor pointing to the validator's
+  // detail page on MonadPulse.
+  const linkMap = data.validator_link_map || {};
+  // Sort by name length descending so multi-word names ("Validation Cloud")
+  // match before single-word substrings ("Cloud").
+  const linkPairs = Object.entries(linkMap).sort(
+    (a, b) => b[0].length - a[0].length
+  );
+  const wrapValidatorLinks = (htmlSafe) => {
+    if (!linkPairs.length) return htmlSafe;
+    // Build a single alternation regex of all known names (longest first
+    // so multi-word matches win over single-word substrings). Word-boundary
+    // anchors prevent partial matches ("Republic" inside "Republican").
+    // Case-insensitive ('i') so "republic" still hits "Republic"; original
+    // casing is preserved via `${hit}` in the replacement.
+    const alternation = linkPairs
+      .map(([name]) => esc(name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|');
+    const nameByLower = new Map(
+      linkPairs.map(([n, m]) => [n.toLowerCase(), m])
+    );
+    const pattern = new RegExp(
+      '(^|[^\\w/])(' + alternation + ')(?=$|[^\\w/])',
+      'gi'
+    );
+    // Split by HTML tags; replace only inside text nodes so we don't
+    // accidentally wrap text inside attribute values (href="…") and so
+    // we never produce nested anchors. Each text segment is rewritten
+    // in one pass — names inside an anchor created earlier in this same
+    // pass aren't re-scanned because the global regex advances past the
+    // inserted `<a>` markup.
+    const parts = htmlSafe.split(/(<[^>]+>)/g);
+    return parts.map(part => {
+      if (part.startsWith('<')) return part;
+      return part.replace(pattern, (full, pre, hit) => {
+        const meta = nameByLower.get(hit.toLowerCase());
+        if (!meta) return full;
+        return `${pre}<a href="${meta.url}" class="validator-link">${hit}</a>`;
+      });
+    }).join('');
+  };
+
+  // What this means for you
+  const renderImpact = (label, items, icon) => {
+    const list = (items || []).filter(s => s && s.trim());
+    const body = list.length
+      ? `<ul>${list.map(b => `<li>${wrapValidatorLinks(esc(b))}</li>`).join('')}</ul>`
+      : `<div class="empty">No specific impact analysis available yet.</div>`;
+    return `
+      <details>
+        <summary><span class="icon">${icon}</span> ${label}</summary>
+        <div class="body">${body}</div>
+      </details>
+    `;
+  };
+  if (summary) {
+    html += `
+      <section class="mip-section">
+        <h2>What this means for you</h2>
+        <div class="mip-impact mip-impact-grid">
+          ${renderImpact('For validators',  summary.validator_impact,  '⛓')}
+          ${renderImpact('For delegators',  summary.delegator_impact,  '💰')}
+          ${renderImpact('For builders',    summary.builder_impact,    '🛠')}
+        </div>
+      </section>
+    `;
+  }
+
+  // Original proposal — render the OP's cooked HTML
+  if (op && op.cooked_html) {
+    html += `
+      <section class="mip-section">
+        <h2>Original proposal</h2>
+        <article id="post-1" class="mip-original">${op.cooked_html}</article>
+      </section>
+    `;
+  }
+
+  // Discussion
+  if (replies.length) {
+    const replyBlocks = replies.map(r => {
+      const isThreaded = r.reply_to_post_number && r.reply_to_post_number > 1;
+      const head = `
+        <div class="mip-reply-head">
+          <span class="who">${esc(r.username || 'unknown')}</span>
+          <span>·</span>
+          <span>post #${r.post_number}</span>
+          <span>·</span>
+          <span>${timeAgo(r.forum_created_at)}</span>
+          ${r.edited ? '<span>· edited</span>' : ''}
+          ${isThreaded ? `<span>· replying to #${r.reply_to_post_number}</span>` : ''}
+        </div>`;
+      return `<div id="post-${r.post_number}" class="mip-reply${isThreaded ? ' is-reply-to-reply' : ''}">
+        ${head}
+        <div class="mip-reply-body">${r.cooked_html || ''}</div>
+      </div>`;
+    }).join('');
+    html += `
+      <section class="mip-section">
+        <h2>Discussion</h2>
+        <div class="mip-replies">${replyBlocks}</div>
+      </section>
+    `;
+  }
+
+  // Timeline — built from real forum events (topic create, replies,
+  // post revisions). Each row links to the corresponding post anchor.
+  const timeline = data.timeline || [];
+
+  // Format absolute timestamp + relative-day suffix.
+  // "Mar 19, 10:23 UTC · 36 days ago"
+  const fmtAbs = (iso) => {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '—';
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const m = monthNames[d.getUTCMonth()];
+    const day = d.getUTCDate();
+    const hh = String(d.getUTCHours()).padStart(2, '0');
+    const mm = String(d.getUTCMinutes()).padStart(2, '0');
+    const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
+    const datePart = sameYear ? `${m} ${day}` : `${m} ${day}, ${d.getUTCFullYear()}`;
+    return `${datePart}, ${hh}:${mm} UTC`;
+  };
+  const fmtRel = (iso) => {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    const sec = (Date.now() - d.getTime()) / 1000;
+    if (sec < 60)            return 'just now';
+    if (sec < 3600)          return Math.floor(sec / 60) + 'm ago';
+    if (sec < 86400)         return Math.floor(sec / 3600) + 'h ago';
+    if (sec < 86400 * 30)    return Math.floor(sec / 86400) + 'd ago';
+    if (sec < 86400 * 365)   return Math.floor(sec / 86400 / 30) + 'mo ago';
+    return Math.floor(sec / 86400 / 365) + 'y ago';
+  };
+  const escAttr = (s) => esc(s);
+  const eventIcon = (ev) => {
+    if (ev.kind === 'created') return '✱';
+    if (ev.kind === 'reply')   return '💬';
+    if (ev.kind === 'edited') {
+      // Substantive proposal change vs cosmetic touch-up
+      return ev.severity === 'substantive' ? '⚠' : '✎';
+    }
+    return '·';
+  };
+  const eventBadge = (ev) => {
+    if (ev.kind === 'created') return '<span class="badge">opened proposal</span>';
+    if (ev.kind === 'reply')   return `<span class="badge">replied · post #${ev.post_number}</span>`;
+    if (ev.kind === 'edited') {
+      const tag = ev.severity === 'substantive' ? 'Proposal change' : 'Minor edit';
+      return `<span class="badge severity-tag">${tag} · post #${ev.post_number} · rev ${ev.revision_number || '?'}</span>`;
+    }
+    return '';
+  };
+  // Render the actor for an edit event. When forum staff edits a post on
+  // behalf of the original author (Discourse acting_user_name ≠ display_username),
+  // surface both names so the timeline narrative stays clear.
+  const renderEditActor = (ev) => {
+    const editor = ev.editor_username || '';
+    const author = ev.author_username || '';
+    if (editor && author && editor !== author) {
+      const tip = 'Forum staff/moderator editing on behalf of the post author';
+      return `<span title="${escAttr(tip)}" style="text-decoration:underline dotted;text-decoration-color:rgba(255,150,80,0.5);text-underline-offset:3px;cursor:help">${esc(editor)}</span>`
+           + ` <span class="badge">on behalf of <span style="color:var(--text-mid)">${esc(author)}</span></span>`;
+    }
+    return esc(editor || author || 'unknown');
+  };
+  const eventDesc = (ev) => {
+    if (ev.kind === 'created') {
+      return `<span class="arrow-from">opened</span> <span class="arrow-to">${escAttr(ev.title || 'proposal')}</span>`;
+    }
+    if (ev.kind === 'reply') {
+      return ev.preview ? esc(ev.preview) : '<span class="arrow-from">no preview</span>';
+    }
+    if (ev.kind === 'edited') {
+      // summary already contains "X → Y" rendered by the collector
+      const s = (ev.summary || '').trim();
+      return s ? esc(s) : '<span class="arrow-from">small edits</span>';
+    }
+    return '';
+  };
+
+  // Render a single timeline row to HTML.
+  const renderEvent = (ev) => {
+    const href = `#post-${ev.post_number || 1}`;
+    const actorHtml = ev.kind === 'edited'
+      ? renderEditActor(ev)
+      : esc(ev.actor || 'unknown');
+    const sevAttr = ev.severity ? ` data-severity="${ev.severity}"` : '';
+    return `<a class="mip-tl-event" data-kind="${ev.kind}"${sevAttr} href="${href}">
+      <span class="mip-tl-icon">${eventIcon(ev)}</span>
+      <span class="mip-tl-when">${fmtAbs(ev.at)}<span class="when-rel">${fmtRel(ev.at)}</span></span>
+      <span class="mip-tl-actor">${actorHtml} ${eventBadge(ev)}</span>
+      <span class="mip-tl-desc">${eventDesc(ev)}</span>
+    </a>`;
+  };
+
+  // Walk timeline, group adjacent (edit, reply) pairs from the same author
+  // when they happen within 120s of each other — these are governance
+  // narrative pairs ("Jackson edited the OP, then posted a reply explaining").
+  const isPair = (a, b) => {
+    if (!a || !b) return false;
+    if (a.kind !== 'edited' || b.kind !== 'reply') return false;
+    const ta = new Date(a.at).getTime();
+    const tb = new Date(b.at).getTime();
+    if (isNaN(ta) || isNaN(tb)) return false;
+    if (Math.abs(tb - ta) > 120 * 1000) return false;
+    const editAuthor = a.author_username || a.actor;
+    const replyAuthor = b.actor;
+    return editAuthor && replyAuthor && editAuthor === replyAuthor;
+  };
+
+  const renderedSegments = [];
+  for (let i = 0; i < timeline.length; i++) {
+    if (i + 1 < timeline.length && isPair(timeline[i], timeline[i + 1])) {
+      renderedSegments.push(
+        `<div class="mip-tl-cluster">${renderEvent(timeline[i])}${renderEvent(timeline[i + 1])}</div>`
+      );
+      i++; // consume the second event
+    } else {
+      renderedSegments.push(renderEvent(timeline[i]));
+    }
+  }
+  const timelineRows = renderedSegments.join('');
+  html += `
+    <section class="mip-section">
+      <h2>Timeline</h2>
+      ${timelineRows
+        ? `<div class="mip-timeline">${timelineRows}</div>`
+        : `<div class="mip-timeline-empty">No tracked events yet.</div>`}
+    </section>
+  `;
+
+  content.innerHTML = html;
+}
+
+window.renderGovernanceMip = renderGovernanceMip;
+</script>
+</body>
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Governance — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Monad Improvement Proposals (MIPs) — discussion, status, and per-stakeholder impact analysis.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Governance — MonadPulse">
+<meta property="og:description" content="Monad Improvement Proposals (MIPs) — discussion, status, and per-stakeholder impact analysis.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:url" content="https://monadpulse.xyz/governance.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Governance — MonadPulse">
+<meta name="twitter:description" content="Monad Improvement Proposals (MIPs) — discussion, status, and per-stakeholder impact analysis.">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse</a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/graph.html">Graph</a>
+      <a href="/clusters.html">Clusters</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/alerts.html">Alerts</a>
+      <a href="/governance.html" class="active">Governance</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Governance</h1>
+    <p class="page-desc">Monad Improvement Proposals &middot; <span style="color:var(--text-dim);font-size:12px">click any MIP for plain-language summary &amp; per-stakeholder impact &rarr;</span></p>
+  </div>
+
+  <div class="period-selector" id="gov-status-filter" style="margin-bottom:8px;flex-wrap:wrap">
+    <button class="period-btn active" data-status="">All</button>
+    <button class="period-btn" data-status="Draft">Draft</button>
+    <button class="period-btn" data-status="Discussion">Discussion</button>
+    <button class="period-btn" data-status="Soft Consensus">Soft Consensus</button>
+    <button class="period-btn" data-status="Approved">Approved</button>
+    <button class="period-btn" data-status="Activated">Activated</button>
+  </div>
+
+  <div class="sort-selector" style="margin-bottom:16px">
+    <span style="color:var(--text-dim);font-family:var(--mono);font-size:11px;margin-right:8px">Sort by:</span>
+    <button class="sort-btn active" data-sort="updated">Last activity</button>
+    <button class="sort-btn" data-sort="mip">MIP number</button>
+    <button class="sort-btn" data-sort="created">Created</button>
+    <button class="sort-btn" data-sort="activity">Engagement</button>
+  </div>
+
+  <section class="data-section">
+    <div class="section-title">All proposals
+      <span style="color:var(--text-dim);font-weight:400;font-size:11px;margin-left:10px"
+            id="gov-meta">loading…</span>
+    </div>
+    <div class="table-legend">
+      <span class="legend-item"><span class="status-pill" data-pill="Draft">Draft</span> initial submission, no consensus yet</span>
+      <span class="legend-item"><span class="status-pill" data-pill="Discussion">Discussion</span> active community debate</span>
+      <span class="legend-item"><span class="status-pill" data-pill="Soft Consensus">Soft Consensus</span> Core Devs Call agreed in principle</span>
+      <span class="legend-item"><span class="status-pill" data-pill="Approved">Approved</span> ready for activation</span>
+      <span class="legend-item"><span class="status-pill" data-pill="Activated">Activated</span> live on chain</span>
+      <a href="https://forum.monad.xyz/c/mips/8" target="_blank" rel="noopener" class="legend-more">Original forum &rarr;</a>
+    </div>
+    <div style="overflow-x:auto">
+      <table id="governance-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Category</th>
+            <th>Author</th>
+            <th>Replies</th>
+            <th>Views</th>
+            <th>Last activity</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js"></script>
+</body>
+</html>

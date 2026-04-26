@@ -1,0 +1,10 @@
+{
+  "_comment": "Hard-fork → activated MIPs map. Source: github.com/category-labs/monad/releases (release notes contain a 'MONAD_NINE Activation' / 'MONAD_TEN Activation' section listing MIPs included in each fork). When a new fork ships, append an entry here; the governance scraper overrides forum-derived status for these MIPs to 'Activated' and exposes the activation timestamp + fork name to the frontend.",
+  "_format": "fork_name → { mips:[MIP-N strings], testnet_activation_ts: unix, mainnet_activation_ts: unix, source_url: <release_notes>}. Set testnet/mainnet ts to null if the fork hasn't yet activated on that network.",
+  "MONAD_NINE": {
+    "mips": ["MIP-3", "MIP-4", "MIP-5", "MIP-6"],
+    "testnet_activation_ts": 1773153000,
+    "mainnet_activation_ts": 1773930600,
+    "source_url": "https://github.com/category-labs/monad/releases/tag/v0.13.0"
+  }
+}

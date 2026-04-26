@@ -400,6 +400,15 @@ function renderValidatorsPage() {
 
     const anomalyIcon = hasAnomaly ? '<span class="anomaly-icon" title="' + flags.join(', ') + '">&#9888;</span> ' : '';
 
+    // Rotation badge — Foundation's stake rotation periodically pulls
+    // delegation from VDP validators so every
+    // operator gets time in the active-set. Validators flagged here are
+    // *intentionally* out — blocks_proposed will fall to 0 until they cycle
+    // back in. Not an operator-level outage.
+    const rotationBadge = v.rotation_status === 'rotating'
+      ? '<span class="rotation-badge" title="In Foundation stake rotation — temporarily out of active-set by design, not an outage">&#x1F504;</span> '
+      : '';
+
     const btVal = v.avg_block_time_ms != null ? v.avg_block_time_ms + ' ms' : '—';
     const btClass = v.avg_block_time_ms != null && (v.avg_block_time_ms > 450 || (v.avg_block_time_ms < 300 && v.avg_block_time_ms > 0)) ? ' style="color:var(--pink,#FF8EE4)"' : '';
     const blocksClass = v.blocks_proposed < 50 ? ' style="color:var(--orange,#FFAE45)"' : '';
@@ -407,16 +416,27 @@ function renderValidatorsPage() {
     // Uptime column — raw uptime_score from health_components (0-100, new
     // formula = actual vs expected blocks since first-active). Color-coded
     // so outages stand out at a glance.
+    //
+    // Rotation validators get a distinct cyan tint + "idle" tag instead of
+    // green: the score reflects their *pre-rotation* performance (which is
+    // still 100% — they were producing well before Foundation pulled stake),
+    // but they're not signing *right now*. Showing full green 100% would
+    // imply "live and healthy", which is misleading during forced idle.
     const up = v.health_components && v.health_components.uptime;
+    const rotating = v.rotation_status === 'rotating';
     const upStr = up == null ? '—' : up.toFixed(1) + '%';
     // VDP 4-week uptime target is 98% — green only when above.
     const upCol = up == null ? 'var(--text-dim)'
+      : rotating ? '#85E6FF'                          // cyan — idle by policy
       : up >= 98 ? '#4ade80' : up >= 50 ? '#FFAE45' : '#FF8EE4';
-    const upCell = `<span style="color:${upCol};font-variant-numeric:tabular-nums;font-weight:600">${upStr}</span>`;
+    const upSuffix = rotating
+      ? '<span style="color:var(--text-dim);font-size:10px;margin-left:4px;font-weight:400" title="Score reflects performance before Foundation stake rotation. Currently not signing.">idle</span>'
+      : '';
+    const upCell = `<span style="color:${upCol};font-variant-numeric:tabular-nums;font-weight:600">${upStr}</span>${upSuffix}`;
 
-    return `<tr class="fade-row${hasAnomaly ? ' anomaly-row' : ''}" style="animation-delay:${Math.min(i * 20, 300)}ms">
+    return `<tr class="fade-row${hasAnomaly ? ' anomaly-row' : ''}${v.rotation_status === 'rotating' ? ' rotating-row' : ''}" style="animation-delay:${Math.min(i * 20, 300)}ms">
       <td><span class="rank">${rank}</span></td>
-      <td>${anomalyIcon}${validatorLink(v.address)}</td>
+      <td>${anomalyIcon}${rotationBadge}${validatorLink(v.address)}</td>
       <td>${scoreBar(v.health_score)}</td>
       <td>${upCell}</td>
       <td${blocksClass}>${fmtNum(v.blocks_proposed)}</td>
@@ -464,6 +484,14 @@ async function _loadDashboard() {
     apiFetch('/upgrades/status'),
   ]);
 
+  if (!summary) {
+    // If /dashboard/summary fails on the initial load but other endpoints
+    // succeeded, the header stays as the "—" placeholder until the next
+    // 30 s poll. Retry once after 2 s so a transient hiccup doesn't leave
+    // the user staring at dashes.
+    console.warn('Dashboard summary missing; scheduling retry in 2s');
+    setTimeout(loadDashboard, 2000);
+  }
   if (summary) {
     const lb = summary.latest_block;
     const s = summary.stats_24h;
@@ -475,6 +503,17 @@ async function _loadDashboard() {
       // fall back to 24h distinct proposers if epoch data not yet recorded.
       const valCount = summary.epoch?.validator_count || s.active_validators;
       animateValue(document.getElementById('m-validators'), String(valCount));
+      // Inject epoch number into the label and tooltip so the user can
+      // distinguish "active in epoch N" from "registered in directory".
+      const epochN = summary.epoch_progress?.current_epoch;
+      const valLblEl = document.getElementById('m-validators-lbl');
+      const valCardEl = document.getElementById('m-validators-card');
+      if (valLblEl) {
+        valLblEl.textContent = epochN ? `Active validators · epoch ${epochN}` : 'Active validators';
+      }
+      if (valCardEl && epochN) {
+        valCardEl.title = `Validators currently producing blocks in epoch ${epochN}. Total registered validators (including idle / Foundation rotation) — see Validators page.`;
+      }
       animateValue(document.getElementById('m-blocks24'), fmtNum(s.block_count));
       animateValue(document.getElementById('m-tx24'), fmtNum(s.total_tx));
     }
@@ -1030,21 +1069,6 @@ async function loadValidators(period = '24h') {
   _allValidators = data;
   renderValidators(data);
 
-  if (data.length > 0) {
-    // Chart: top 15 by health score
-    const top = data.filter(v => v.health_score != null).slice(0, 15);
-    makeChart('chart-validators', 'bar', top.map(v => shortAddr(v.address)), [{
-      label: 'Health Score',
-      data: top.map(v => v.health_score),
-      backgroundColor: top.map(v => scoreColor(v.health_score) + '50'),
-      hoverBackgroundColor: top.map(v => scoreColor(v.health_score) + '90'),
-      borderColor: top.map(v => scoreColor(v.health_score)),
-      borderWidth: 1,
-      borderRadius: 6,
-      borderSkipped: false,
-    }]);
-  }
-
   // If addr param — scroll and highlight
   const params = new URLSearchParams(window.location.search);
   const addr = params.get('addr');
@@ -1154,9 +1178,40 @@ function linkifyAddresses(escapedText) {
   );
 }
 
+// Allowed tag whitelist for alert descriptions (the source is our own
+// Telegram dispatcher which formats with these tags). Anything outside
+// the whitelist gets escaped — no DOMPurify needed for a 6-tag set.
+// `<a>` keeps `href` only and only when the URL is http/https or root-relative.
+const _ALERT_ALLOWED_TAGS = new Set(['b','i','code','blockquote','br','a','strong','em']);
+
+function sanitizeAlertHtml(raw) {
+  if (!raw) return '';
+  // First fully escape, then unescape the small set of tags we trust.
+  // Per-tag regex is safer than a full HTML parser at this scope.
+  let out = esc(raw);
+  // Unescape simple paired/empty tags
+  out = out.replace(
+    /&lt;(\/?)(b|i|code|blockquote|br|strong|em)\s*\/?&gt;/gi,
+    (_m, slash, tag) => `<${slash}${tag.toLowerCase()}>`
+  );
+  // Anchors: allow href only, validate URL scheme
+  out = out.replace(
+    /&lt;a\s+href=(?:&quot;|"|&#039;|')([^"'&]+?)(?:&quot;|"|&#039;|')\s*&gt;/gi,
+    (_m, href) => {
+      if (!/^(https?:\/\/|\/)/i.test(href)) return '';
+      return `<a href="${href}" target="_blank" rel="noopener">`;
+    }
+  );
+  out = out.replace(/&lt;\/a&gt;/gi, '</a>');
+  return out;
+}
+
 function renderAlertItem(a) {
   const title = linkifyAddresses(esc(a.title));
-  const desc = a.description ? linkifyAddresses(esc(a.description)) : '';
+  // Description may contain HTML formatting (blockquote/b/a) from the Telegram
+  // dispatcher — sanitize+whitelist instead of plain-escape so the formatting
+  // renders. linkifyAddresses runs after to wrap raw 0x addresses too.
+  const desc = a.description ? linkifyAddresses(sanitizeAlertHtml(a.description)) : '';
   return `<div class="alert-item type-${a.type}" data-id="${a.id}">
     <div class="alert-sev ${a.severity}"></div>
     <div class="alert-content">
@@ -1285,19 +1340,29 @@ async function reloadPage() {
   _nameMap = {};
   await loadNames();
 
-  const path = window.location.pathname;
-  if (path === '/' || path === '/index.html') loadDashboard();
-  else if (path === '/blocks.html') loadBlocks();
-  else if (path === '/validators.html') loadValidators();
-  else if (path === '/map.html') { if (typeof buildMap === 'function') buildMap(); }
-  else if (path === '/gas.html') loadGas();
-  else if (path === '/alerts.html') { _alertsAll = []; loadAlerts(); }
-  else if (path === '/stake.html') { if (typeof loadStake === 'function') loadStake(); }
-  else if (path === '/validator.html') { if (typeof loadValidator === 'function') loadValidator(); }
+  const path = _normalizePath(window.location.pathname);
+  if (path === '/' || path === '/index') loadDashboard();
+  else if (path === '/blocks') loadBlocks();
+  else if (path === '/validators') loadValidators();
+  else if (path === '/map') { if (typeof buildMap === 'function') buildMap(); }
+  else if (path === '/gas') loadGas();
+  else if (path === '/alerts') { _alertsAll = []; loadAlerts(); }
+  else if (path === '/stake') { if (typeof loadStake === 'function') loadStake(); }
+  else if (path === '/validator') { if (typeof loadValidator === 'function') loadValidator(); }
+  else if (path === '/governance') loadGovernance();
+  else if (path === '/governance-mip') loadGovernanceMip();
   // Pages whose loader is declared inline in the HTML — expose via window.*
   // so reloadPage can reach them from app.js scope reliably.
-  else if (path === '/graph.html') { if (typeof window.renderGraph === 'function') window.renderGraph(); }
-  else if (path === '/clusters.html') { if (typeof window.loadClusters === 'function') window.loadClusters(); }
+  else if (path === '/graph') { if (typeof window.renderGraph === 'function') window.renderGraph(); }
+  else if (path === '/clusters') { if (typeof window.loadClusters === 'function') window.loadClusters(); }
+}
+
+// Normalize pathname for the page dispatcher. Both /blocks and /blocks.html
+// resolve to '/blocks' so clean URLs (served by the nginx try_files chain)
+// fire the same loader as the .html form. Without this, /blocks rendered
+// the dashboard's empty state because no branch matched.
+function _normalizePath(p) {
+  return (p || '/').replace(/\.html$/i, '');
 }
 
 function initNetSwitch() {
@@ -1340,17 +1405,18 @@ async function init() {
   }
 
   await loadNames();
-  const path = window.location.pathname;
+  // Normalize so /blocks and /blocks.html both dispatch to loadBlocks().
+  const path = _normalizePath(window.location.pathname);
 
   initNetSwitch();
 
-  if (path === '/' || path === '/index.html') {
+  if (path === '/' || path === '/index') {
     loadDashboard();
     setInterval(loadDashboard, 30000);
-  } else if (path === '/blocks.html') {
+  } else if (path === '/blocks') {
     loadBlocks();
     initBlocksControls();
-  } else if (path === '/validators.html') {
+  } else if (path === '/validators') {
     loadValidators();
     initSearch();
     document.querySelectorAll('.period-btn').forEach(btn => {
@@ -1377,18 +1443,138 @@ async function init() {
         renderValidators(sorted);
       });
     });
-  } else if (path === '/gas.html') {
+  } else if (path === '/gas') {
     loadGas();
-  } else if (path === '/alerts.html') {
+  } else if (path === '/alerts') {
     loadAlerts();
     initAlertsControls();
     setInterval(loadAlerts, 15000);
+  } else if (path === '/governance') {
+    initGovernanceControls();
+    loadGovernance();
+    // Refresh listing every 60s — captures new MIPs/edits between scraper runs.
+    setInterval(loadGovernance, 60000);
+  } else if (path === '/governance-mip') {
+    if (typeof window.renderGovernanceMip === 'function') window.renderGovernanceMip();
+    // Refresh detail every 60s — picks up new replies + edits + summary updates.
+    setInterval(() => {
+      if (typeof window.renderGovernanceMip === 'function') window.renderGovernanceMip();
+    }, 60000);
   }
 
-  // Nav highlight
+  // Nav highlight — match by normalized path so clean URLs highlight too.
   document.querySelectorAll('nav a').forEach(a => {
-    a.classList.toggle('active', a.getAttribute('href') === path || (path === '/' && a.getAttribute('href') === '/'));
+    const href = _normalizePath(a.getAttribute('href') || '');
+    a.classList.toggle('active', href === path || (path === '/' && href === '/'));
   });
+}
+
+/* ═══ Governance ═══════════════════════════════════════════════════ */
+// Governance is global (forum.monad.xyz is one source for both networks),
+// so we don't pass network=... — the governance API is network-agnostic.
+
+let _govStatusFilter = '';
+let _govSort = 'updated';
+let _govAll = [];
+
+async function _govFetch(path) {
+  try {
+    const r = await fetch(API + path);
+    if (!r.ok) throw new Error(r.status);
+    return await r.json();
+  } catch (e) {
+    console.error('Governance fetch error:', path, e);
+    return null;
+  }
+}
+
+function initGovernanceControls() {
+  document.querySelectorAll('#gov-status-filter .period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('#gov-status-filter .period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _govStatusFilter = btn.dataset.status || '';
+      renderGovernance();
+    });
+  });
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _govSort = btn.dataset.sort || 'updated';
+      loadGovernance();
+    });
+  });
+}
+
+function _statusPill(s) {
+  return `<span class="status-pill" data-pill="${esc(s)}">${esc(s)}</span>`;
+}
+
+function _activationBadge(ai) {
+  if (!ai || !ai.fork) return '';
+  // Prefer mainnet activation date for the user-facing label; fall back to
+  // testnet if mainnet hasn't fired yet (forks usually ship to testnet first).
+  const ts = ai.mainnet_activation_ts || ai.testnet_activation_ts;
+  if (!ts) {
+    return `<span class="status-pill" data-pill="Activated" style="margin-left:6px">${esc(ai.fork)}</span>`;
+  }
+  const d = new Date(ts * 1000);
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const label = `${esc(ai.fork)} · ${d.getUTCDate()} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+  const tip = `Activated in ${ai.fork} on ${ai.mainnet_activation_ts ? 'mainnet' : 'testnet'} (${d.toISOString().slice(0,10)})`
+            + (ai.source_url ? ` — see ${ai.source_url}` : '');
+  return `<span class="status-pill activation-badge" data-pill="Activated" title="${esc(tip)}" style="margin-left:6px;background:rgba(120,200,255,0.12);color:var(--cyan,#78c8ff);border-color:rgba(120,200,255,0.4)">${label}</span>`;
+}
+window._activationBadge = _activationBadge;
+
+function _govMipLink(m, label) {
+  const href = `/governance-mip.html?id=${m.topic_id}`;
+  return `<a href="${href}" class="addr">${label}</a>`;
+}
+
+async function loadGovernance() {
+  const data = await _govFetch(`/governance/list?sort=${encodeURIComponent(_govSort)}`);
+  if (!data) return;
+  _govAll = data;
+  renderGovernance();
+}
+
+function renderGovernance() {
+  const tbody = document.querySelector('#governance-table tbody');
+  const meta = document.getElementById('gov-meta');
+  if (!tbody) return;
+  const data = _govStatusFilter
+    ? _govAll.filter(m => m.status === _govStatusFilter)
+    : _govAll;
+  if (meta) {
+    meta.textContent = `${data.length} of ${_govAll.length} proposal${_govAll.length === 1 ? '' : 's'}`;
+  }
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:32px">No proposals match this filter</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((m, i) => {
+    const num = m.mip_number != null
+      ? `<span style="color:var(--purple-light);font-weight:600">MIP-${m.mip_number}</span>`
+      : '<span style="color:var(--text-dim);font-style:italic">draft</span>';
+    const lastEdited = m.forum_updated_at ? timeAgo(m.forum_updated_at) : '—';
+    return `<tr class="fade-row" style="animation-delay:${Math.min(i * 30, 400)}ms">
+      <td>${num}</td>
+      <td>${_govMipLink(m, esc(m.title))}</td>
+      <td>${_statusPill(m.status)}${_activationBadge(m.activation_info)}</td>
+      <td style="color:var(--text-mid);font-family:var(--mono);font-size:11px">${esc(m.category || '—')}</td>
+      <td style="color:var(--text-mid);font-family:var(--mono);font-size:11px">${esc(m.author_username || '—')}</td>
+      <td style="font-variant-numeric:tabular-nums">${fmtNum(m.reply_count)}</td>
+      <td style="font-variant-numeric:tabular-nums">${fmtNum(m.views)}</td>
+      <td style="color:var(--text-dim);font-family:var(--mono);font-size:11px">${lastEdited}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadGovernanceMip() {
+  // Implemented in Step 4 — placeholder so router doesn't error
+  if (typeof window.renderGovernanceMip === 'function') window.renderGovernanceMip();
 }
 
 document.addEventListener('DOMContentLoaded', init);
