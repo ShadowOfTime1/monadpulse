@@ -161,6 +161,31 @@ function animateValue(el, target, duration = 800) {
 const _tickerQueue = [];
 let _tickerBusy = false;
 
+// Independent fast-poll just for the dashboard's live ticker + Latest Block
+// metric. The full loadDashboard runs every 30 s for charts/tables/metrics
+// (those don't change visibly faster), but at ~400 ms per block that 30 s
+// gap means ~70 blocks scroll by between dashboard ticks — users staring
+// at the page perceive that as "blocks lost". This refreshes the ticker
+// every 2 s, reuses queueTickerBlock so dedup vs _lastBlockNum keeps
+// behaviour identical, and only updates two DOM nodes.
+async function refreshLiveTicker() {
+  if (document.hidden) return;
+  try {
+    const recent = await apiFetch('/blocks/recent?limit=10');
+    if (!recent || !recent.length) return;
+    if (_lastBlockNum > 0) {
+      recent.filter(b => b.number > _lastBlockNum)
+            .sort((a, b) => a.number - b.number)
+            .forEach(b => queueTickerBlock(b));
+    }
+    if (recent[0].number > _lastBlockNum) _lastBlockNum = recent[0].number;
+    const blockEl = document.getElementById('m-block');
+    if (blockEl && blockEl.textContent !== fmtNum(recent[0].number)) {
+      animateValue(blockEl, fmtNum(recent[0].number));
+    }
+  } catch (_) { /* transient API hiccup — next tick retries */ }
+}
+
 function queueTickerBlock(block) {
   if (_tickerQueue.length > 20) _tickerQueue.splice(0, _tickerQueue.length - 10);
   _tickerQueue.push(block);
@@ -1413,6 +1438,9 @@ async function init() {
   if (path === '/' || path === '/index') {
     loadDashboard();
     setInterval(loadDashboard, 30000);
+    // Live ticker / Latest Block refresh — far more frequent than full
+    // dashboard so users don't see ~70 blocks "skip" between 30 s ticks.
+    setInterval(refreshLiveTicker, 2000);
   } else if (path === '/blocks') {
     loadBlocks();
     initBlocksControls();
