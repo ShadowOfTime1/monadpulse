@@ -215,6 +215,21 @@ def _hash_text(s: str | None) -> str:
     return hashlib.sha256((s or "").encode("utf-8")).hexdigest()
 
 
+def _resolve_status(tags: list[str], op_markdown: str, mip_num: int | None) -> str:
+    """Source of truth for a topic's status — applies the hard-fork
+    activation override on top of forum-derived detection.
+
+    Must be the only entry-point for status computation across the scraper:
+    using bare `_detect_status()` in one place and `_resolve_status()` in
+    another causes the change-detector to flip-flop between Draft and
+    Activated every scrape and spam Telegram (was the bug behind the
+    Activated→Draft alert loop reported 2026-04-26)."""
+    s = _detect_status(tags, op_markdown)
+    if _activation_for_mip(mip_num) is not None:
+        return "Activated"
+    return s
+
+
 def _is_mip_topic(t: dict) -> bool:
     """Filter out the pinned 'About the MIPs category' meta-topic."""
     title = (t.get("title") or "").strip()
@@ -236,14 +251,9 @@ async def _upsert_topic(conn, topic: dict, op_markdown: str) -> tuple[bool, str 
     Tags are stored as a real text[] column in PG.
     """
     tags = _normalize_tags(topic.get("tags"))
-    status = _detect_status(tags, op_markdown)
     mip_num = _parse_mip_number(topic.get("title", ""))
+    status = _resolve_status(tags, op_markdown, mip_num)
     category = _classify_category(tags, topic.get("title", ""))
-    # Hard-fork override: if this MIP shipped in a known fork, force
-    # status to 'Activated' regardless of forum tag — the forum's
-    # status field rarely catches up after activation.
-    if _activation_for_mip(mip_num) is not None:
-        status = "Activated"
     poster = (topic.get("posters") or [{}])
     # 'posters' lists user IDs; first entry with description containing "Original Poster" is the author.
     # The full topic JSON gives us details_created_by; we use that when present.
@@ -594,9 +604,11 @@ async def scrape_mip_topic(pool, topic_id: int) -> tuple[bool, int]:
                 )
                 changes += 1
             else:
-                # status change?
+                # status change? Use _resolve_status (with fork override),
+                # not bare _detect_status — see helper docstring.
                 tags = _normalize_tags(data.get("tags"))
-                new_status = _detect_status(tags, op_markdown)
+                mip_num = _parse_mip_number(data.get("title", ""))
+                new_status = _resolve_status(tags, op_markdown, mip_num)
                 if old_status and old_status != new_status:
                     await _record_change(
                         conn, topic_id, "status_changed",
