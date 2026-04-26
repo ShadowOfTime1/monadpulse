@@ -57,6 +57,15 @@ http {
 	# Virtual Host Configs
 	##
 
+		##
+	# Shared in-nginx cache for /api/ — provides request coalescing.
+	# 10k concurrent users hitting the same endpoint collapse to 1 backend
+	# call (proxy_cache_lock=on), the rest wait for the response and read
+	# from the in-memory cache. keys_zone in shmem so multiple worker
+	# processes share state.
+	##
+	proxy_cache_path /var/cache/nginx/api levels=1:2 keys_zone=api_cache:32m max_size=512m inactive=10m use_temp_path=off;
+
 	include /etc/nginx/conf.d/*.conf;
 	include /etc/nginx/sites-enabled/*;
 }
