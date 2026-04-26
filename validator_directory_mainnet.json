@@ -1210,5 +1210,11 @@
     "name": "LuckyResearch Labs",
     "auth": "0x86b3f3ce60728c9bbf54faae20078e7e52f69a35",
     "secp": "02fbe48c47b1406b7dcf624bb801154bb63124170f042596bddf943a5fa900f37c"
+  },
+  {
+    "val_id": 219,
+    "name": "Category Labs - 1",
+    "auth": "0xfebe258aa7b623249d817511f0035ed12849a2e1",
+    "secp": "0278dd0a19a77114085741fbc878ed7dd16955da3beab52087d702bc084fd91a82"
   }
 ]

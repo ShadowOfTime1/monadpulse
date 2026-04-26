@@ -25,6 +25,11 @@ TYPE_EMOJI = {
     "missed_blocks": "\U0001f6a8",   # 🚨
     "new_version": "\U0001f4e6",     # 📦
     "large_delegation": "\U0001f40b", # 🐋
+    # governance — extended for MIP tracking
+    "governance_new":      "\U0001f4dc",  # 📜
+    "governance_status":   "\U0001f504",  # 🔄
+    "governance_edited":   "\u270f\ufe0f",# ✏
+    "governance_reply":    "\U0001f4ac",  # 💬
 }
 
 NET_EMOJI = {
@@ -43,15 +48,23 @@ async def send_alert(alert_type: str, severity: str, title: str, description: st
     net_label = network.upper()
 
     emoji = TYPE_EMOJI.get(alert_type, SEVERITY_EMOJI.get(severity, "\u2139\ufe0f"))
-    sev_tag = f"#{severity}" if severity else ""
-    type_tag = f"#{alert_type}" if alert_type else ""
-    net_tag = f"#{network}"
+    # Hashtags: keep only the most useful ones (network + alert_type).
+    # Severity #info is noise (it's always info for most alerts) — show the
+    # severity tag only when it conveys new information (warning / critical).
+    tags = [f"#{network}", f"#{alert_type}"]
+    if severity and severity not in ("info",):
+        tags.append(f"#{severity}")
+    tags_line = " ".join(tags)
 
     text = f"{emoji} {net_emoji} <b>[{net_label}]</b> {title}"
     if description:
         text += f"\n{description}"
-    text += f"\n\n{net_tag} {sev_tag} {type_tag}"
-    text += f"\n<a href=\"https://monadpulse.xyz/alerts.html\">View on MonadPulse</a>"
+    text += f"\n\n{tags_line}"
+    # Generic footer link: only add if description didn't already include one
+    # (commission_change / others now include a validator-specific link in the
+    # description, so the generic alerts-page link below would be redundant).
+    if not description or "monadpulse.xyz" not in (description or ""):
+        text += f"\n<a href=\"https://monadpulse.xyz/alerts.html\">View on MonadPulse</a>"
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:

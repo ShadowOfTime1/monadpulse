@@ -88,19 +88,28 @@ async def process_batch(rpc: MonadRPC, pool, start: int, end: int) -> int:
 
             # Anomaly detection: slow block (>5s only, save to DB; Telegram only for >10s)
             if block["block_time_ms"] and block["block_time_ms"] > 5000:
-                alert_title = f"Slow block #{block['block_number']}: {block['block_time_ms']}ms"
-                alert_desc = f"Proposer: {block['proposer_address']} [{NETWORK}]"
+                bn = block["block_number"]
+                dt_ms = block["block_time_ms"]
+                alert_title = f"Slow block #{bn}: {dt_ms}ms"
+                alert_desc_db = f"Proposer: {block['proposer_address']} [{NETWORK}]"
                 await insert_alert(
                     conn,
                     alert_type="slow_block",
                     severity="warning",
                     title=alert_title,
-                    description=alert_desc,
-                    data_json={"block_number": block["block_number"], "block_time_ms": block["block_time_ms"]},
+                    description=alert_desc_db,
+                    data_json={"block_number": bn, "block_time_ms": dt_ms},
                     network=NETWORK,
                 )
-                if block["block_time_ms"] > 10000:
-                    await tg_send("slow_block", "warning", alert_title, alert_desc)
+                if dt_ms > 10000:
+                    net_qs = f"&network={NETWORK}" if NETWORK != "testnet" else ""
+                    proposer = block['proposer_address']
+                    tg_desc = (
+                        f"<blockquote>block <b>#{bn}</b>\n"
+                        f"took <b>{dt_ms:,} ms</b>  (target 400)</blockquote>\n"
+                        f'proposer <a href="https://monadpulse.xyz/validator.html?addr={proposer}{net_qs}"><code>{proposer[:10]}…</code></a>'
+                    )
+                    await tg_send("slow_block", "warning", "Slow block", tg_desc)
 
     return len(blocks)
 
@@ -181,7 +190,7 @@ async def track_epoch(rpc: MonadRPC, pool):
             dur_m = rem // 60
             tps = txs_n / duration_s if duration_s > 0 else 0
             digest_title = f"Epoch {epoch_num - 1} summary"
-            digest_desc = (
+            digest_desc_db = (
                 f"⏱ {dur_h}h {dur_m}m · {blocks_n:,} blocks · avg {avg_bt}ms\n"
                 f"💳 {txs_n:,} transactions · {tps:.0f} TPS\n"
                 f"👥 {val_count} unique proposers · {null_n:,} null blocks ({null_pct:.1f}%)\n"
@@ -189,7 +198,7 @@ async def track_epoch(rpc: MonadRPC, pool):
             )
             await insert_alert(
                 conn, alert_type="epoch_summary", severity="info",
-                title=digest_title, description=digest_desc,
+                title=digest_title, description=digest_desc_db,
                 data_json={
                     "prev_epoch": epoch_num - 1, "blocks": blocks_n, "txs": txs_n,
                     "avg_block_time_ms": avg_bt, "validators": val_count,
@@ -198,18 +207,30 @@ async def track_epoch(rpc: MonadRPC, pool):
                 },
                 network=NETWORK,
             )
-            await tg_send("epoch_summary", "info", digest_title, digest_desc)
+            tg_epoch_desc = (
+                f"<blockquote><b>Epoch {epoch_num - 1}</b>  ·  {dur_h}h {dur_m}m\n"
+                f"<b>{blocks_n:,}</b> blocks  ·  avg <b>{avg_bt} ms</b>\n"
+                f"<b>{txs_n:,}</b> txs  ·  <b>{tps:.0f} TPS</b>\n"
+                f"<b>{val_count}</b> unique proposers  ·  {null_pct:.1f}% null\n"
+                f"base fee ~<b>{base_fee_gwei} gwei</b></blockquote>"
+            )
+            await tg_send("epoch_summary", "info", "Epoch summary", tg_epoch_desc)
 
         # Short "epoch changed" ping (keeps existing behavior)
         alert_title = f"New epoch {epoch_num} started at block {boundary}"
-        alert_desc = f"Active validators: {val_count}"
+        alert_desc_db = f"Active validators: {val_count}"
         await insert_alert(
             conn, alert_type="new_epoch", severity="info",
-            title=alert_title, description=alert_desc,
+            title=alert_title, description=alert_desc_db,
             data_json={"epoch": epoch_num, "boundary_block": boundary, "validator_count": val_count},
             network=NETWORK,
         )
-        await tg_send("new_epoch", "info", alert_title, alert_desc)
+        tg_new_epoch_desc = (
+            f"<blockquote><b>Epoch {epoch_num}</b>  started\n"
+            f"at block <b>#{boundary:,}</b>\n"
+            f"active validators: <b>{val_count}</b></blockquote>"
+        )
+        await tg_send("new_epoch", "info", "New epoch", tg_new_epoch_desc)
 
         # Detect newly-registered validators between previous and current epoch
         await detect_new_validators(rpc, pool, epoch_num)
@@ -257,16 +278,49 @@ async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
 
     new_ids = current - _SEEN_VAL_IDS
     _SEEN_VAL_IDS = current
-    for vid in sorted(new_ids):
-        title = f"New validator #{vid} registered"
-        desc = f"Joined at epoch {epoch_num}. Active validators now: {len(current)}."
-        async with pool.acquire() as conn:
+    if not new_ids:
+        return
+
+    # Keep per-validator rows in DB (UI shows each as separate event) but
+    # collapse the Telegram blast into a single message — during VDP batches
+    # Foundation activates several validators at once and previously this
+    # emitted 4–10 identical messages in ~1 second.
+    sorted_ids = sorted(new_ids)
+    async with pool.acquire() as conn:
+        for vid in sorted_ids:
+            title = f"Validator #{vid} joined active set"
+            desc = f"Entered at epoch {epoch_num}. Active set size now: {len(current)}."
             await insert_alert(
                 conn, alert_type="new_validator", severity="info",
                 title=title, description=desc,
                 data_json={"validator_id": vid, "epoch": epoch_num}, network=NETWORK,
             )
-        await tg_send("new_validator", "info", title, desc)
+
+    net_qs_nv = f"&network={NETWORK}" if NETWORK != "testnet" else ""
+    def _vref(vid: int) -> str:
+        nm = _lookup_val_name(vid)
+        label = nm if nm else f"Validator {vid}"
+        return f'<a href="https://monadpulse.xyz/validator.html?id={vid}{net_qs_nv}">{label}</a>'
+
+    if len(sorted_ids) == 1:
+        vid = sorted_ids[0]
+        tg_title = "Validator joined active set"
+        tg_desc = (
+            f"<blockquote>{_vref(vid)}\n"
+            f"entered at epoch <b>{epoch_num}</b>\n"
+            f"active set size now: <b>{len(current)}</b></blockquote>"
+        )
+    else:
+        tg_title = f"{len(sorted_ids)} validators joined active set"
+        shown = sorted_ids[:12]
+        lines = "\n".join(f"• {_vref(v)}" for v in shown)
+        if len(sorted_ids) > len(shown):
+            lines += f"\n<i>… and {len(sorted_ids) - len(shown)} more</i>"
+        tg_desc = (
+            f"<blockquote>epoch <b>{epoch_num}</b>  ·  active set now <b>{len(current)}</b></blockquote>\n"
+            + lines
+        )
+    await tg_send("new_validator", "info", tg_title, tg_desc)
 
 
 # ─── Upgrade score (local node only; others use a neutral placeholder) ──
@@ -553,6 +607,31 @@ async def compute_health_scores(pool, rpc=None):
         if not validators or not net_row or not net_row["total"]:
             return
 
+        # Detect validators currently in Foundation's stake-rotation (confirmed
+        # by Jackson 2026-04-23: a script rotates VDP delegation across all
+        # delegated validators until the active-set is expanded via MIP9).
+        # Criterion: Foundation (0xf235ab9b...) undelegated ≥1.9M from this
+        # val_id in the last 48h. These validators are forced out of active-set
+        # by policy — they physically can't propose blocks. We must not apply
+        # the recency penalty to their uptime score, otherwise our dashboard
+        # would penalise every VDP-enrolled validator during their "out" phase
+        # of the rotation cycle.
+        rotation_rows = await conn.fetch("""
+            SELECT DISTINCT validator_id
+            FROM stake_events
+            WHERE network = $1
+              AND delegator ILIKE '0xf235ab9b%'
+              AND event_type = 'undelegate'
+              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND timestamp > NOW() - INTERVAL '48 hours'
+        """, NETWORK)
+        rotation_vids: set[int] = set()
+        for r in rotation_rows:
+            try:
+                rotation_vids.add(int(r["validator_id"]))
+            except (TypeError, ValueError):
+                pass
+
         # Cluster proposers into validators by name (auth + all miner rotations).
         # Each cluster aggregates blocks, earliest first_seen, averaged block time.
         # Unnamed proposers (no match in names_map) form singleton clusters —
@@ -597,6 +676,28 @@ async def compute_health_scores(pool, rpc=None):
             pass
 
         _load_first_active_cache()
+
+        # Fallback addr→val_id: directory misses validators whose
+        # validator-info PR is pending (e.g. shadowoftime val 267 while the
+        # upstream PR is unmerged). Recover their val_id from the earliest
+        # self-delegate in stake_events (delegator != Foundation at
+        # addValidator time is always the operator themselves).
+        missing_addrs = [(c["validator_id"] or "").lower() for c in clusters.values()
+                         if (c["validator_id"] or "").lower() not in addr_to_vid]
+        if missing_addrs:
+            fb_rows = await conn.fetch("""
+                SELECT DISTINCT ON (delegator)
+                    delegator AS auth, validator_id::int AS vid
+                FROM stake_events
+                WHERE network = $1
+                  AND event_type = 'delegate'
+                  AND delegator NOT ILIKE '0xf235ab9b%'
+                  AND lower(delegator) = ANY($2::text[])
+                ORDER BY delegator, block_number ASC
+            """, NETWORK, missing_addrs)
+            for r in fb_rows:
+                addr_to_vid.setdefault(r["auth"].lower(), int(r["vid"]))
+
         for c in clusters.values():
             vid = addr_to_vid.get((c["validator_id"] or "").lower())
             c["val_id"] = vid
@@ -659,6 +760,33 @@ async def compute_health_scores(pool, rpc=None):
                 uptime_pct = 0.0
             else:
                 uptime_pct = min(100.0, c["total_blocks"] / expected * 100.0)
+
+            # Recency penalty: 7-day window smooths over recent outages. A
+            # validator that stopped signing 6 hours ago but was active before
+            # would still read ~100% (6h/168h = 3.5%). Worse: if stake was
+            # also reduced (e.g. Foundation rebalance), the lower `expected`
+            # offsets the missed blocks and uptime stays capped at 100%.
+            #
+            # Fix: if time since last block is many times the expected
+            # inter-block gap, linearly scale uptime toward 0. Kicks in at
+            # ~10× expected gap (obvious outage) and bottoms out at ~60×.
+            #
+            # Exception: validators currently in Foundation's rotation script
+            # (confirmed 2026-04-23 by Jackson) are forced out of active-set
+            # by design. Applying recency penalty to them would mislabel a
+            # deliberate policy action as operator-level outage.
+            in_rotation = c.get("val_id") in rotation_vids
+            last_seen = c.get("last_seen")
+            if last_seen and expected > 0 and not in_rotation:
+                last_seen_aware = last_seen if last_seen.tzinfo else last_seen.replace(tzinfo=timezone.utc)
+                minutes_silent = (now_ts - last_seen_aware).total_seconds() / 60.0
+                rate_per_sec = expected_rate_for(c["validator_id"])
+                if rate_per_sec > 0:
+                    expected_gap_min = 1.0 / rate_per_sec / 60.0
+                    silence_ratio = minutes_silent / expected_gap_min
+                    if silence_ratio > 10:
+                        recency_factor = max(0.0, 1.0 - (silence_ratio - 10) / 50.0)
+                        uptime_pct = min(uptime_pct, 100.0 * recency_factor)
 
             # Block time quality: closer to 400ms is better (20%)
             avg_bt = (c["weighted_bt_sum"] / c["total_blocks"]) if c["total_blocks"] else 400.0
@@ -843,6 +971,31 @@ async def _current_val_stake(rpc: MonadRPC, val_id: int) -> int | None:
         return None
 
 
+async def _get_val_commission_at_block(rpc: MonadRPC, val_id: int, block_num: int) -> int | None:
+    """Read execution_commission (wei-scale, 1e18 = 100%) at a specific block.
+    Used to recover the OLD commission when our DB doesn't have the prior
+    commission_changed event (stake-events backfill cutoff). Requires node
+    with historical state available at that block — Monad full nodes keep
+    this since they replay everything from a forkpoint."""
+    if rpc is None or block_num < 0:
+        return None
+    try:
+        calldata = "0x" + GET_VALIDATOR_SELECTOR + int(val_id).to_bytes(32, "big").hex()
+        result = await rpc._call("eth_call", [
+            {"to": PRECOMPILE, "data": calldata},
+            hex(block_num),
+        ])
+        if not result or len(result) < 130:
+            return None
+        # Layout: [0]auth(32) [1]flags(32) [2]exec_stake(32) [3]rewards_per_token(32)
+        #         [4]execution_commission(32) ...
+        # execution_commission is at offset 4*32 = 128 bytes
+        commission_hex = result[2 + 128 * 2: 2 + 160 * 2]
+        return int(commission_hex, 16)
+    except Exception:
+        return None
+
+
 def _lookup_val_name(val_id: int) -> str | None:
     """Look up a human-readable validator name from validator_directory file."""
     try:
@@ -868,14 +1021,63 @@ async def _maybe_alert_stake_event(conn, ev: dict, rpc: MonadRPC | None = None) 
 
     if et == "commission_changed":
         new_pct = amount / (10 ** 16)
-        title = f"Validator #{ev['validator_id']} commission → {new_pct:.2f}%"
+        vid = int(ev["validator_id"])
+        name = _lookup_val_name(vid)
+        who = name if name else f"Validator {vid}"
+        # Find the PREVIOUS commission for this validator. Two-step lookup:
+        #   1. DB: most recent commission_changed event before this one —
+        #      fast, no RPC, works when we've indexed the full history.
+        #   2. RPC fallback: read validator's state at block_number - 1 from
+        #      the staking precompile — needed on mainnet where our stake-
+        #      events backfill cutoff may predate the validator's own
+        #      creation (e.g. VALIDEXIS set commission before we started
+        #      indexing mainnet).
+        # If both miss → treat as initial (validator was created with this
+        # commission baked in at addValidator, no prior state to compare).
+        old_wei = None
+        prev_row = await conn.fetchrow("""
+            SELECT amount FROM stake_events
+            WHERE network = $1 AND validator_id = $2 AND event_type = 'commission_changed'
+              AND block_number < $3
+            ORDER BY block_number DESC
+            LIMIT 1
+        """, NETWORK, str(vid), ev["block_number"])
+        if prev_row:
+            old_wei = int(prev_row["amount"])
+        elif rpc is not None:
+            try:
+                old_wei = await _get_val_commission_at_block(rpc, vid, int(ev["block_number"]) - 1)
+            except Exception:
+                old_wei = None
+
+        if old_wei is not None:
+            old_pct = old_wei / (10 ** 16)
+            change_line = f"commission <b>{old_pct:.2f}%</b> → <b>{new_pct:.2f}%</b>"
+            db_change = f"{old_pct:.2f}% → {new_pct:.2f}%"
+        else:
+            change_line = f"commission set to <b>{new_pct:.2f}%</b>  <i>(initial)</i>"
+            db_change = f"initial → {new_pct:.2f}%"
+
+        net_qs = f"&network={NETWORK}" if NETWORK != "testnet" else ""
+        val_url = f"https://monadpulse.xyz/validator.html?id={vid}{net_qs}"
+        title = "Commission change"
+        desc = (
+            f"<blockquote><b>{who}</b>\n"
+            f"{change_line}</blockquote>\n"
+            f'<a href="{val_url}">Open on MonadPulse</a>'
+        )
+        # DB record keeps a descriptive title for alerts.html feed
+        db_title = f"{who} commission {db_change}"
         await insert_alert(
             conn, alert_type="commission_change", severity="info",
-            title=title, description=None,
-            data_json={"validator_id": ev["validator_id"], "new_rate_wei": amount},
+            title=db_title, description=desc,
+            data_json={
+                "validator_id": vid, "new_rate_wei": amount, "new_pct": new_pct,
+                "old_pct": (old_wei / (10 ** 16)) if old_wei is not None else None,
+            },
             network=NETWORK,
         )
-        await tg_send("commission_change", "info", title)
+        await tg_send("commission_change", "info", title, desc)
         return
 
     if et not in ("delegate", "undelegate"):
@@ -902,34 +1104,47 @@ async def _maybe_alert_stake_event(conn, ev: dict, rpc: MonadRPC | None = None) 
         return  # routine rebalance, skip
 
     # Build alert
-    name = _lookup_val_name(val_id) or f"#{val_id}"
+    resolved_name = _lookup_val_name(val_id)
+    # One visible label per validator — name if we have it, "Validator N"
+    # otherwise. Never show "#N (id N)" — it's the same number twice.
+    val_label = resolved_name if resolved_name else f"Validator {val_id}"
     severity = "critical" if drops_below_active else "info"
-    if drops_below_active:
-        emoji = "🚨 Validator exit risk"
-    elif et == "delegate":
-        emoji = "🐋 Large delegation"
+    if et == "delegate":
+        emoji = "🐋"
+        action = "Large delegation"
     else:
-        emoji = "🦈 Large undelegation"
+        emoji = "🦈"
+        action = "Large undelegation"
+    if drops_below_active:
+        emoji = "🚨"
+        action = "Validator exit risk"
 
-    title = f"{emoji}: {amount_mon:,.0f} MON ({pct:.0f}% of stake)"
-    desc_lines = [
-        f"Validator: {name} (id {val_id})",
-        f"Delegator: {ev['delegator']}",
+    net_qs = f"&network={NETWORK}" if NETWORK != "testnet" else ""
+    val_url = f"https://monadpulse.xyz/validator.html?id={val_id}{net_qs}"
+
+    title = f"{action}"
+    sign = "+" if et == "delegate" else "−"
+    quote_lines = [
+        f"<b>{val_label}</b>",
+        f"{sign}<b>{amount_mon:,.0f} MON</b>  ·  {pct:.0f}% of stake",
     ]
     if stake_mon is not None:
         post_mon = stake_mon + (amount_mon if et == "delegate" else -amount_mon)
-        desc_lines.append(f"Stake: {stake_mon:,.0f} → {post_mon:,.0f} MON")
+        quote_lines.append(f"stake {stake_mon:,.0f} → {post_mon:,.0f} MON")
+    desc_parts = [f"<blockquote>" + "\n".join(quote_lines) + "</blockquote>"]
     if drops_below_active:
-        desc_lines.append(
-            f"⚠ Falls below ACTIVE_VALIDATOR_STAKE ({ACTIVE_VALIDATOR_STAKE // 10**18:,} MON) "
-            "— validator will exit active set next epoch."
+        desc_parts.append(
+            f"⚠ <b>Falls below {ACTIVE_VALIDATOR_STAKE // 10**18:,} MON active threshold</b> — "
+            "validator exits active set next epoch."
         )
-    desc_lines.append(f"block {ev['block_number']}")
-    desc = "\n".join(desc_lines)
+    desc_parts.append(f'<a href="{val_url}">Open on MonadPulse</a>')
+    desc = "\n".join(desc_parts)
+    # For DB (shown on /alerts.html feed)
+    db_title = f"{emoji} {action}: {sign}{amount_mon:,.0f} MON ({pct:.0f}% stake) · {val_label}"
 
     await insert_alert(
         conn, alert_type="whale_stake", severity=severity,
-        title=title, description=desc,
+        title=db_title, description=desc,
         data_json={
             "event_type": et, "validator_id": val_id,
             "delegator": ev["delegator"], "amount_mon": amount_mon,
@@ -939,7 +1154,16 @@ async def _maybe_alert_stake_event(conn, ev: dict, rpc: MonadRPC | None = None) 
         },
         network=NETWORK,
     )
-    await tg_send("whale_stake", severity, title, desc)
+    # Return alert payload for batched Telegram flush at end of ingest cycle
+    # — callers who don't care can discard it (e.g. single-event paths).
+    return {
+        "severity": severity, "title": title, "desc": desc,
+        "emoji": emoji, "amount_mon": amount_mon, "pct": pct,
+        "name": resolved_name, "val_id": val_id, "event_type": et,
+        "drops_below_active": drops_below_active,
+        "block": ev["block_number"],
+        "val_url": val_url,
+    }
 
 
 async def ingest_stake_events(rpc: MonadRPC, pool):
@@ -958,6 +1182,7 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
 
     inserted_total = 0
     current = cursor
+    whale_batch: list[dict] = []
     while current <= chain_head:
         end = min(current + STAKE_LOGS_CHUNK - 1, chain_head)
         try:
@@ -971,12 +1196,59 @@ async def ingest_stake_events(rpc: MonadRPC, pool):
             async with pool.acquire() as conn:
                 for ev in decoded:
                     await insert_stake_event(conn, ev, NETWORK)
-                    await _maybe_alert_stake_event(conn, ev, rpc)
+                    payload = await _maybe_alert_stake_event(conn, ev, rpc)
+                    if payload:
+                        whale_batch.append(payload)
             inserted_total += len(decoded)
 
         async with pool.acquire() as conn:
             await upsert_collector_state(conn, "last_stake_block", str(end), NETWORK)
         current = end + 1
+
+    # Flush whale_stake alerts as a single Telegram message. During VDP-batch
+    # epochs Foundation fires 10–20 delegations/undelegations within seconds,
+    # which previously spammed the channel with identical-looking alerts.
+    if len(whale_batch) == 1:
+        a = whale_batch[0]
+        await tg_send("whale_stake", a["severity"], a["title"], a["desc"])
+    elif whale_batch:
+        # Aggregate: sort by severity (critical first), then amount desc.
+        whale_batch.sort(key=lambda x: (0 if x["severity"] == "critical" else 1,
+                                        -x["amount_mon"]))
+        total_delegated = sum(x["amount_mon"] for x in whale_batch if x["event_type"] == "delegate")
+        total_undelegated = sum(x["amount_mon"] for x in whale_batch if x["event_type"] == "undelegate")
+        n_del = sum(1 for x in whale_batch if x["event_type"] == "delegate")
+        n_und = sum(1 for x in whale_batch if x["event_type"] == "undelegate")
+        has_critical = any(x["severity"] == "critical" for x in whale_batch)
+        summary_sev = "critical" if has_critical else "info"
+
+        quote_parts = []
+        if n_del:
+            quote_parts.append(f"🐋 {n_del}× delegations  <b>+{total_delegated:,.0f} MON</b>")
+        if n_und:
+            quote_parts.append(f"🦈 {n_und}× undelegations  <b>−{total_undelegated:,.0f} MON</b>")
+        summary_title = "Whale stake batch"
+
+        # Each validator on its own line, name-only when we have it, "Validator N"
+        # fallback otherwise. One link per line → the validator's page. No #id
+        # duplication inside the label itself. Show ALL events — Telegram caps
+        # messages at 4096 chars; ~60 chars/line fits 60+ events comfortably,
+        # beyond that we split into continuation messages.
+        detail_lines = []
+        for a in whale_batch:
+            sign = "+" if a["event_type"] == "delegate" else "−"
+            warn = "  🚨" if a.get("drops_below_active") else ""
+            label = a["name"] if a.get("name") else f"Validator {a['val_id']}"
+            detail_lines.append(
+                f'• {sign}<b>{a["amount_mon"]:,.0f} MON</b>  '
+                f'<a href="{a["val_url"]}">{label}</a>{warn}'
+            )
+
+        body = (
+            f"<blockquote>" + "\n".join(quote_parts) + "</blockquote>\n"
+            + "\n".join(detail_lines)
+        )
+        await tg_send("whale_stake", summary_sev, summary_title, body)
 
     if inserted_total:
         log.info(f"Stake ingest [{NETWORK}]: +{inserted_total} events up to {chain_head}")
@@ -1101,15 +1373,23 @@ async def detect_offline_validators(pool):
             """, NETWORK, str(vid))
             if already:
                 continue
-            title = f"⚠ Validator {name} offline — 0 blocks in 24h"
-            desc = f"val_id={vid}, auth={auth[:10]}…{auth[-4:]}"
+            db_title = f"⚠ Validator {name} offline — 0 blocks in 24h"
+            db_desc = f"val_id={vid}, auth={auth[:10]}…{auth[-4:]}"
             await insert_alert(
                 conn, alert_type="validator_offline", severity="warning",
-                title=title, description=desc,
+                title=db_title, description=db_desc,
                 data_json={"validator_id": str(vid), "auth": auth},
                 network=NETWORK,
             )
-            await tg_send("validator_offline", "warning", title, desc)
+            net_qs_off = f"&network={NETWORK}" if NETWORK != "testnet" else ""
+            label = name if name and name != f"#{vid}" else f"Validator {vid}"
+            tg_desc = (
+                f"<blockquote><b>{label}</b>\n"
+                f"no blocks in last <b>24h</b>\n"
+                f"possible outage or VDP rotation</blockquote>\n"
+                f'<a href="https://monadpulse.xyz/validator.html?id={vid}{net_qs_off}">Open on MonadPulse</a>'
+            )
+            await tg_send("validator_offline", "warning", "Validator offline", tg_desc)
 
 
 async def detect_tps_spike(pool):
@@ -1139,44 +1419,111 @@ async def detect_tps_spike(pool):
             FROM avg_24h, last_5min
         """, NETWORK)
         if row and row["avg_tx"] > 0 and row["recent_tx"] > row["avg_tx"] * 3:
-            alert_title = f"TPS spike [{NETWORK}]: {row['recent_tx']:.0f} tx/block (avg: {row['avg_tx']:.0f})"
-            await insert_alert(conn, "tps_spike", "warning", alert_title, network=NETWORK)
-            await tg_send("tps_spike", "warning", alert_title)
-            log.info(alert_title)
+            recent = float(row["recent_tx"])
+            avg = float(row["avg_tx"])
+            mult = recent / avg if avg > 0 else 0
+            db_title = f"TPS spike [{NETWORK}]: {recent:.0f} tx/block (avg: {avg:.0f})"
+            await insert_alert(conn, "tps_spike", "warning", db_title, network=NETWORK)
+            tg_desc = (
+                f"<blockquote>last 5 min: <b>{recent:.0f}</b> tx/block\n"
+                f"24h avg: <b>{avg:.0f}</b> tx/block\n"
+                f"spike: <b>{mult:.1f}×</b> normal</blockquote>"
+            )
+            await tg_send("tps_spike", "warning", "TPS spike", tg_desc)
+            log.info(db_title)
 
 
-_last_known_release = None
+_last_known_release = None  # execution-repo tag, used by health-score upgrade penalty
+
+# Repos we track. First tuple element is the GitHub slug, second is the label
+# shown in the alert. Execution comes first so _last_known_release gets seeded
+# from it (preserving the existing upgrade-penalty semantics).
+_RELEASE_REPOS = [
+    ("category-labs/monad", "execution"),
+    ("category-labs/monad-bft", "consensus"),
+]
+_RELEASE_STATE_PATH = Path("/opt/monadpulse/state_release_tracker.json")
+
+def _load_release_state() -> dict:
+    import json as _json
+    if _RELEASE_STATE_PATH.exists():
+        try:
+            return _json.loads(_RELEASE_STATE_PATH.read_text())
+        except Exception:
+            return {}
+    return {}
+
+def _save_release_state(state: dict) -> None:
+    import json as _json
+    try:
+        _RELEASE_STATE_PATH.write_text(_json.dumps(state, indent=2))
+    except Exception as e:
+        log.warning(f"release state save failed: {e}")
+
 
 async def check_new_release(pool):
-    """Check GitHub for new Monad releases and alert."""
+    """
+    Poll GitHub for new releases in every tracked Monad repo. State is
+    persisted to disk so a collector restart doesn't silently re-seed and
+    miss notifications. First ever run (no state file) seeds silently.
+    """
     global _last_known_release
     import httpx
+    state = _load_release_state()
+    updated = False
     try:
         async with httpx.AsyncClient(timeout=10) as client:
-            r = await client.get(
-                "https://api.github.com/repos/category-labs/monad/releases?per_page=1",
-                headers={"Accept": "application/vnd.github+json"},
-            )
-            releases = r.json()
-        if not releases or not isinstance(releases, list):
-            return
-        latest = releases[0]
-        tag = latest.get("tag_name", "")
-        if not tag:
-            return
-        if _last_known_release is None:
-            _last_known_release = tag
-            return
-        if tag != _last_known_release:
-            _last_known_release = tag
-            alert_title = f"New Monad release: {tag}"
-            alert_desc = f"{latest.get('name', '')} — Update within 48h for VDP compliance"
-            async with pool.acquire() as conn:
-                await insert_alert(conn, "new_version", "critical", alert_title, alert_desc, network=NETWORK)
-            await tg_send("new_version", "critical", alert_title, alert_desc)
-            log.info(f"New release detected: {tag}")
-    except Exception as e:
-        log.warning(f"Release check error: {e}")
+            for slug, label in _RELEASE_REPOS:
+                try:
+                    # per_page=5 + sort-by-published_at: GitHub's default order is
+                    # by created_at descending, which can put a re-created older
+                    # release ahead of the real latest. Publication date is what
+                    # matters for "new" detection.
+                    r = await client.get(
+                        f"https://api.github.com/repos/{slug}/releases?per_page=5",
+                        headers={"Accept": "application/vnd.github+json"},
+                    )
+                    releases = r.json()
+                except Exception as e:
+                    log.warning(f"release fetch {slug}: {e}")
+                    continue
+                if not releases or not isinstance(releases, list):
+                    continue
+                published = [x for x in releases if isinstance(x, dict) and x.get("published_at")]
+                if not published:
+                    continue
+                latest = max(published, key=lambda x: x.get("published_at", ""))
+                tag = latest.get("tag_name") or ""
+                if not tag:
+                    continue
+                prev = state.get(slug)
+                if prev is None:
+                    # Never seen this repo before — seed silently
+                    state[slug] = tag
+                    updated = True
+                elif tag != prev:
+                    state[slug] = tag
+                    updated = True
+                    db_title = f"New Monad {label} release: {tag}"
+                    db_desc = f"{latest.get('name', tag)} — Update within 48h for VDP compliance ({slug})"
+                    async with pool.acquire() as conn:
+                        await insert_alert(conn, "new_version", "critical", db_title, db_desc, network=NETWORK)
+                    release_url = latest.get("html_url") or f"https://github.com/{slug}/releases/tag/{tag}"
+                    tg_desc = (
+                        f"<blockquote>Monad <b>{label}</b>\n"
+                        f"new release <b>{tag}</b>\n"
+                        f"previous: {prev}\n"
+                        f"⚠ upgrade within <b>48h</b> for VDP compliance</blockquote>\n"
+                        f'<a href="{release_url}">Release notes on GitHub</a>'
+                    )
+                    await tg_send("new_version", "critical", "New Monad release", tg_desc)
+                    log.info(f"New release detected: {slug} {prev} -> {tag}")
+                # Keep in-memory execution-repo tag for upgrade-penalty logic
+                if slug == "category-labs/monad":
+                    _last_known_release = tag
+    finally:
+        if updated:
+            _save_release_state(state)
 
 
 async def run():
@@ -1240,6 +1587,7 @@ async def run():
         last_offline_check = 0
         last_stake_snapshot = 0
         last_retention = 0
+        last_governance_scan = 0
         while not shutdown_event.is_set():
             try:
                 chain_head = await rpc.get_block_number()
@@ -1331,6 +1679,17 @@ async def run():
                     except Exception as e:
                         log.warning(f"Offline detect error: {e}")
                     last_offline_check = now
+
+                # Governance scrape — every 30 min, testnet collector only.
+                # Forum content is global (network-agnostic), so one collector
+                # handles it. Same dup-avoidance pattern as check_new_release.
+                if NETWORK == "testnet" and now - last_governance_scan > 1800:
+                    try:
+                        from collector.governance import scrape_governance_full
+                        await scrape_governance_full(pool)
+                    except Exception as e:
+                        log.warning(f"Governance scrape error: {e}")
+                    last_governance_scan = now
 
                 # Retention — prune old rows from append-only tables every 6h.
                 # Keeps the DB bounded without losing useful recent history.

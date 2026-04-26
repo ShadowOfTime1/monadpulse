@@ -47,6 +47,7 @@
   "0x390c6459cf6996766ebb2bf52e7ed8102aee770f": "Chorus One",
   "0x3cdfebcb588e3e9bfc9f4a51805146963934e776": "BlockPro",
   "0x3d51b64110b10ae6623e6088d680b6b579ad3a17": "Staketab",
+  "0x3ecedcc3d08cf817a8af44fd84b247c587b7c401": "Decentra",
   "0x3f74870f80ff7449fe4c6ff257da5fa72734c970": "StakeSquid",
   "0x40052a2369ad18991a6ae805f1bc30339fe9db44": "Proof Group",
   "0x40d4cc4425499b9c18a6fef22cf2417e2031393d": "JustANode",
@@ -91,6 +92,7 @@
   "0x6d4f957e21ede5d15ef16304860b535dba99be5b": "NodeStake",
   "0x6dea8958ff25b19eaeba042983d97db0c61a612a": "PathrockNetwork",
   "0x6f79bd3a2193f5371e72eac9dffac0631f1026e2": "DeSpread",
+  "0x7007db20e3aed432cb8438d11534b7ab18516aac": "BitCtrl",
   "0x7068ee7adda375af91ad1b60cde9bc907678eaf3": "Pointgroup",
   "0x70c61800fa919349f0cf4ec7c4da10ce9a1acbee": "BlackBlocks",
   "0x72668145c92d535a289d95bd2ed677767d234041": "CHAIN DIGITAL",
@@ -116,6 +118,7 @@
   "0x86868bb556dedcd0768854a5af9e62f2e9129d46": "Data Nexus",
   "0x86b3f3ce60728c9bbf54faae20078e7e52f69a35": "LuckyResearch Labs",
   "0x87b2313ecb3002bfe611ebe0518f62415a6471f5": "SenseiNode",
+  "0x8a39e5d8c5985b29758ba0b5de07882218841931": "Metatarz",
   "0x8a5cab2481364ad09da41588f3b2df0ea13296b4": "Everstake",
   "0x8a7a9c00dabf4d7539584be0d5a28b5486a4d9ce": "Node3Tech",
   "0x8b7801128d1c1a8db8370f628a3fd241f3bcdc3e": "DTEAM",
@@ -127,6 +130,7 @@
   "0x8e708dad1075d8a27fb2c9011d9b44ed0f961814": "Stakely",
   "0x92e474fab71c4fc6de87f46e8efcb60202b7af40": "Triton one",
   "0x95901dfa4681fa53e4773e2e6d8360808996503d": "StakeUs",
+  "0x985c19f724372e1130a16d9724c5fb41c782f131": "Pointgroup",
   "0x997b904dfa94f462c3bd798fc8898c8e166888d5": "Omakase",
   "0x9c79b6aa52778e01f60ebac482490c6d8c476941": "LeMonad",
   "0x9f716bc0c70db8e064e6ca997fd890dbcd0d142a": "GulfLabs",
@@ -197,5 +201,6 @@
   "0xf58094df753dfecffcfa4df316bc25115587ff4c": "r93AX Nodes",
   "0xf83757d23eade0cfc9ec6921501fe586ceaef8c1": "unityfarms",
   "0xfdb0c67fbf0cf63e298057f3937f9779891d5524": "Grassets",
-  "0xfeaf8e5cc5fff299a32a47b17c89c556065178d5": "GO2Pro"
+  "0xfeaf8e5cc5fff299a32a47b17c89c556065178d5": "GO2Pro",
+  "0xfebe258aa7b623249d817511f0035ed12849a2e1": "Category Labs - 1"
 }

@@ -94,19 +94,38 @@ async def _find_first_active_block(network: str, val_id: int) -> tuple[int, int]
 
 
 def _load_directory(network: str) -> list[dict]:
-    """Return cached validator directory (refreshes on file mtime change)."""
+    """Return cached validator directory (refreshes on file mtime change).
+
+    Also merges entries from validator_directory_override_{network}.json if it
+    exists — lets us surface validators whose upstream validator-info PR is
+    pending (e.g. shadowoftime #267) in search/detail pages without waiting
+    for the merge. Override entries win over upstream on val_id collision.
+    """
     path = Path(f"/opt/monadpulse/validator_directory_{network}.json")
+    override_path = Path(f"/opt/monadpulse/validator_directory_override_{network}.json")
     if not path.exists():
         return []
-    mtime = path.stat().st_mtime
+    mtime_main = path.stat().st_mtime
+    mtime_over = override_path.stat().st_mtime if override_path.exists() else 0
+    key = (mtime_main, mtime_over)
     cached = _DIR_CACHE.get(network)
-    if cached and cached[0] == mtime:
+    if cached and cached[0] == key:
         return cached[1]
     try:
         data = json.loads(path.read_text())
     except Exception:
         return []
-    _DIR_CACHE[network] = (mtime, data)
+    if override_path.exists():
+        try:
+            overrides = json.loads(override_path.read_text())
+            by_vid = {e["val_id"]: e for e in data if e.get("val_id") is not None}
+            for ov in overrides:
+                if ov.get("val_id") is not None:
+                    by_vid[ov["val_id"]] = ov
+            data = list(by_vid.values())
+        except Exception:
+            pass
+    _DIR_CACHE[network] = (key, data)
     return data
 
 STAKING_PRECOMPILE = "0x0000000000000000000000000000000000001000"
@@ -410,26 +429,57 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
                     addrs.append(a)
 
     now = datetime.now(timezone.utc)
-    # Single query that captures the three windows in one pass.
+    # Single query that captures all four windows + VDP enrollment in one pass.
+    # 7d window added for VDP weekly-uptime compliance (≥98% target).
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             """
             SELECT
               COUNT(*) FILTER (WHERE timestamp >= $2 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_1h,
-              COUNT(*) FILTER (WHERE timestamp >= $2 AND proposer_address = ANY($5::text[])) AS actual_1h,
+              COUNT(*) FILTER (WHERE timestamp >= $2 AND proposer_address = ANY($6::text[])) AS actual_1h,
               COUNT(*) FILTER (WHERE timestamp >= $3 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_8h,
-              COUNT(*) FILTER (WHERE timestamp >= $3 AND proposer_address = ANY($5::text[])) AS actual_8h,
+              COUNT(*) FILTER (WHERE timestamp >= $3 AND proposer_address = ANY($6::text[])) AS actual_8h,
               COUNT(*) FILTER (WHERE timestamp >= $4 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_24h,
-              COUNT(*) FILTER (WHERE timestamp >= $4 AND proposer_address = ANY($5::text[])) AS actual_24h,
+              COUNT(*) FILTER (WHERE timestamp >= $4 AND proposer_address = ANY($6::text[])) AS actual_24h,
+              COUNT(*) FILTER (WHERE timestamp >= $5 AND proposer_address != '0x0000000000000000000000000000000000000000') AS total_7d,
+              COUNT(*) FILTER (WHERE timestamp >= $5 AND proposer_address = ANY($6::text[])) AS actual_7d,
               COUNT(DISTINCT proposer_address) FILTER (WHERE timestamp >= $4 AND proposer_address != '0x0000000000000000000000000000000000000000') AS active_24h
             FROM blocks
-            WHERE network = $1 AND timestamp >= $4
+            WHERE network = $1 AND timestamp >= $5
             """,
             network,
             now - timedelta(hours=1),
             now - timedelta(hours=8),
             now - timedelta(hours=24),
+            now - timedelta(days=7),
             addrs,
+        )
+        # VDP enrollment detection: any Foundation-sourced delegate ever to this val_id.
+        # First Foundation delegate timestamp = VDP join date.
+        vdp_row = await conn.fetchrow(
+            """
+            SELECT MIN(timestamp) AS join_date, COUNT(*) AS tx_count
+            FROM stake_events
+            WHERE network = $1
+              AND validator_id = $2
+              AND delegator ILIKE '0xf235ab9b%'
+              AND event_type = 'delegate'
+            """,
+            network, str(val_id),
+        )
+        # Is this validator currently in rotation (≥1.9M Foundation undelegate in last 48h)?
+        rot_row = await conn.fetchrow(
+            """
+            SELECT 1 FROM stake_events
+            WHERE network = $1
+              AND validator_id = $2
+              AND delegator ILIKE '0xf235ab9b%'
+              AND event_type = 'undelegate'
+              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND timestamp > NOW() - INTERVAL '48 hours'
+            LIMIT 1
+            """,
+            network, str(val_id),
         )
     total_24h = int(row["total_24h"] or 0)
     actual_24h = int(row["actual_24h"] or 0)
@@ -451,7 +501,10 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
         "1h":  window(int(row["total_1h"] or 0),  int(row["actual_1h"] or 0),  1),
         "8h":  window(int(row["total_8h"] or 0),  int(row["actual_8h"] or 0),  8),
         "24h": window(total_24h, actual_24h, 24),
+        "7d":  window(int(row["total_7d"] or 0),  int(row["actual_7d"] or 0),  24 * 7),
     }
+    vdp_join = vdp_row["join_date"] if vdp_row else None
+    vdp_days = int((now - vdp_join).total_seconds() / 86400) if vdp_join else None
     return {
         "validator_id": val_id,
         "network": network,
@@ -461,6 +514,12 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
         "baseline": "self-24h-share",
         "share_24h": round(share_24h * 100, 3),
         "active_validators_24h": int(row["active_24h"] or 0),
+        "vdp": {
+            "enrolled": bool(vdp_row and vdp_row["tx_count"] and vdp_row["tx_count"] > 0),
+            "join_date": vdp_join.isoformat() if vdp_join else None,
+            "days_enrolled": vdp_days,
+            "rotation_active": bool(rot_row),
+        },
         "note": "proxy via proposing rate; baseline is validator's own 24h share — 1h pct will crash toward 0 on outage",
     }
 
@@ -481,6 +540,26 @@ async def validator_list(request: Request, period: str = Query("24h"), network: 
             "GROUP BY proposer_address ORDER BY blocks_proposed DESC",
             network, start,
         )
+        # Fetch val_ids currently in Foundation's stake-rotation cycle (same
+        # criterion as the collector: Foundation undelegate ≥1.9M in last 48h).
+        # These validators are intentionally out of active-set and should be
+        # flagged in the UI so viewers don't mistake the idle period for an
+        # operator-level outage.
+        rotation_rows = await conn.fetch("""
+            SELECT DISTINCT validator_id
+            FROM stake_events
+            WHERE network = $1
+              AND delegator ILIKE '0xf235ab9b%'
+              AND event_type = 'undelegate'
+              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND timestamp > NOW() - INTERVAL '48 hours'
+        """, network)
+    rotation_vids = set()
+    for r in rotation_rows:
+        try:
+            rotation_vids.add(int(r["validator_id"]))
+        except (TypeError, ValueError):
+            pass
 
     # Build miner→auth map so frontend can join with /health/scores (which is
     # keyed on auth after cross-miner clustering). Same logic as in the
@@ -511,6 +590,43 @@ async def validator_list(request: Request, period: str = Query("24h"), network: 
         name = names_map.get(miner_addr.lower())
         return auth_by_name.get(name, miner_addr.lower()) if name else miner_addr.lower()
 
+    # Build auth→val_id map so we can flag rotation validators by their auth
+    # address (the key frontend uses to dedupe across clustered miners).
+    auth_to_vid: dict = {}
+    try:
+        if dir_path.exists():
+            for e in json.loads(dir_path.read_text()):
+                if e.get("auth") and e.get("val_id") is not None:
+                    auth_to_vid[e["auth"].lower()] = int(e["val_id"])
+    except Exception:
+        pass
+
+    # Fallback: validators not yet merged into the upstream validator-info
+    # repo (e.g. shadowoftime, val_id 267 while PR is pending) are missing
+    # from directory. Recover their auth via self-delegate event — the very
+    # first `delegate` from any non-Foundation address is by the operator
+    # themselves on addValidator, and that delegator == auth.
+    missing_vids = rotation_vids - set(auth_to_vid.values())
+    if missing_vids:
+        async with pool.acquire() as conn2:
+            fb_rows = await conn2.fetch("""
+                SELECT DISTINCT ON (validator_id::int)
+                    validator_id::int AS vid,
+                    delegator AS auth
+                FROM stake_events
+                WHERE network = $1
+                  AND event_type = 'delegate'
+                  AND delegator NOT ILIKE '0xf235ab9b%'
+                  AND validator_id::int = ANY($2::int[])
+                ORDER BY validator_id::int, block_number ASC
+            """, network, list(missing_vids))
+        for r in fb_rows:
+            auth_to_vid.setdefault(r["auth"].lower(), int(r["vid"]))
+
+    def rotation_flag(auth: str) -> bool:
+        vid = auth_to_vid.get(auth.lower())
+        return vid is not None and vid in rotation_vids
+
     return [
         {
             "address": r["validator"],
@@ -520,6 +636,7 @@ async def validator_list(request: Request, period: str = Query("24h"), network: 
             "total_tx": r["total_tx"],
             "first_seen": r["first_seen"].isoformat(),
             "last_seen": r["last_seen"].isoformat(),
+            "rotation_status": "rotating" if rotation_flag(resolve_auth(r["validator"])) else None,
         }
         for r in rows
     ]
