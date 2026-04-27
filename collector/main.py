@@ -1325,9 +1325,32 @@ async def detect_offline_validators(pool):
         return miners
 
     async with pool.acquire() as conn:
+        # Pre-compute the set of validators currently in Foundation's stake
+        # rotation. These are intentionally idle and shouldn't trip the
+        # offline alert — same criterion used by /validators/list rotation_flag.
+        rotation_rows = await conn.fetch("""
+            SELECT DISTINCT validator_id
+            FROM stake_events
+            WHERE network = $1
+              AND delegator ILIKE '0xf235ab9b%'
+              AND event_type = 'undelegate'
+              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND timestamp > NOW() - INTERVAL '48 hours'
+        """, NETWORK)
+        rotation_vids: set[int] = set()
+        for r in rotation_rows:
+            try:
+                rotation_vids.add(int(r["validator_id"]))
+            except (TypeError, ValueError):
+                pass
+
         for vid in _SEEN_VAL_IDS:
             auth = vid_to_auth.get(vid)
             if not auth:
+                continue
+            # Skip validators in Foundation rotation — they're intentionally
+            # offline by design, alerting on them is pure noise.
+            if vid in rotation_vids:
                 continue
             name = vid_to_name.get(vid) or f"#{vid}"
 
@@ -1363,12 +1386,16 @@ async def detect_offline_validators(pool):
             if count > 0:
                 continue
 
-            # Dedup — already alerted within 24h?
+            # Dedup window is 7 days, not 24 h. The detector runs every 24 h,
+            # so a stably-offline validator (decommissioned, long-term outage,
+            # operator MIA) would otherwise generate one alert every day for
+            # weeks. Once is enough; if they come back online and go offline
+            # again, the gap will exceed 7 days and a fresh alert fires.
             already = await conn.fetchval("""
                 SELECT 1 FROM alerts
                 WHERE alert_type = 'validator_offline' AND network = $1
                   AND data_json->>'validator_id' = $2
-                  AND timestamp > NOW() - INTERVAL '24 hours'
+                  AND timestamp > NOW() - INTERVAL '7 days'
                 LIMIT 1
             """, NETWORK, str(vid))
             if already:
