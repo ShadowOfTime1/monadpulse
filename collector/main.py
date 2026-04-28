@@ -1386,6 +1386,23 @@ async def detect_offline_validators(pool):
             if count > 0:
                 continue
 
+            # Ghost-validator filter: only alert if the validator was actually
+            # producing blocks at some recent point. A registered-but-never-
+            # produced validator (e.g. "Unit 410" on testnet — registered with
+            # auth in the directory, never made a single block in 30+ days) is
+            # not an outage, it's an abandoned/test registration. Real outage
+            # signal = "was producing, stopped". Without this check the alert
+            # fires on every ghost, every detector cycle.
+            had_history = await conn.fetchval("""
+                SELECT 1 FROM blocks
+                WHERE network = $1 AND proposer_address = ANY($2::text[])
+                  AND timestamp > NOW() - INTERVAL '30 days'
+                  AND timestamp < NOW() - INTERVAL '24 hours'
+                LIMIT 1
+            """, NETWORK, list(candidates))
+            if not had_history:
+                continue
+
             # Dedup window is 7 days, not 24 h. The detector runs every 24 h,
             # so a stably-offline validator (decommissioned, long-term outage,
             # operator MIA) would otherwise generate one alert every day for
