@@ -1325,9 +1325,22 @@ async def detect_offline_validators(pool):
         return miners
 
     async with pool.acquire() as conn:
-        # Pre-compute the set of validators currently in Foundation's stake
-        # rotation. These are intentionally idle and shouldn't trip the
-        # offline alert — same criterion used by /validators/list rotation_flag.
+        # Pre-fetch the set of proposer addresses that have produced any
+        # block in the last 30 days. Validators not in this set are
+        # ghosts (registered in the execution valset but never started
+        # producing — abandoned/test registrations) and are silently
+        # dropped from the offline detection. Saves one count query per
+        # ghost per cycle and removes the entire class of false alerts.
+        producer_rows = await conn.fetch("""
+            SELECT DISTINCT proposer_address
+            FROM blocks
+            WHERE network = $1
+              AND proposer_address != '0x0000000000000000000000000000000000000000'
+              AND timestamp > NOW() - INTERVAL '30 days'
+        """, NETWORK)
+        active_producers: set[str] = {r["proposer_address"].lower() for r in producer_rows}
+
+        # Foundation rotation set — intentionally-idle validators, also dropped.
         rotation_rows = await conn.fetch("""
             SELECT DISTINCT validator_id
             FROM stake_events
@@ -1360,6 +1373,13 @@ async def detect_offline_validators(pool):
                 if nm == name:
                     candidates.add(addr.lower())
 
+            # Ghost filter: if NONE of this validator's candidate addresses
+            # produced any block in the last 30 days, skip immediately.
+            # No reason to scan blocks/probe miners for someone who has
+            # never been seen as a proposer.
+            if not (candidates & active_producers):
+                continue
+
             # Step 2: count blocks for ANY candidate
             count = await conn.fetchval("""
                 SELECT COUNT(*) FROM blocks
@@ -1386,22 +1406,9 @@ async def detect_offline_validators(pool):
             if count > 0:
                 continue
 
-            # Ghost-validator filter: only alert if the validator was actually
-            # producing blocks at some recent point. A registered-but-never-
-            # produced validator (e.g. "Unit 410" on testnet — registered with
-            # auth in the directory, never made a single block in 30+ days) is
-            # not an outage, it's an abandoned/test registration. Real outage
-            # signal = "was producing, stopped". Without this check the alert
-            # fires on every ghost, every detector cycle.
-            had_history = await conn.fetchval("""
-                SELECT 1 FROM blocks
-                WHERE network = $1 AND proposer_address = ANY($2::text[])
-                  AND timestamp > NOW() - INTERVAL '30 days'
-                  AND timestamp < NOW() - INTERVAL '24 hours'
-                LIMIT 1
-            """, NETWORK, list(candidates))
-            if not had_history:
-                continue
+            # (Ghost filter happens at top of loop via active_producers set —
+            # if we got this far, this validator IS a recent producer that
+            # has now gone silent. Real signal.)
 
             # Dedup window is 7 days, not 24 h. The detector runs every 24 h,
             # so a stably-offline validator (decommissioned, long-term outage,
