@@ -17,13 +17,15 @@ js_hash() { sha256sum "$1" | cut -c1-8; }
 
 JS_HASH=$(js_hash "$WEB/js/app.js")
 CSS_HASH=$(js_hash "$WEB/css/style.css")
+MAP_HASH=$(js_hash "$WEB/js/map.js")
 
 cd "$WEB"
 patched=0
 for f in *.html; do
-  if grep -qE '/(js/app\.js|css/style\.css)(\?v=[a-f0-9]+)?' "$f"; then
+  if grep -qE '/(js/app\.js|js/map\.js|css/style\.css)(\?v=[a-f0-9]+)?' "$f"; then
     sed -i -E \
       -e "s|/js/app\.js(\?v=[a-f0-9]+)?|/js/app.js?v=$JS_HASH|g" \
+      -e "s|/js/map\.js(\?v=[a-f0-9]+)?|/js/map.js?v=$MAP_HASH|g" \
       -e "s|/css/style\.css(\?v=[a-f0-9]+)?|/css/style.css?v=$CSS_HASH|g" \
       "$f"
     patched=$((patched + 1))
@@ -32,4 +34,5 @@ done
 
 echo "deploy_assets.sh — refs updated in $patched HTML files"
 echo "  js/app.js     ?v=$JS_HASH  ($(wc -c < js/app.js) bytes)"
+echo "  js/map.js     ?v=$MAP_HASH  ($(wc -c < js/map.js) bytes)"
 echo "  css/style.css ?v=$CSS_HASH  ($(wc -c < css/style.css) bytes)"

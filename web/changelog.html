@@ -106,6 +106,14 @@
     </p>
 
     <div class="change-entry">
+      <div class="change-date">2026-04-30</div>
+      <div class="change-title">Map page — full validator coverage from peers.toml</div>
+      <div class="change-body">
+        Map now plots <strong>all 202 testnet validators</strong> (was 30, hand-curated) sourced from monad-bft <code>peers.toml</code> — the cryptographically-signed peer registry every node already gossips. Pipeline: a root cron job copies <code>peers.toml</code> from the validator's data dir every 30 min, <code>build_validator_geo.py</code> parses each <code>(secp_pubkey, IP, name_record_sig)</code> tuple, matches secp against <a href="https://github.com/monad-developers/validator-info" target="_blank">validator-info</a> to attach val_id/name, then batch-resolves IPs through ip-api.com for city / country / lat-lon / ASN / datacenter. A <code>monadpulse-geo-rebuild.timer</code> systemd unit refreshes the snapshot daily at 03:30 UTC. Popups now carry a source-tier icon: 🔒 P2P-signed + GeoIP (182), 👤 manually verified operator profile (20), — not yet in peer registry. Top-3 ISPs per cluster shown for each city. No mainnet equivalent yet — needs an observer node, deferred.
+      </div>
+    </div>
+
+    <div class="change-entry">
       <div class="change-date">2026-04-28</div>
       <div class="change-title">Operator naming — upstream PR landed</div>
       <div class="change-body">

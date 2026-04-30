@@ -99,10 +99,15 @@ async function buildMap() {
   // REGION_TARGETS), flagged "estimated", but that looked like real data
   // at a glance. Honest approach: only plot validators whose geo we've
   // verified; show the unknown count explicitly in the legend.
+  // Filter out entries without coordinates (rare; ip-api occasionally returns
+  // partial data). We only plot what we can geo-resolve.
+  const plotted = known.filter(v => v && typeof v.lat === 'number' && typeof v.lon === 'number');
   const clusters = {};
-  known.forEach(v => {
-    if (!clusters[v.city]) clusters[v.city] = { lat: v.lat, lon: v.lon, region: v.region, city: v.city, validators: [] };
-    clusters[v.city].validators.push(v.name);
+  plotted.forEach(v => {
+    const cityKey = v.city || 'Unknown';
+    if (!clusters[cityKey]) clusters[cityKey] = { lat: v.lat, lon: v.lon, region: v.region || '(unknown)', city: cityKey, validators: [] };
+    // Push the full entry so the popup can show ISP, source provenance, etc.
+    clusters[cityKey].validators.push(v);
   });
 
   // Region shares for category coloring
@@ -120,13 +125,21 @@ async function buildMap() {
 
   const maxCount = Math.max(...Object.values(clusters).map(c => c.validators.length));
 
+  // Source-tier icon used in the popup so viewers can tell at a glance
+  // whether a location is operator-signed, hand-verified, or geo-derived.
+  const sourceIcon = (src) => {
+    if (src === 'manual_override') return { icon: '\uD83D\uDC64', label: 'manually verified', color: '#a78bfa' };
+    if (src === 'p2p_signed_geoip') return { icon: '\uD83D\uDD12', label: 'P2P signed (peers.toml) + GeoIP', color: '#10b981' };
+    if (src === 'p2p_signed_no_geo') return { icon: '\uD83D\uDD12', label: 'P2P signed, no GeoIP', color: '#f59e0b' };
+    return { icon: '?', label: 'unknown', color: '#6B6580' };
+  };
+
   Object.values(clusters).forEach(cluster => {
     const count = cluster.validators.length;
-    const named = cluster.validators.filter(v => v);
-    const anonymous = count - named.length;
+    const named = cluster.validators;
     const minSize = 16, maxSize = 44;
     const size = Math.round(minSize + (count / maxCount) * (maxSize - minSize));
-    const hasShadow = named.includes('shadowoftime');
+    const hasShadow = named.some(v => (v.name || '').toLowerCase() === 'shadowoftime');
     const category = regionCategory(cluster.region);
     const color = hasShadow ? '#14b8a6' : REGION_COLOR[category];
 
@@ -152,11 +165,31 @@ async function buildMap() {
     const catLabel = CATEGORY_LABEL[category];
     popup += `<div style="color:#6B6580;font-size:11px;margin-bottom:4px">${esc(cluster.region)} — ${count} validator${count > 1 ? 's' : ''}</div>`;
     popup += `<div style="color:${catColor};font-size:10px;margin-bottom:8px;letter-spacing:0.5px;text-transform:uppercase"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${catColor};box-shadow:0 0 6px ${catColor}80;margin-right:5px;vertical-align:middle"></span>${catLabel}</div>`;
-    named.forEach(n => {
-      const c = n === 'shadowoftime' ? '#14b8a6' : '#6E54FF';
-      popup += `<div style="padding:3px 0;color:#EEEDF5;font-size:11px"><span style="color:${c};margin-right:4px">&#x25CF;</span>${esc(n)}</div>`;
+    // Group ISPs in this cluster — informative since most clusters = single DC
+    const ispCounts = {};
+    named.forEach(v => { if (v.isp) ispCounts[v.isp] = (ispCounts[v.isp] || 0) + 1; });
+    const ispRows = Object.entries(ispCounts).sort((a,b) => b[1] - a[1]).slice(0, 3);
+    if (ispRows.length) {
+      popup += `<div style="color:#6B6580;font-size:10px;margin-bottom:8px">`;
+      popup += ispRows.map(([isp, n]) => `${n}× ${esc(isp)}`).join(' · ');
+      popup += `</div>`;
+    }
+    popup += `<div style="max-height:160px;overflow-y:auto;border-top:1px solid rgba(110,84,255,0.12);padding-top:6px">`;
+    named.slice(0, 25).forEach(v => {
+      const isShadow = (v.name || '').toLowerCase() === 'shadowoftime';
+      const dotC = isShadow ? '#14b8a6' : '#6E54FF';
+      const src = sourceIcon(v.source);
+      const link = v.val_id ? `<a href="/validator.html?id=${v.val_id}&network=${NETWORK}" style="color:inherit;text-decoration:none">${esc(v.name)}</a>` : esc(v.name);
+      popup += `<div style="padding:3px 0;color:#EEEDF5;font-size:11px;display:flex;align-items:center;gap:6px">`;
+      popup += `<span style="color:${dotC};font-size:8px">&#x25CF;</span>`;
+      popup += `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${link}</span>`;
+      popup += `<span title="${esc(src.label)}" style="color:${src.color};font-size:10px;flex-shrink:0">${src.icon}</span>`;
+      popup += `</div>`;
     });
-    popup += `</div>`;
+    if (named.length > 25) {
+      popup += `<div style="color:#6B6580;font-size:10px;padding-top:4px">… and ${named.length - 25} more</div>`;
+    }
+    popup += `</div></div>`;
 
     const marker = L.marker([cluster.lat, cluster.lon], { icon });
     // Attach metadata so the markercluster iconCreateFunction can aggregate
@@ -193,13 +226,17 @@ async function buildMap() {
 
     const orderedRegions = Object.entries(regionCounts).sort((a, b) => b[1] - a[1]);
 
-    const plotted = known.length;
-    const unknownGeo = Math.max(0, totalValidators - plotted);
+    // Source breakdown — explicit so viewers know what they're looking at.
+    const plottedTotal = known.length;
+    const manualCount = known.filter(v => v.source === 'manual_override').length;
+    const p2pCount = known.filter(v => v.source && v.source.startsWith('p2p_signed')).length;
+    const unknownGeo = Math.max(0, totalValidators - plottedTotal);
     div.innerHTML =
       `<div style="color:#DDD7FE;font-weight:600;margin-bottom:4px;font-size:12px">${netLabel} — ${totalValidators} active validators</div>` +
-      `<div style="color:#6B6580;font-size:10px;margin-bottom:8px;line-height:1.5">` +
-        `${plotted} with verified location<br>` +
-        `${unknownGeo} without public geo data` +
+      `<div style="color:#6B6580;font-size:10px;margin-bottom:8px;line-height:1.6">` +
+        `<span style="color:#10b981">\uD83D\uDD12 ${p2pCount}</span> P2P-signed (peers.toml + GeoIP)<br>` +
+        `<span style="color:#a78bfa">\uD83D\uDC64 ${manualCount}</span> manually verified (operator profile)<br>` +
+        (unknownGeo > 0 ? `<span style="color:#6B6580">— ${unknownGeo}</span> not yet in peer registry` : '') +
       `</div>` +
       `<div style="border-top:1px solid rgba(110,84,255,0.15);padding-top:6px;margin-bottom:8px">` +
         categoryRow('under') + categoryRow('normal') + categoryRow('over') +

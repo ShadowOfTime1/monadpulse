@@ -281,19 +281,38 @@ async def validator_directory(network: str = Query("testnet")):
 
 @router.get("/geo")
 async def validator_geo(network: str = Query("testnet")):
-    """Return the manually-verified geography entries for validators whose
-    location we've confirmed from their public website / social profiles.
-    Frontend map reads from this instead of a hardcoded JS blob so the list
-    can be updated by editing one file + git commit, and so the source is
-    visible to anyone inspecting /api/."""
-    path = Path(f"/opt/monadpulse/validator_geo_{network}.json")
-    if not path.exists():
+    """Return validator geography with multi-source provenance.
+
+    Prefers `validator_geo_full_<network>.json` (built nightly by
+    monadpulse-geo-rebuild.timer from monad-bft peers.toml + ip-api.com).
+    Each entry carries a `source` field:
+      - manual_override     — operator's public profile, hand-verified
+      - p2p_signed_geoip    — IP from peers.toml (signed by operator's secp),
+                              city/country/ASN from GeoIP
+      - p2p_signed_no_geo   — IP known but GeoIP failed
+    Falls back to the legacy manually-verified-only file if the full
+    rebuild hasn't run yet.
+    """
+    full_path = Path(f"/opt/monadpulse/validator_geo_full_{network}.json")
+    if full_path.exists():
+        try:
+            data = json.loads(full_path.read_text())
+            data["source"] = (
+                "p2p-signed peers (monad-bft) + ip-api.com geo, with manual "
+                "operator-profile overrides"
+            )
+            return data
+        except Exception:
+            pass
+    # Legacy fallback
+    legacy_path = Path(f"/opt/monadpulse/validator_geo_{network}.json")
+    if not legacy_path.exists():
         return {"network": network, "validators": [], "source": "manually verified"}
     try:
-        data = json.loads(path.read_text())
+        data = json.loads(legacy_path.read_text())
     except Exception:
         return {"network": network, "validators": [], "source": "manually verified"}
-    data["source"] = "manually verified from operator public profiles"
+    data["source"] = "manually verified from operator public profiles (legacy)"
     return data
 
 
