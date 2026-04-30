@@ -392,6 +392,21 @@ function scoreBar(score) {
 const VALS_PER_PAGE = 20;
 let _valsPage = 0;
 let _valsFiltered = [];
+let _valGeoMap = null;  // auth_lower → {country, isp, datacenter}; populated lazily
+
+async function _loadValGeoMap() {
+  if (_valGeoMap) return _valGeoMap;
+  try {
+    const r = await apiFetch('/validators/geo');
+    const list = (r && r.validators) || [];
+    const map = {};
+    list.forEach(v => {
+      if (v.auth) map[v.auth.toLowerCase()] = { country: v.country || '', isp: v.isp || '', datacenter: !!v.datacenter };
+    });
+    _valGeoMap = map;
+  } catch { _valGeoMap = {}; }
+  return _valGeoMap;
+}
 
 function renderValidators(data) {
   _valsFiltered = data;
@@ -404,10 +419,15 @@ function renderValidatorsPage() {
   const tbody = document.querySelector('#validators-table tbody');
   if (!tbody) return;
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-dim);padding:32px">No validators found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--text-dim);padding:32px">No validators found</td></tr>';
     const pag = document.getElementById('validators-pagination');
     if (pag) pag.innerHTML = '';
     return;
+  }
+  // Lazy-load geo map; re-render when it lands.
+  if (_valGeoMap === null) {
+    _valGeoMap = {};  // sentinel to avoid re-entry
+    _loadValGeoMap().then(() => renderValidatorsPage());
   }
 
   const totalPages = Math.ceil(data.length / VALS_PER_PAGE);
@@ -459,6 +479,18 @@ function renderValidatorsPage() {
       : '';
     const upCell = `<span style="color:${upCol};font-variant-numeric:tabular-nums;font-weight:600">${upStr}</span>${upSuffix}`;
 
+    // Location column — country code + truncated ISP + datacenter dot.
+    // Hover reveals full ISP. "—" if we have no geo for this validator yet.
+    const geo = _valGeoMap && _valGeoMap[(v.address || '').toLowerCase()];
+    let locCell = '<span style="color:var(--text-dim)">—</span>';
+    if (geo && geo.country) {
+      const isp = geo.isp || '';
+      const ispShort = isp.length > 14 ? isp.slice(0, 13) + '…' : isp;
+      const dot = geo.datacenter ? '<span title="datacenter" style="color:#10b981">●</span>'
+                : '<span title="residential/other" style="color:#a78bfa">○</span>';
+      locCell = `<span style="font-family:var(--mono);font-size:11px" title="${esc(isp)}">${esc(geo.country)}${ispShort ? ' · ' + esc(ispShort) : ''} ${dot}</span>`;
+    }
+
     return `<tr class="fade-row${hasAnomaly ? ' anomaly-row' : ''}${v.rotation_status === 'rotating' ? ' rotating-row' : ''}" style="animation-delay:${Math.min(i * 20, 300)}ms">
       <td><span class="rank">${rank}</span></td>
       <td>${anomalyIcon}${rotationBadge}${validatorLink(v.address)}</td>
@@ -467,6 +499,7 @@ function renderValidatorsPage() {
       <td${blocksClass}>${fmtNum(v.blocks_proposed)}</td>
       <td${btClass}>${btVal}</td>
       <td>${fmtNum(v.total_tx)}</td>
+      <td>${locCell}</td>
       <td>${timeAgo(v.last_seen)}</td>
     </tr>`;
   }).join('');
