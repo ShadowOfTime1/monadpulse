@@ -706,6 +706,68 @@ async def compute_health_scores(pool, rpc=None):
                 c["first_active_ts"] = cached["timestamp"]
             else:
                 c["first_active_ts"] = None
+
+        # Filter to validators currently in the on-chain active set. Without
+        # this, a validator that produced blocks ≥48h ago and is no longer
+        # in the valset (Foundation rotation completed, validator unstaked,
+        # etc.) gets uptime_score=0 and stays at total_score 30-50 forever.
+        # Active set is authoritative — if you're not in it, you can't
+        # propose, and a "0% uptime" reading would just mislead.
+        if rpc is not None:
+            try:
+                active_vids: set[int] = set()
+                start = 0
+                while True:
+                    calldata = "0x7cb074df" + start.to_bytes(32, "big").hex()
+                    res = await rpc._call("eth_call", [
+                        {"to": "0x0000000000000000000000000000000000001000", "data": calldata},
+                        "latest",
+                    ])
+                    if not res or len(res) < 130:
+                        break
+                    raw = bytes.fromhex(res[2:])
+                    done = raw[31] == 1
+                    next_idx = int.from_bytes(raw[56:64], "big")
+                    arr_len = int.from_bytes(raw[0x60 + 24:0x60 + 32], "big")
+                    active_vids.update(int.from_bytes(raw[0x80 + i*32 + 24:0x80 + i*32 + 32], "big")
+                                       for i in range(arr_len))
+                    if done:
+                        break
+                    start = next_idx
+                if active_vids:
+                    before = len(clusters)
+                    # Keep clusters with val_id in active set OR val_id=None
+                    # (unresolved — be safe rather than drop unfairly).
+                    clusters = {k: c for k, c in clusters.items()
+                                if c.get("val_id") is None or c["val_id"] in active_vids}
+                    dropped = before - len(clusters)
+                    if dropped:
+                        log.info(f"health: dropped {dropped} clusters not in active valset ({len(active_vids)} active vids)")
+            except Exception as e:
+                log.warning(f"health: active-set filter failed, scoring all clusters: {e}")
+
+        # Second filter: drop clusters that ARE in active valset but have been
+        # silent >4h with no Foundation-rotation excuse. They produced blocks
+        # in the 7d window then stopped (operator turned node off, withdrew,
+        # etc.) — scoring them yields uptime=0 + total_score 30-40 that
+        # misrepresents them as "broken active validators". 4h aligns with
+        # when the recency penalty fully zeroes uptime anyway, so any score
+        # we'd write at that point is a misleading floor. Letting orphan
+        # cleanup delete their history is correct: when (if) they come back,
+        # they'll re-appear with a fresh score.
+        before2 = len(clusters)
+        silence_threshold_h = 4
+        clusters = {k: c for k, c in clusters.items()
+                    if not (c.get("last_seen") is not None
+                            and c.get("val_id") not in rotation_vids
+                            and (now_ts - (c["last_seen"] if c["last_seen"].tzinfo
+                                           else c["last_seen"].replace(tzinfo=timezone.utc)
+                                           )).total_seconds() / 3600 > silence_threshold_h)}
+        dropped_silent = before2 - len(clusters)
+        if dropped_silent:
+            log.info(f"health: dropped {dropped_silent} silent clusters (no blocks >{silence_threshold_h}h, not in rotation)")
+
+        active_validators = len(clusters)
         seconds_in_7d = 7 * 24 * 3600
         network_rate = network_total_7d / seconds_in_7d  # blocks per second network-wide
 
