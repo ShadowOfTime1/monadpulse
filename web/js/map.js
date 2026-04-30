@@ -270,6 +270,10 @@ async function buildValidatorList(knownLocations) {
     name: v.name,
     city: v.city,
     region: v.region,
+    country: v.country || '',
+    isp: v.isp || '',
+    asn: v.asn || '',
+    datacenter: !!v.datacenter,
     lat: v.lat,
     lon: v.lon,
     hasLocation: true,
@@ -297,6 +301,10 @@ async function buildValidatorList(knownLocations) {
       name: name || v.address,
       city: '—',
       region: '—',
+      country: '',
+      isp: '',
+      asn: '',
+      datacenter: false,
       lat: null,
       lon: null,
       hasLocation: false,
@@ -310,6 +318,7 @@ async function buildValidatorList(knownLocations) {
 
   const full = [...withLocation, ...named, ...addresses];
   _mapFullList = full;
+  renderFilterPills();
   renderMapTable(full);
 }
 
@@ -355,9 +364,15 @@ function _renderMapRows() {
     const displayName = isAddr ? shortAddr(v.name) : esc(v.name);
     const clickable = hasLoc ? `class="fade-row map-row" style="animation-delay:${Math.min(i * 15, 300)}ms;cursor:pointer" data-lat="${v.lat}" data-lon="${v.lon}"` : `class="fade-row" style="animation-delay:${Math.min(i * 15, 300)}ms"`;
 
+    const countryCell = v.country ? esc(v.country) : '—';
+    const ispShort = v.isp ? esc(v.isp.length > 22 ? v.isp.slice(0, 21) + '…' : v.isp) : '—';
+    const dcDot = v.datacenter ? '<span title="datacenter" style="color:#10b981">●</span>' : (hasLoc ? '<span title="residential/other" style="color:#a78bfa">○</span>' : '');
+
     return `<tr ${clickable}>
       <td><span style="color:${dotColor};margin-right:6px;font-size:8px">&#x25CF;</span><span style="${nameStyle}">${displayName}</span></td>
       <td style="color:${hasLoc ? 'var(--text)' : 'var(--text-dim)'}">${esc(v.city)}</td>
+      <td style="color:var(--text-dim);font-size:11px">${countryCell}</td>
+      <td style="color:var(--text-dim);font-size:11px" title="${esc(v.isp || '')}">${ispShort} ${dcDot}</td>
       <td style="color:var(--text-dim)">${esc(v.region)}</td>
     </tr>`;
   }).join('');
@@ -388,22 +403,91 @@ function _renderMapRows() {
   }
 }
 
+// Active filter state — persists across search edits.
+let _mapActiveFilter = null;  // { kind: 'country'|'isp', value: string }
+
+function _applyMapFilters() {
+  const q = (document.getElementById('map-search')?.value || '').toLowerCase().trim();
+  let src = _mapFullList;
+  if (_mapActiveFilter) {
+    const f = _mapActiveFilter;
+    src = src.filter(v => (f.kind === 'country' ? v.country : v.isp) === f.value);
+  }
+  if (q) {
+    src = src.filter(v =>
+      v.name.toLowerCase().includes(q) ||
+      v.city.toLowerCase().includes(q) ||
+      v.region.toLowerCase().includes(q) ||
+      (v.country || '').toLowerCase().includes(q) ||
+      (v.isp || '').toLowerCase().includes(q)
+    );
+  }
+  _mapTableData = src;
+  _mapTableExpanded = !!(q || _mapActiveFilter);
+  _renderMapRows();
+}
+
+function renderFilterPills() {
+  const wrap = document.getElementById('map-filter-pills');
+  if (!wrap) return;
+  // Build top-N concentration pills from validators with geo only.
+  const located = _mapFullList.filter(v => v.hasLocation);
+  if (!located.length) { wrap.innerHTML = ''; return; }
+  const countryCounts = {}, ispCounts = {};
+  located.forEach(v => {
+    if (v.country) countryCounts[v.country] = (countryCounts[v.country] || 0) + 1;
+    if (v.isp) ispCounts[v.isp] = (ispCounts[v.isp] || 0) + 1;
+  });
+  const topCountries = Object.entries(countryCounts).sort((a,b) => b[1]-a[1]).slice(0, 6);
+  const topIsps = Object.entries(ispCounts).sort((a,b) => b[1]-a[1]).slice(0, 5);
+
+  const pillStyle = (active) => `
+    display:inline-block;padding:3px 10px;margin:2px;border-radius:12px;
+    font-size:11px;cursor:pointer;border:1px solid ${active ? '#6E54FF' : 'rgba(110,84,255,0.18)'};
+    background:${active ? 'rgba(110,84,255,0.18)' : 'transparent'};
+    color:${active ? '#DDD7FE' : 'var(--text-mid)'};transition:all 0.15s
+  `.replace(/\s+/g, ' ').trim();
+
+  const countryPills = topCountries.map(([c, n]) => {
+    const active = _mapActiveFilter?.kind === 'country' && _mapActiveFilter.value === c;
+    return `<span class="filter-pill" data-kind="country" data-value="${esc(c)}" style="${pillStyle(active)}">${esc(c)} <span style="color:var(--text-dim)">${n}</span></span>`;
+  }).join('');
+  const ispPills = topIsps.map(([isp, n]) => {
+    const active = _mapActiveFilter?.kind === 'isp' && _mapActiveFilter.value === isp;
+    const short = isp.length > 18 ? isp.slice(0, 17) + '…' : isp;
+    return `<span class="filter-pill" data-kind="isp" data-value="${esc(isp)}" title="${esc(isp)}" style="${pillStyle(active)}">${esc(short)} <span style="color:var(--text-dim)">${n}</span></span>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <div style="font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-bottom:4px;text-transform:uppercase">Country</div>
+    <div>${countryPills}${_mapActiveFilter?.kind === 'country' ? `<span class="filter-pill" data-kind="clear" style="${pillStyle(false)};color:#ff6b6b">×&nbsp;clear</span>` : ''}</div>
+    <div style="font-size:10px;color:var(--text-dim);letter-spacing:1px;margin:8px 0 4px;text-transform:uppercase">ISP / hoster (top 5)</div>
+    <div>${ispPills}${_mapActiveFilter?.kind === 'isp' ? `<span class="filter-pill" data-kind="clear" style="${pillStyle(false)};color:#ff6b6b">×&nbsp;clear</span>` : ''}</div>
+  `;
+
+  wrap.querySelectorAll('.filter-pill').forEach(el => {
+    el.onclick = () => {
+      const kind = el.dataset.kind;
+      if (kind === 'clear') {
+        _mapActiveFilter = null;
+      } else {
+        const value = el.dataset.value;
+        if (_mapActiveFilter && _mapActiveFilter.kind === kind && _mapActiveFilter.value === value) {
+          _mapActiveFilter = null;
+        } else {
+          _mapActiveFilter = { kind, value };
+        }
+      }
+      renderFilterPills();
+      _applyMapFilters();
+    };
+  });
+}
+
 function initMapSearch() {
   const input = document.getElementById('map-search');
   if (!input) return;
-  input.addEventListener('input', () => {
-    const q = input.value.toLowerCase().trim();
-    if (!q) { _mapTableData = _mapFullList; _mapTableExpanded = false; _renderMapRows(); return; }
-    const src = _mapFullList;
-    const filtered = src.filter(v =>
-      v.name.toLowerCase().includes(q) ||
-      v.city.toLowerCase().includes(q) ||
-      v.region.toLowerCase().includes(q)
-    );
-    _mapTableData = filtered;
-    _mapTableExpanded = true;
-    _renderMapRows();
-  });
+  input.addEventListener('input', _applyMapFilters);
 }
 
 // Global toggle for show more/less button
