@@ -96,18 +96,15 @@ CONTEXT_NETWORK = "mainnet"  # the network whose state we feed to the LLM
 # testnet-specific MIPs ever appear.
 
 
-def _load_validator_directory() -> dict[str, dict]:
-    """Return {auth_lower: {val_id, name, shared_auth}} from the directory
-    plus override file.
+def _load_validator_directory() -> dict[int, dict]:
+    """Return {val_id: {auth, name}} from the directory plus override file.
 
-    `shared_auth=True` flags entries where multiple val_ids in the directory
-    bind to the same auth address — currently true for the Category Labs
-    cluster on testnet (val_ids 8/9/10/12 all under auth 0xfa034…). Such
-    entries are excluded from the LLM context and the canonical map until
-    the data layer captures per-val_id stakes (validator_stake_history PK
-    today is (auth, epoch), so 4 val_ids collapse to 1 stake row and we
-    can't honestly attribute per-val_id rank). See backlog: PK migration."""
-    raw_entries: list[tuple[str, dict]] = []
+    Post-2026-04-30 PK migration: stake history is keyed by (val_id, epoch),
+    so we no longer need the shared_auth flag — every val_id now gets its
+    own stake row (Category Labs testnet val_ids 8/9/10/12 → 4 rows per
+    epoch instead of being collapsed into one). The directory loader is
+    keyed by val_id to match the new schema."""
+    out: dict[int, dict] = {}
     for fname in (
         f"/opt/monadpulse/validator_directory_{CONTEXT_NETWORK}.json",
         f"/opt/monadpulse/validator_directory_override_{CONTEXT_NETWORK}.json",
@@ -121,22 +118,15 @@ def _load_validator_directory() -> dict[str, dict]:
             log.warning("validator directory load failed (%s): %s", fname, e)
             continue
         for r in rows:
+            vid = r.get("val_id")
             auth = (r.get("auth") or "").lower()
-            if auth:
-                raw_entries.append((auth, r))
-
-    # Count how many val_ids each auth is bound to. Anything > 1 = shared.
-    auth_count: dict[str, int] = {}
-    for auth, _ in raw_entries:
-        auth_count[auth] = auth_count.get(auth, 0) + 1
-
-    out: dict[str, dict] = {}
-    for auth, r in raw_entries:
-        out[auth] = {
-            "val_id": r.get("val_id"),
-            "name":   r.get("name") or f"val#{r.get('val_id')}",
-            "shared_auth": auth_count[auth] > 1,
-        }
+            if vid is None or not auth:
+                continue
+            out[int(vid)] = {
+                "auth": auth,
+                "val_id": int(vid),
+                "name":   r.get("name") or f"val#{vid}",
+            }
     return out
 
 
@@ -169,7 +159,7 @@ async def _validator_landscape(pool) -> dict:
         # deploy of this migration before snapshot_stakes runs.
         stake_rows = await conn.fetch(
             """
-            SELECT validator_id,
+            SELECT val_id, validator_id AS auth,
                    COALESCE(consensus_stake, total_stake) AS total_stake,
                    self_stake, delegator_count
             FROM validator_stake_history
@@ -188,31 +178,22 @@ async def _validator_landscape(pool) -> dict:
             CONTEXT_NETWORK,
         )
 
-    # Enrich each row with its directory val_id, then sort in Python so we
-    # can tie-break on val_id (which lives only in the directory JSON, not
-    # in the DB). Sentinel for missing val_id sorts to end of any plateau.
-    # Drop shared-auth rows — until the data layer captures per-val_id
-    # stake (PK migration, see backlog), we can't attribute rank honestly
-    # for clusters where one auth holds N val_ids.
+    # Enrich each row with directory metadata (auth in DB is the legacy
+    # validator_id column; val_id is the new authoritative key). Tie-break
+    # on val_id ASC then auth ASC for stable rank ordering.
     INF = float("inf")
     enriched: list[dict] = []
-    skipped_shared = 0
     for r in stake_rows:
-        auth = (r["validator_id"] or "").lower()
-        meta = directory.get(auth) or {}
-        if meta.get("shared_auth"):
-            skipped_shared += 1
-            continue
+        vid = r["val_id"]
+        meta = directory.get(int(vid)) if vid is not None else {}
         enriched.append({
-            "auth":            auth,
+            "auth":            (r["auth"] or "").lower(),
             "total_stake":     int(r["total_stake"]),
             "self_stake":      int(r["self_stake"]),
             "delegator_count": int(r["delegator_count"] or 0),
-            "val_id":          meta.get("val_id"),
-            "name":            meta.get("name"),
+            "val_id":          vid,
+            "name":            meta.get("name") if meta else None,
         })
-    if skipped_shared:
-        log.info("governance landscape: skipped %d shared-auth row(s)", skipped_shared)
     enriched.sort(key=lambda x: (
         -x["total_stake"],
         x["val_id"] if x["val_id"] is not None else INF,
@@ -346,7 +327,7 @@ async def _build_canonical_validator_map(pool) -> dict:
         )
         rows = await conn.fetch(
             """
-            SELECT validator_id,
+            SELECT val_id, validator_id AS auth,
                    COALESCE(consensus_stake, total_stake) AS total_stake
             FROM validator_stake_history
             WHERE network = $1 AND epoch = $2
@@ -355,21 +336,15 @@ async def _build_canonical_validator_map(pool) -> dict:
         )
     INF = float("inf")
     enriched = []
-    skipped_shared = 0
     for r in rows:
-        auth = (r["validator_id"] or "").lower()
-        meta = directory.get(auth) or {}
-        if meta.get("shared_auth"):
-            skipped_shared += 1
-            continue
+        vid = r["val_id"]
+        meta = directory.get(int(vid)) if vid is not None else {}
         enriched.append({
-            "auth":        auth,
+            "auth":        (r["auth"] or "").lower(),
             "total_stake": int(r["total_stake"]),
-            "val_id":      meta.get("val_id"),
-            "name":        meta.get("name"),
+            "val_id":      vid,
+            "name":        meta.get("name") if meta else None,
         })
-    if skipped_shared:
-        log.info("governance canonical: skipped %d shared-auth row(s)", skipped_shared)
     enriched.sort(key=lambda x: (
         -x["total_stake"],
         x["val_id"] if x["val_id"] is not None else INF,

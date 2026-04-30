@@ -1007,14 +1007,19 @@ async def snapshot_stakes(rpc: MonadRPC, pool) -> None:
             if execution_stake <= 0:
                 continue
             try:
+                # PK is (val_id, epoch, network) post-2026-04-30 migration.
+                # validator_id (auth) kept for legacy joins and side-panel lookups.
+                # Shared-auth clusters (Category Labs testnet val_ids 8/9/10/12)
+                # now write 4 separate rows per epoch instead of collapsing.
                 await conn.execute("""
                     INSERT INTO validator_stake_history
-                        (validator_id, epoch, total_stake, consensus_stake, self_stake, delegator_count, network)
-                    VALUES ($1, $2, $3, $4, 0, 0, $5)
-                    ON CONFLICT (validator_id, epoch) DO UPDATE SET
+                        (val_id, validator_id, epoch, total_stake, consensus_stake, self_stake, delegator_count, network)
+                    VALUES ($1, $2, $3, $4, $5, 0, 0, $6)
+                    ON CONFLICT (val_id, epoch, network) DO UPDATE SET
                         total_stake = EXCLUDED.total_stake,
-                        consensus_stake = EXCLUDED.consensus_stake
-                """, auth, int(epoch), execution_stake, consensus_stake, NETWORK)
+                        consensus_stake = EXCLUDED.consensus_stake,
+                        validator_id = EXCLUDED.validator_id
+                """, int(vid), auth, int(epoch), execution_stake, consensus_stake, NETWORK)
                 written += 1
             except Exception as e:
                 log.warning(f"stake-snapshot write err val_id={vid}: {e}")
