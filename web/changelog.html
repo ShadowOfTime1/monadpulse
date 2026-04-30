@@ -107,6 +107,23 @@
 
     <div class="change-entry">
       <div class="change-date">2026-04-30</div>
+      <div class="change-title">Backlog burn-down — 8 fixes</div>
+      <div class="change-body">
+        <ul>
+          <li><strong>Health score:</strong> active-set filter via on-chain <code>get_execution_valset</code> + silence-&gt;4h drop. The "30-50" bucket of 70 false-broken validators is gone; bottom of the table now starts at ~64 (real sub-optimal).</li>
+          <li><strong>Map UX:</strong> Country and ISP columns; clickable top-6 country / top-5 ISP pills above the table for one-click filter.</li>
+          <li><strong>About page:</strong> describes the new <code>peers.toml</code>+GeoIP pipeline and the mainnet observer node with its cgroup isolation from the testnet validator.</li>
+          <li><strong>VDP signing-uptime on mainnet:</strong> API now points at our local mainnet observer (<code>localhost:18080</code>); 1h/8h/24h/7d windows resolve correctly via miner discovery on the live RPC.</li>
+          <li><strong>SSH hardening:</strong> <code>PermitRootLogin no</code>, <code>MaxAuthTries 3</code>, <code>AllowUsers shadowoftime</code>, <code>ClientAliveInterval 5min</code>; cloud-init dangling sudoers removed; <code>monad</code> + <code>monad-mainnet</code> users → <code>nologin</code> shell.</li>
+          <li><strong>Validators page:</strong> Location column with country code + ISP + datacenter dot, sourced from the same geo data as the map.</li>
+          <li><strong>Governance ranks:</strong> migrated from <code>execution_stake</code> to <code>consensus_stake</code> (the value Monad actually uses for active-set selection). 5 testnet validators show a 22% exec/consensus gap during rotation in flight — these were ranked wrong before.</li>
+          <li><strong>Stake history PK:</strong> migrated from <code>(auth, epoch)</code> to <code>(val_id, epoch, network)</code>. Category Labs cluster (testnet val_ids 8/9/10/12 sharing one auth) now writes 4 rows/epoch instead of being collapsed — visible to the LLM impact analyser for the first time.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="change-entry">
+      <div class="change-date">2026-04-30</div>
       <div class="change-title">Mainnet observer node + full mainnet map coverage</div>
       <div class="change-body">
         Stood up a mainnet full node ("observer", non-validating) on the same OVH server as the testnet validator, isolated via systemd cgroups (separate user <code>monad-mainnet</code>, dedicated NVMe drives <code>nvme1n1</code>+<code>nvme3n1</code>, CPU pinned to physical cores 12-15 + SMT siblings 28-31, MemoryMax caps at 12+16+6=34GB, IOWeight 50 vs testnet's 100). Same <code>peers.toml</code>-driven GeoIP pipeline now runs for both networks. <strong>Mainnet map: 16 → 201 validators</strong> (190 P2P-signed + 11 manual). Testnet adds the observer itself: 202 → 203. Snapshot restore took ~2 min; observer reached tip with lag=1 block within 5 min of launch. Testnet validator's block production was unaffected throughout. Mainnet ports: TCP 8002 + UDP 8002/8003 (p2p), TCP 18080 (RPC, localhost). Health monitor every 5 min (lag vs <code>rpc.monad.xyz</code>, peers.toml staleness, cgroup memory pressure) → Telegram.
@@ -204,6 +221,6 @@
     <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
   </div>
 </footer>
-<script src="/js/app.js?v=aa22bbb0"></script>
+<script src="/js/app.js?v=e63a7869"></script>
 </body>
 </html>
