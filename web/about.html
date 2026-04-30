@@ -224,7 +224,12 @@
       <div class="data-source">
         <span class="ds-icon"></span>
         <span class="ds-label">Validator location</span>
-        <span class="ds-value">Manually verified from each operator's public information (website, social profiles). Only validators with confirmed geography are plotted on the Map; the legend shows how many remain unmapped.</span>
+        <span class="ds-value">Two layers: (1) <strong>P2P-signed peer registry</strong> (<code>peers.toml</code>) from our own Monad nodes — every validator publishes a signed name record with their IP and ports, and our nodes accumulate these as they discover peers. (2) <strong>Manual override</strong> from each operator's public information (website, social profiles) for the small set of validators not yet seen via P2P. IPs are then resolved through ip-api.com for city, country, ASN, and datacenter classification. Refreshes daily at 03:30 UTC.</span>
+      </div>
+      <div class="data-source">
+        <span class="ds-icon"></span>
+        <span class="ds-label">Mainnet observer node</span>
+        <span class="ds-value">A non-validating Monad mainnet full node runs on the same server as the testnet validator (since 2026-04-30). It exists solely to give MonadPulse access to mainnet block data, peer registry, and the staking precompile without depending on any third-party RPC. Isolated from the testnet validator via systemd cgroups (separate user, dedicated NVMe drives, capped CPU/memory/IO) — observer load cannot impact validator block production.</span>
       </div>
     </div>
 
