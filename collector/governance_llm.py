@@ -163,9 +163,15 @@ async def _validator_landscape(pool) -> dict:
             "SELECT MAX(epoch) FROM validator_stake_history WHERE network = $1",
             CONTEXT_NETWORK,
         )
+        # Prefer consensus_stake (Monad uses it for active-set selection).
+        # Fall back to total_stake (which holds execution_stake) when the
+        # consensus column hasn't been populated yet — matters at first
+        # deploy of this migration before snapshot_stakes runs.
         stake_rows = await conn.fetch(
             """
-            SELECT validator_id, total_stake, self_stake, delegator_count
+            SELECT validator_id,
+                   COALESCE(consensus_stake, total_stake) AS total_stake,
+                   self_stake, delegator_count
             FROM validator_stake_history
             WHERE network = $1 AND epoch = $2
             """,
@@ -326,10 +332,9 @@ async def _build_canonical_validator_map(pool) -> dict:
         val_id ASC tie-break matches the side-panel iteration order over
         /api/validators/directory; auth ASC is the final fallback for
         entries without a directory match.
-      - stake_basis = "execution". The total_stake column is misnamed; the
-        collector writes execution_stake from the staking precompile to it.
-        Active-set membership is technically by consensus_stake on Monad —
-        not yet stored. See backlog.
+      - stake_basis = "consensus" when the consensus_stake column is
+        populated (post-2026-04-30 migration), else "execution" fallback.
+        Active-set membership is by consensus_stake on Monad.
       - in_active_set = rank <= ACTIVE_SET_SIZE_CURRENT. Used by the
         corrector to phrase outside-active-set citations correctly.
     """
@@ -341,7 +346,8 @@ async def _build_canonical_validator_map(pool) -> dict:
         )
         rows = await conn.fetch(
             """
-            SELECT validator_id, total_stake
+            SELECT validator_id,
+                   COALESCE(consensus_stake, total_stake) AS total_stake
             FROM validator_stake_history
             WHERE network = $1 AND epoch = $2
             """,

@@ -1000,35 +1000,48 @@ async def snapshot_stakes(rpc: MonadRPC, pool) -> None:
             auth = (e.get("auth") or "").lower()
             if vid is None or not auth:
                 continue
-            stake = await _current_val_stake(rpc, vid)
-            if stake is None or stake <= 0:
+            stakes = await _current_val_stake(rpc, vid)
+            if stakes is None:
+                continue
+            execution_stake, consensus_stake = stakes
+            if execution_stake <= 0:
                 continue
             try:
                 await conn.execute("""
                     INSERT INTO validator_stake_history
-                        (validator_id, epoch, total_stake, self_stake, delegator_count, network)
-                    VALUES ($1, $2, $3, 0, 0, $4)
-                    ON CONFLICT (validator_id, epoch) DO UPDATE SET total_stake = EXCLUDED.total_stake
-                """, auth, int(epoch), stake, NETWORK)
+                        (validator_id, epoch, total_stake, consensus_stake, self_stake, delegator_count, network)
+                    VALUES ($1, $2, $3, $4, 0, 0, $5)
+                    ON CONFLICT (validator_id, epoch) DO UPDATE SET
+                        total_stake = EXCLUDED.total_stake,
+                        consensus_stake = EXCLUDED.consensus_stake
+                """, auth, int(epoch), execution_stake, consensus_stake, NETWORK)
                 written += 1
             except Exception as e:
                 log.warning(f"stake-snapshot write err val_id={vid}: {e}")
     log.info(f"stake snapshot: wrote {written} validators at epoch {epoch}")
 
 
-async def _current_val_stake(rpc: MonadRPC, val_id: int) -> int | None:
-    """Read execution_stake for val_id via staking precompile (returns wei)."""
+async def _current_val_stake(rpc: MonadRPC, val_id: int) -> tuple[int, int] | None:
+    """Read (execution_stake, consensus_stake) for val_id via staking precompile.
+    Both returned in wei. Field layout determined empirically from get_validator
+    return ABI [address, uint256(flags), uint256(execution_stake), uint256(rewards_acc),
+    uint256(execution_commission), uint256(unclaimed_rewards), uint256(consensus_stake),
+    uint256(consensus_commission), uint256(snapshot_stake), uint256(snapshot_commission),
+    bytes, bytes]. Monad uses consensus_stake for active-set selection — that's
+    the value governance ranks should reflect."""
     try:
         calldata = "0x" + GET_VALIDATOR_SELECTOR + int(val_id).to_bytes(32, "big").hex()
         result = await rpc._call("eth_call", [
             {"to": PRECOMPILE, "data": calldata}, "latest",
         ])
-        if not result or len(result) < 130:
+        if not result or len(result) < 2 + 7 * 64:  # need at least up to field 6
             return None
-        # Fields layout: address (32) + flags (32) + execution_stake (32) + ...
-        # Skip first 64 bytes (addr + flags), next 32 = execution_stake
-        execution_stake_hex = result[2 + 64 * 2: 2 + 96 * 2]
-        return int(execution_stake_hex, 16)
+        # Each field is 32 bytes = 64 hex chars. Skip "0x" prefix.
+        # field 2 = execution_stake (offset 2 + 2*64 = 130, length 64)
+        # field 6 = consensus_stake (offset 2 + 6*64 = 386, length 64)
+        execution_stake = int(result[2 + 2 * 64 : 2 + 3 * 64], 16)
+        consensus_stake = int(result[2 + 6 * 64 : 2 + 7 * 64], 16)
+        return execution_stake, consensus_stake
     except Exception:
         return None
 
