@@ -1,8 +1,8 @@
 {
   "network": "testnet",
-  "generated_at": "2026-04-30T18:31:29.162417+00:00",
+  "generated_at": "2026-04-30T19:50:59.229974+00:00",
   "source_summary": {
-    "p2p_signed_total": 182,
+    "p2p_signed_total": 183,
     "manual_override": 20,
     "no_geo": 0
   },
@@ -1402,6 +1402,24 @@
       "asn": "AS29066",
       "isp": "velia.net Internetdienste GmbH",
       "org": "Omakase Co Ltd",
+      "datacenter": true,
+      "source": "p2p_signed_geoip"
+    },
+    {
+      "val_id": null,
+      "name": "Unknown (02c0c723c1…)",
+      "auth": null,
+      "secp": "02c0c723c144b25cf986490c50dc094fbd2800e552ba63f86d3ce8eca163314498",
+      "ip": "88.198.66.28",
+      "city": "Falkenstein",
+      "country": "DE",
+      "country_name": "Germany",
+      "region": "Europe",
+      "lat": 50.4777,
+      "lon": 12.3649,
+      "asn": "AS24940",
+      "isp": "Hetzner",
+      "org": "Network Address for Servers",
       "datacenter": true,
       "source": "p2p_signed_geoip"
     },

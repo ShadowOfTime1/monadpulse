@@ -45,7 +45,7 @@ DATA_DIR = Path("/opt/monadpulse/data")
 DIR_PATH = Path("/opt/monadpulse")  # validator_directory_*.json
 RPC_URLS = {
     "testnet": "http://localhost:8080",
-    # mainnet: requires observer node; deferred (Phase 2.M1)
+    "mainnet": "http://localhost:18080",
 }
 PRECOMPILE = "0x0000000000000000000000000000000000001000"
 SEL_GET_VALIDATOR = "2b6d639a"           # get_validator(uint64)
@@ -301,7 +301,7 @@ async def build(network: str) -> dict:
 
 
 async def main():
-    for network in ("testnet",):
+    for network in ("testnet", "mainnet"):
         out = await build(network)
         out_path = DIR_PATH / f"validator_geo_full_{network}.json"
         out_path.write_text(json.dumps(out, indent=2, ensure_ascii=False))
