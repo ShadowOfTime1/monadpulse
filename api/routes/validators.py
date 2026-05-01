@@ -487,6 +487,10 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
             network, str(val_id),
         )
         # Is this validator currently in rotation (≥1.9M Foundation undelegate in last 48h)?
+        # Plus authoritative on-chain check: consensus_stake=0 means we ARE
+        # rotated out right now, regardless of whether stake_events captured
+        # the undelegate (collector may have missed it across restarts, or
+        # the undelegate may have been older than 48h).
         rot_row = await conn.fetchrow(
             """
             SELECT 1 FROM stake_events
@@ -499,6 +503,15 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
             LIMIT 1
             """,
             network, str(val_id),
+        )
+        cons_zero_row = await conn.fetchrow(
+            """
+            SELECT 1 FROM validator_stake_history
+            WHERE network = $1 AND val_id = $2
+              AND consensus_stake = 0
+            ORDER BY epoch DESC LIMIT 1
+            """,
+            network, int(val_id),
         )
     total_24h = int(row["total_24h"] or 0)
     actual_24h = int(row["actual_24h"] or 0)
@@ -537,7 +550,7 @@ async def validator_signing_uptime(val_id: int, request: Request, network: str =
             "enrolled": bool(vdp_row and vdp_row["tx_count"] and vdp_row["tx_count"] > 0),
             "join_date": vdp_join.isoformat() if vdp_join else None,
             "days_enrolled": vdp_days,
-            "rotation_active": bool(rot_row),
+            "rotation_active": bool(rot_row) or bool(cons_zero_row),
         },
         "note": "proxy via proposing rate; baseline is validator's own 24h share — 1h pct will crash toward 0 on outage",
     }

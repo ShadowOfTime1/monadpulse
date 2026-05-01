@@ -987,21 +987,83 @@ async def snapshot_stakes(rpc: MonadRPC, pool) -> None:
         return
     import json as _json
     directory_path = Path(f"/opt/monadpulse/validator_directory_{NETWORK}.json")
-    if not directory_path.exists():
-        return
+    directory_vids: set[int] = set()
+    auth_by_vid: dict[int, str] = {}
+    if directory_path.exists():
+        try:
+            for e in _json.loads(directory_path.read_text()):
+                vid_d = e.get("val_id")
+                auth_d = (e.get("auth") or "").lower()
+                if vid_d is not None and auth_d:
+                    directory_vids.add(int(vid_d))
+                    auth_by_vid[int(vid_d)] = auth_d
+        except Exception:
+            pass
+
+    # Always include the on-chain active set — directory may lag (e.g. our
+    # val 267 wasn't in upstream validator-info for weeks). Fetch the full
+    # execution_valset via precompile so we never miss a validator.
+    onchain_vids: set[int] = set()
     try:
-        directory = _json.loads(directory_path.read_text())
+        start = 0
+        while True:
+            calldata = "0x7cb074df" + start.to_bytes(32, "big").hex()
+            r = await rpc._call("eth_call", [
+                {"to": PRECOMPILE, "data": calldata}, "latest",
+            ])
+            if not r or len(r) < 130:
+                break
+            raw = bytes.fromhex(r[2:])
+            done = raw[31] == 1
+            next_idx = int.from_bytes(raw[56:64], "big")
+            arr_len = int.from_bytes(raw[0x60 + 24:0x60 + 32], "big")
+            onchain_vids.update(int.from_bytes(raw[0x80 + i*32 + 24:0x80 + i*32 + 32], "big")
+                                for i in range(arr_len))
+            if done:
+                break
+            start = next_idx
+    except Exception as e:
+        log.warning(f"snapshot_stakes valset fetch err: {e}")
+
+    # Also pull val_ids we've seen in the last 5 epochs from stake_history.
+    # This captures rotated-out validators (not in active valset right now)
+    # so their consensus_stake gets refreshed to 0 — otherwise rotation
+    # detection via consensus_stake stays stale forever.
+    history_vids: set[int] = set()
+    try:
+        async with pool.acquire() as conn:
+            rows = await conn.fetch(
+                """
+                SELECT DISTINCT val_id FROM validator_stake_history
+                WHERE network = $1 AND epoch >= $2
+                """,
+                NETWORK, int(epoch) - 5,
+            )
+            for r in rows:
+                history_vids.add(int(r["val_id"]))
     except Exception:
-        return
+        pass
+
+    all_vids = directory_vids | onchain_vids | history_vids
     written = 0
+    skipped_no_auth = 0
     async with pool.acquire() as conn:
-        for e in directory:
-            vid = e.get("val_id")
-            auth = (e.get("auth") or "").lower()
-            if vid is None or not auth:
-                continue
-            stakes = await _current_val_stake(rpc, vid)
-            if stakes is None:
+        for vid in all_vids:
+            auth = auth_by_vid.get(vid)
+            if auth is None:
+                # Resolve auth via get_validator(vid) for vids missing from directory.
+                stakes_with_auth = await _current_val_stake_with_auth(rpc, vid)
+                if stakes_with_auth is None:
+                    skipped_no_auth += 1
+                    continue
+                auth = stakes_with_auth[2]
+                # Reuse: stakes_with_auth = (exec, cons, auth_lower)
+                stakes = (stakes_with_auth[0], stakes_with_auth[1])
+            else:
+                stakes = await _current_val_stake(rpc, vid)
+                if stakes is None:
+                    continue
+            if not auth:
                 continue
             execution_stake, consensus_stake = stakes
             if execution_stake <= 0:
@@ -1024,6 +1086,25 @@ async def snapshot_stakes(rpc: MonadRPC, pool) -> None:
             except Exception as e:
                 log.warning(f"stake-snapshot write err val_id={vid}: {e}")
     log.info(f"stake snapshot: wrote {written} validators at epoch {epoch}")
+
+
+async def _current_val_stake_with_auth(rpc: MonadRPC, val_id: int) -> tuple[int, int, str] | None:
+    """Like _current_val_stake but also returns the auth address. Useful for
+    val_ids missing from the local directory (e.g. our val 267 before the
+    upstream validator-info PR landed)."""
+    try:
+        calldata = "0x" + GET_VALIDATOR_SELECTOR + int(val_id).to_bytes(32, "big").hex()
+        result = await rpc._call("eth_call", [
+            {"to": PRECOMPILE, "data": calldata}, "latest",
+        ])
+        if not result or len(result) < 2 + 7 * 64:
+            return None
+        addr_hex = result[2 + 24 : 2 + 64].lower()  # last 20 bytes of field 0
+        execution_stake = int(result[2 + 2 * 64 : 2 + 3 * 64], 16)
+        consensus_stake = int(result[2 + 6 * 64 : 2 + 7 * 64], 16)
+        return execution_stake, consensus_stake, "0x" + addr_hex
+    except Exception:
+        return None
 
 
 async def _current_val_stake(rpc: MonadRPC, val_id: int) -> tuple[int, int] | None:
@@ -1168,7 +1249,11 @@ async def _maybe_alert_stake_event(conn, ev: dict, rpc: MonadRPC | None = None) 
         return  # under absolute floor
 
     val_id = int(ev["validator_id"])
-    stake_wei = await _current_val_stake(rpc, val_id) if rpc else None
+    # _current_val_stake now returns (execution, consensus) tuple. Use execution
+    # for pct-of-validator calculation since that's what shows in stake ingest
+    # alerts ("X% of validator's stake").
+    stakes = await _current_val_stake(rpc, val_id) if rpc else None
+    stake_wei = stakes[0] if stakes else None
     stake_mon = stake_wei / 10 ** 18 if stake_wei else None
     pct = (amount_mon / stake_mon * 100) if stake_mon else 0
 
