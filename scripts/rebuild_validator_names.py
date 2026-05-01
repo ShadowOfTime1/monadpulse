@@ -139,12 +139,48 @@ def resolve_miners_mainnet(w3: Web3) -> dict[str, int]:
     return out
 
 
+def _collect_history_vids(network: str) -> set[int]:
+    """Pull distinct val_ids seen in stake_history for the last 5 epochs.
+    Used to keep rotated-out validators in our directory so alerts can name
+    them. Returns empty set on any error (postgres down, table missing, etc) —
+    rebuild then falls back to active-set-only behavior."""
+    try:
+        out = subprocess.run(
+            [
+                "sudo", "-u", "postgres", "psql", "-d", "monadpulse",
+                "-tAc",
+                "SELECT DISTINCT val_id FROM validator_stake_history "
+                f"WHERE network = '{network}' "
+                f"AND epoch >= (SELECT MAX(epoch)-5 FROM validator_stake_history WHERE network = '{network}')",
+            ],
+            capture_output=True, text=True, timeout=10,
+        )
+        if out.returncode != 0:
+            return set()
+        return {int(line) for line in out.stdout.split() if line.strip()}
+    except Exception:
+        return set()
+
+
 def build(network: str) -> None:
     log(f"=== {network} ===")
     w3 = Web3(Web3.HTTPProvider(NETWORKS[network]))
 
     ids = collect_val_ids(w3)
     log(f"  valset size: {len(ids)}")
+
+    # Also include val_ids we've previously seen but that are currently
+    # rotated out of the active set. Without this, our own val 267 (and
+    # ~30 other Foundation-rotation pool members) drop out of the directory
+    # whenever they cycle out — alerts then say "Validator 267" instead
+    # of "shadowoftime". Source: distinct val_ids from validator_stake_history
+    # in the last 5 epochs (covers the typical ~24h rotation window).
+    extra_vids = _collect_history_vids(network)
+    if extra_vids:
+        added = sorted(extra_vids - set(ids))
+        if added:
+            log(f"  + history vids (rotated out): {len(added)} (e.g. {added[:5]}…)")
+            ids = list(ids) + added
 
     val_to_secp = fetch_val_to_secp(w3, ids)
     log(f"  val→secp: {len(val_to_secp)}")
