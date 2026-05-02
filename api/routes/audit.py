@@ -130,7 +130,7 @@ def _aggregate_geo(network: str) -> dict:
         entry = {
             "subnet": subnet,
             "count": len(members),
-            "isp": members[0].get("isp"),
+            "isp": canonical_isp(members[0]),  # use normalized ISP name (consistent with bar chart)
             "city": members[0].get("city"),
             "country": members[0].get("country"),
             "anonymous": len(anonymous),
@@ -163,6 +163,69 @@ def _aggregate_geo(network: str) -> dict:
         "anonymous_clusters": anon_clusters[:8],
         "shared16_top": [{"subnet": s, "count": n} for s, n in n16.most_common(6) if n >= 5],
     }
+
+
+async def _enrich_geo_with_stake_hhi(pool, network: str, geo: dict) -> dict:
+    """Compute STAKE-WEIGHTED country and ASN HHI on top of the count-based numbers.
+    Stake-weighted is the metric that actually matters for consensus security:
+    one whale validator at 100M MON in country X moves the dial more than ten
+    small validators in country Y. Without this, count-HHI under-reports real
+    concentration when stake is uneven."""
+    vs = _load_geo(network)
+    registered = [v for v in vs if v.get("val_id") is not None]
+    if not registered:
+        return geo
+    val_ids = [int(v["val_id"]) for v in registered]
+    async with pool.acquire() as conn:
+        current_epoch = await conn.fetchval(
+            "SELECT MAX(epoch) FROM validator_stake_history WHERE network = $1", network,
+        )
+        if current_epoch is None:
+            return geo
+        rows = await conn.fetch(
+            """
+            SELECT val_id,
+                   COALESCE(consensus_stake, total_stake)::numeric AS stake
+            FROM validator_stake_history
+            WHERE network = $1 AND epoch = $2 AND val_id = ANY($3::int[])
+            """,
+            network, current_epoch, val_ids,
+        )
+    stake_by_vid = {int(r["val_id"]): int(r["stake"]) for r in rows}
+
+    # Same canonical-ISP map as in _aggregate_geo
+    asn_to_isp_canonical: dict[str, str] = {}
+    for v in registered:
+        asn, isp = v.get("asn"), v.get("isp")
+        if asn and isp and asn not in asn_to_isp_canonical:
+            asn_to_isp_canonical[asn] = _normalize_isp(isp)
+
+    def canonical_isp(v):
+        asn = v.get("asn")
+        if asn and asn in asn_to_isp_canonical:
+            return asn_to_isp_canonical[asn]
+        return _normalize_isp(v.get("isp")) if v.get("isp") else None
+
+    weighted_countries: dict[str, int] = {}
+    weighted_asns: dict[str, int] = {}
+    for v in registered:
+        stake = stake_by_vid.get(int(v["val_id"]), 0)
+        if stake <= 0:
+            continue
+        c = v.get("country")
+        if c:
+            weighted_countries[c] = weighted_countries.get(c, 0) + stake
+        a = v.get("asn")
+        if a:
+            weighted_asns[a] = weighted_asns.get(a, 0) + stake
+
+    geo["stake_country_hhi"] = _hhi(weighted_countries)
+    geo["stake_asn_hhi"] = _hhi(weighted_asns)
+    geo["stake_weighted_top_country"] = (
+        sorted(weighted_countries.items(), key=lambda x: -x[1])[:3]
+        if weighted_countries else []
+    )
+    return geo
 
 
 async def _aggregate_stake_clusters(pool, network: str) -> dict:
@@ -398,6 +461,7 @@ async def network_audit(request: Request, network: str = Query("testnet")):
 
     pool = request.app.state.pool
     geo = _aggregate_geo(network)
+    geo = await _enrich_geo_with_stake_hhi(pool, network, geo)
     stake_clusters = await _aggregate_stake_clusters(pool, network)
     rotation = await _aggregate_rotation(pool, network)
     performance = await _aggregate_performance(pool, network)

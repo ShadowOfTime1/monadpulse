@@ -45,30 +45,38 @@ async function loadAndRender() {
   root.innerHTML = html;
 }
 
-// Hero verdict — one-sentence plain-English summary with traffic-light tone.
+// Hero verdict — plain-English summary with traffic-light tone.
+// Tone now considers BOTH HHI and datacenter share so verdict can't be green
+// when 60%+ of validators sit in commercial datacenters.
 function renderVerdict(d) {
   const g = d.geo || {};
   const p = d.performance || {};
   const network = d.network || "testnet";
-  const HHI = g.country_hhi || 0;
-  const tone = HHI < 1500 ? { color: "#4ade80", label: "Healthy spread" }
-              : HHI < 2500 ? { color: "#FFAE45", label: "Moderate concentration" }
-              : { color: "#FF8EE4", label: "High concentration" };
+  const HHI = Math.max(g.country_hhi || 0, g.stake_country_hhi || 0);
+  const dcPct = g.datacenter_pct || 0;
+
+  let tone;
+  if (HHI < 1500 && dcPct < 70) tone = { color: "#4ade80", label: "Healthy spread" };
+  else if (HHI < 2500 && dcPct < 85) tone = { color: "#FFAE45", label: "Moderate concentration" };
+  else tone = { color: "#FF8EE4", label: "High concentration" };
 
   const stuck = (p.zero_blocks_named || []).length;
   const stuckSentence = p.applicable && stuck > 0
-    ? ` <strong>${stuck} VDP-enrolled operators</strong> have been in the rotation pool for 14+ days yet produced zero blocks in the last 7 — could be queue order or an algorithm bias worth raising.`
+    ? `<strong>${stuck} delegation-program operators</strong> have been in the rotation pool for 14+ days yet produced zero blocks in the last 7 — could be queue order or an algorithm bias worth raising.`
     : "";
   const subnets = g.shared24_count || 0;
-  const subnetSentence = subnets ? ` <strong>${g.shared24_validators}</strong> validators share data-center racks with at least one peer (${subnets} co-located /24 subnets).` : "";
+  const subnetSentence = subnets
+    ? `<strong>${g.shared24_validators}</strong> validators share data-center racks with at least one peer (${subnets} co-located /24 subnets).`
+    : "";
 
   return `
   <section class="audit-section verdict-band">
     <div class="verdict-tone" style="border-color:${tone.color}33;background:${tone.color}0a">
       <div class="verdict-label" style="color:${tone.color}">${tone.label}</div>
-      <div class="verdict-text">
-        Monad <strong>${network === "mainnet" ? "mainnet" : "testnet"}</strong> spans <strong>${g.registered_count || 0}</strong> registered validators across <strong>${g.country_total || 0}</strong> countries and <strong>${g.asn_total || 0}</strong> network operators.${subnetSentence}${stuckSentence}
-      </div>
+      <p class="verdict-text">
+        Monad <strong>${network === "mainnet" ? "mainnet" : "testnet"}</strong> spans <strong>${g.registered_count || 0}</strong> registered validators across <strong>${g.country_total || 0}</strong> countries and <strong>${g.asn_total || 0}</strong> network operators. <strong>${dcPct}%</strong> of nodes sit in commercial datacenters.
+      </p>
+      ${subnetSentence || stuckSentence ? `<p class="verdict-text" style="margin-top:8px">${subnetSentence}${subnetSentence && stuckSentence ? " " : ""}${stuckSentence}</p>` : ""}
     </div>
   </section>
   `;
@@ -90,12 +98,14 @@ function renderHero(d) {
       <div class="audit-stat">
         <div class="audit-stat-label" title="Herfindahl-Hirschman Index. 0–1500: healthy spread. 2500+: concentrated.">Country diversity (HHI)</div>
         <div class="audit-stat-value" style="color:${hhiColor}">${HHI}</div>
-        <div class="audit-stat-sub">${hhiLabel} · ${g.country_total || 0} countries</div>
+        <div class="audit-stat-sub">by validator count · ${g.country_total || 0} countries</div>
+        ${g.stake_country_hhi ? `<div class="audit-stat-sub" title="Same index but each validator is weighted by current stake. Heavier validators count more, which surfaces real consensus-security concentration.">stake-weighted: <strong style="color:${g.stake_country_hhi > HHI ? '#FFAE45' : '#4ade80'}">${g.stake_country_hhi}</strong></div>` : ""}
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Same diversity index but over unique Autonomous System Numbers (network operators)">ASN diversity (HHI)</div>
+        <div class="audit-stat-label" title="Same diversity index but over unique Autonomous System Numbers (network operators / hosting providers)">ASN diversity (HHI)</div>
         <div class="audit-stat-value">${g.asn_hhi || 0}</div>
-        <div class="audit-stat-sub">${g.asn_total || 0} unique ASNs</div>
+        <div class="audit-stat-sub">by validator count · ${g.asn_total || 0} unique ASNs</div>
+        ${g.stake_asn_hhi ? `<div class="audit-stat-sub" title="Same index but weighted by current stake — surfaces hidden hosting concentration when one provider hosts the heaviest validators.">stake-weighted: <strong style="color:${g.stake_asn_hhi > (g.asn_hhi || 0) ? '#FFAE45' : '#4ade80'}">${g.stake_asn_hhi}</strong></div>` : ""}
       </div>
       <div class="audit-stat">
         <div class="audit-stat-label" title="Servers hosted in commercial datacenters vs other (residential, business ISP)">Datacenter share</div>
@@ -197,7 +207,17 @@ function renderSubnets(g) {
 
 function renderAnonClusters(g) {
   const clusters = g?.anonymous_clusters || [];
-  if (!clusters.length) return "";
+  if (!clusters.length) {
+    // Don't silently disappear when zero — show the threshold so a reader
+    // can tell "we checked and found none" from "we hid the section".
+    return `
+    <section class="data-section audit-section">
+      <div class="section-title">Unidentified clusters</div>
+      <div class="audit-empty">
+        Checked all ${g?.shared24_count || 0} co-located /24 subnets across <strong>${g?.registered_count || 0}</strong> registered validators. No subnet matched the threshold (≥3 members, all without an entry in <code>monad-developers/validator-info</code>).
+      </div>
+    </section>`;
+  }
   const cards = clusters.map((c) => `
     <div class="cluster-card" style="border-color:rgba(255,142,228,0.25);background:rgba(255,142,228,0.04)">
       <div class="cluster-head">
@@ -221,7 +241,15 @@ function renderAnonClusters(g) {
 
 function renderStakeClusters(s) {
   const clusters = s?.clusters || [];
-  if (!clusters.length) return "";
+  if (!clusters.length) {
+    return `
+    <section class="data-section audit-section">
+      <div class="section-title">Operators with multiple validators under one wallet</div>
+      <div class="audit-empty">
+        No auth wallet on this network is registered for more than one val_id — every validator has its own dedicated authorization wallet.
+      </div>
+    </section>`;
+  }
   const cards = clusters.map((c) => `
     <div class="cluster-card">
       <div class="cluster-head">
@@ -324,10 +352,15 @@ function renderPerformance(p) {
       // Hairline marker so the empty middle is visible, not silently missing
       return `<div class="histogram-segment" style="background:${s.color};width:2px;opacity:0.4" title="${s.label}: empty"></div>`;
     }
-    if (w < 1.5) {
-      return `<div class="histogram-segment" style="background:${s.color};width:${w}%;color:${s.text}" title="${s.label}: ${s.value}"></div>`;
+    // Non-empty buckets get a minimum visible width so a 0.4% sliver
+    // (e.g. the lone "1000-2999" datapoint that proves bimodality) is
+    // still distinguishable from the empty hairline next to it.
+    const minPct = 100 * 12 / 800; // ~12px on a typical 800px container = ~1.5%
+    const effectiveW = Math.max(w, minPct);
+    if (w < 4) {
+      return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${effectiveW}%;color:${s.text}" title="${s.label}: ${s.value}"></div>`;
     }
-    return `<div class="histogram-segment" style="background:${s.color};width:${w}%;color:${s.text}" title="${s.label}: ${s.value}">${s.value}</div>`;
+    return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${w}%;color:${s.text}" title="${s.label}: ${s.value}">${s.value}</div>`;
   }).join("");
   const legend = segments.map((s) => `<span><span class="histogram-legend-dot" style="background:${s.color}"></span>${s.label}</span>`).join("");
 
@@ -358,13 +391,21 @@ function renderPerformance(p) {
     <div style="font-size:10px;color:var(--text-dim);margin-top:6px">← idle · active →</div>
 
     ${zeroList.length ? `
-      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Named operators stuck at zero blocks (≥${tenureDays} days in pool, last 7d)</div>
+      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Operators stuck at zero blocks (≥${tenureDays} days in pool, last 7d)</div>
       <div class="audit-flag">
         <div class="audit-flag-title">⚠ Possible queue-fairness question</div>
-        ${zeroList.length} VDP-enrolled operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. Plausible explanations: (a) the queue is long and their slot hasn't come up, (b) Foundation uses internal performance gates before promotion, (c) bias in the rotation algorithm. The list is not a verdict on operator quality — it's an observation worth raising with the Foundation.
+        <strong>${zeroList.length}</strong> delegation-program operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. Plausible explanations: (a) the queue is long and their slot hasn't come up, (b) Foundation uses internal performance gates before promotion, (c) bias in the rotation algorithm. The list is not a verdict on operator quality — it's an observation worth raising with the Foundation.
         ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Additionally: ${recentCount} more operators are also at zero, but joined the pool less than ${tenureDays} days ago — not flagged as "stuck".</div>` : ""}
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,142,228,0.15);font-size:11px;color:var(--text-dim);line-height:1.6">
+          <strong style="color:var(--text-mid)">Conflict-of-interest disclosure:</strong> the author of this page operates val_id 267 (<em>shadowoftime</em>) and is in the same rotation pool. The author's val_id appears in the same statistics; names below are shown without editorial selection.
+        </div>
       </div>
-      <div class="pill-row" style="margin-top:10px">${zeroPills}</div>
+      <details class="zero-blocks-details">
+        <summary style="cursor:pointer;color:var(--text-mid);font-family:var(--mono);font-size:12px;padding:8px 0">
+          Show ${zeroList.length} named operator${zeroList.length === 1 ? '' : 's'} ▾
+        </summary>
+        <div class="pill-row" style="margin-top:10px">${zeroPills}</div>
+      </details>
     ` : ""}
 
     ${topRows ? `
