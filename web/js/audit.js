@@ -113,7 +113,7 @@ function renderHero(d) {
           const deltaColor = delta > 30 ? '#FFAE45' : delta < -30 ? '#85E6FF' : '#4ade80';
           const sign = delta > 0 ? '+' : delta < 0 ? '−' : '±';
           const absDelta = Math.abs(delta);
-          return `<div class="audit-stat-sub" title="Same index but each validator is weighted by current consensus stake. Positive delta = heavy stake concentrates more than validator counts; negative = stake diversifies wider than counts; near-zero = consistent.">stake-weighted: <strong>${g.stake_country_hhi}</strong> <span style="color:${deltaColor}">(${sign}${absDelta} vs count)</span></div>`;
+          return `<div class="audit-stat-sub" title="Same index but each validator is weighted by current consensus stake. Positive delta = heavy stake concentrates more than validator counts; negative = stake diversifies wider than counts; near-zero = consistent. The ±30 colour threshold is calibrated to the typical MonadPulse data range (HHI 800–1200 currently); it is not the DOJ ±100 antitrust standard, which would barely register at our scale.">stake-weighted: <strong>${g.stake_country_hhi}</strong> <span style="color:${deltaColor}">(${sign}${absDelta} vs count)</span></div>`;
         })()}
       </div>
       <div class="audit-stat">
@@ -396,6 +396,7 @@ function renderPerformance(p) {
 
   const zeroList = (p.zero_blocks_named || []).slice(0, 24);
   const recentCount = p.zero_blocks_recent_count || 0;
+  const unknownTenureCount = p.zero_blocks_unknown_tenure_count || 0;
   const tenureDays = p.tenure_threshold_days || 14;
 
   // Tenure values are clipped to our stake_events history horizon (data
@@ -434,7 +435,8 @@ function renderPerformance(p) {
         <div class="audit-flag-title">ℹ Queue-tenure observation</div>
         <strong>${zeroList.length}</strong> delegation-program operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. This is an observation about queue dynamics, not a quality judgement of the operators. Plausible explanations include: (a) a long queue where their slot hasn't come up yet, (b) the Foundation's internal performance gates evaluate operators before active-set promotion, (c) variance in the rotation order. Worth surfacing in conversations with the Foundation, not actionable on its own.
         ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Additionally: ${recentCount} more operators are also at zero, but joined the pool less than ${tenureDays} days ago — not flagged as "stuck".</div>` : ""}
-        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,142,228,0.15);font-size:11px;color:var(--text-dim);line-height:1.6">
+        <div style="margin-top:6px;font-size:11px;color:var(--text-dim)">Self-bonded operators with unresolved Foundation-delegate tenure: <strong>${unknownTenureCount}</strong>${unknownTenureCount === 0 ? " (path checked, no validators in this state on this network)" : ""}.</div>
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(110,84,255,0.15);font-size:11px;color:var(--text-dim);line-height:1.6">
           <strong style="color:var(--text-mid)">Conflict-of-interest disclosure:</strong> the author of this page operates val_id 267 (<em>shadowoftime</em>) and is in the same rotation pool. The author's val_id appears in the same statistics; names below are shown without editorial selection.
         </div>
       </div>
