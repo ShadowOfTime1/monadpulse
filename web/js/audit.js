@@ -27,13 +27,15 @@ async function loadAndRender() {
     root.innerHTML = '<div class="audit-loading" style="color:var(--pink)">Failed to load audit data.</div>';
     return;
   }
-  // Order: verdict → performance (the lead story) → hero stats →
-  // geo → hosting → subnets → anon clusters → stake clusters →
-  // rotation → methodology footer.
+  // Order: verdict → hero stats (the "what is this network" baseline) →
+  // performance (the lead finding) → geo → hosting → subnets → anon →
+  // stake clusters → rotation → methodology footer.
+  // Hero before performance: a reader hits the histogram with context for
+  // "what pool is this", not from cold.
   const html = [
     renderVerdict(data),
-    renderPerformance(data.performance),
     renderHero(data),
+    renderPerformance(data.performance),
     renderGeo(data.geo),
     renderHosting(data.geo),
     renderSubnets(data.geo),
@@ -55,9 +57,11 @@ function renderVerdict(d) {
   const HHI = Math.max(g.country_hhi || 0, g.stake_country_hhi || 0);
   const dcPct = g.datacenter_pct || 0;
 
+  // Datacenter threshold tightened from 70 → 50 — at 60%+ commercial DC,
+  // calling the network "healthy spread" undercuts the audit's own thesis.
   let tone;
-  if (HHI < 1500 && dcPct < 70) tone = { color: "#4ade80", label: "Healthy spread" };
-  else if (HHI < 2500 && dcPct < 85) tone = { color: "#FFAE45", label: "Moderate concentration" };
+  if (HHI < 1500 && dcPct < 50) tone = { color: "#4ade80", label: "Healthy spread" };
+  else if (HHI < 2500 && dcPct < 75) tone = { color: "#FFAE45", label: "Moderate concentration" };
   else tone = { color: "#FF8EE4", label: "High concentration" };
 
   const stuck = (p.zero_blocks_named || []).length;
@@ -99,13 +103,26 @@ function renderHero(d) {
         <div class="audit-stat-label" title="Herfindahl-Hirschman Index. 0–1500: healthy spread. 2500+: concentrated.">Country diversity (HHI)</div>
         <div class="audit-stat-value" style="color:${hhiColor}">${HHI}</div>
         <div class="audit-stat-sub">by validator count · ${g.country_total || 0} countries</div>
-        ${g.stake_country_hhi ? `<div class="audit-stat-sub" title="Same index but each validator is weighted by current stake. Heavier validators count more, which surfaces real consensus-security concentration.">stake-weighted: <strong style="color:${g.stake_country_hhi > HHI ? '#FFAE45' : '#4ade80'}">${g.stake_country_hhi}</strong></div>` : ""}
+        ${(() => {
+          if (!g.stake_country_hhi) return "";
+          const delta = g.stake_country_hhi - HHI;
+          const deltaColor = Math.abs(delta) < 50 ? '#4ade80' : delta > 0 ? '#FFAE45' : '#85E6FF';
+          const sign = delta > 0 ? '+' : (delta < 0 ? '' : '±');
+          return `<div class="audit-stat-sub" title="Same index but each validator is weighted by current consensus stake. A positive delta means heavy stake concentrates more than validator counts suggest.">stake-weighted: <strong>${g.stake_country_hhi}</strong> <span style="color:${deltaColor}">(${sign}${delta})</span></div>`;
+        })()}
       </div>
       <div class="audit-stat">
         <div class="audit-stat-label" title="Same diversity index but over unique Autonomous System Numbers (network operators / hosting providers)">ASN diversity (HHI)</div>
         <div class="audit-stat-value">${g.asn_hhi || 0}</div>
         <div class="audit-stat-sub">by validator count · ${g.asn_total || 0} unique ASNs</div>
-        ${g.stake_asn_hhi ? `<div class="audit-stat-sub" title="Same index but weighted by current stake — surfaces hidden hosting concentration when one provider hosts the heaviest validators.">stake-weighted: <strong style="color:${g.stake_asn_hhi > (g.asn_hhi || 0) ? '#FFAE45' : '#4ade80'}">${g.stake_asn_hhi}</strong></div>` : ""}
+        ${(() => {
+          const cntAsn = g.asn_hhi || 0;
+          if (!g.stake_asn_hhi) return "";
+          const delta = g.stake_asn_hhi - cntAsn;
+          const deltaColor = Math.abs(delta) < 50 ? '#4ade80' : delta > 0 ? '#FFAE45' : '#85E6FF';
+          const sign = delta > 0 ? '+' : (delta < 0 ? '' : '±');
+          return `<div class="audit-stat-sub" title="Same index but weighted by current consensus stake. A positive delta surfaces hidden hosting concentration when one provider holds the heaviest validators.">stake-weighted: <strong>${g.stake_asn_hhi}</strong> <span style="color:${deltaColor}">(${sign}${delta})</span></div>`;
+        })()}
       </div>
       <div class="audit-stat">
         <div class="audit-stat-label" title="Servers hosted in commercial datacenters vs other (residential, business ISP)">Datacenter share</div>
@@ -214,7 +231,8 @@ function renderAnonClusters(g) {
     <section class="data-section audit-section">
       <div class="section-title">Unidentified clusters</div>
       <div class="audit-empty">
-        Checked all ${g?.shared24_count || 0} co-located /24 subnets across <strong>${g?.registered_count || 0}</strong> registered validators. No subnet matched the threshold (≥3 members, all without an entry in <code>monad-developers/validator-info</code>).
+        Checked <strong>${g?.subnets_inspected_for_anon ?? 0}</strong> co-located /24 subnets (out of ${g?.distinct_subnets_total ?? 0} distinct subnets, but only the co-located ones can form a "cluster" by this definition). No subnet matched the threshold of ≥3 members where every member is missing from <code>monad-developers/validator-info</code>.
+        <div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Out of scope by design: single-validator anonymous boxes and the ${g?.peers_only_count ?? 0} unregistered P2P peers from the gossip crawl — those don't form a cluster by themselves.</div>
       </div>
     </section>`;
   }
@@ -346,21 +364,28 @@ function renderPerformance(p) {
     { label: "3000-4999", value: b["3000-4999"] || 0, color: "#85E6FF", text: "#08050F" },
     { label: "5000+", value: b["5000+"] || 0, color: "#4ade80", text: "#08050F" },
   ];
-  const segs = segments.map((s) => {
-    const w = (s.value / total) * 100;
+  // Width math: non-empty buckets get a minimum visible width so a tiny
+  // sliver (e.g. the lone "1000-2999" bucket that proves bimodality) stays
+  // distinguishable from the empty hairline next to it. To keep the bar
+  // exactly 100%, we boost slivers up to minPct AND subtract the total
+  // boost from the largest segment.
+  const minPct = 100 * 12 / 800;  // ~12px on an 800px container ≈ 1.5%
+  const widths = segments.map((s) => (s.value === 0 ? 0 : Math.max((s.value / total) * 100, minPct)));
+  const totalAfterBoost = widths.reduce((a, b) => a + b, 0);
+  if (totalAfterBoost > 100) {
+    // Find the largest non-zero segment and trim it by the overflow
+    let maxIdx = -1, maxW = 0;
+    widths.forEach((w, i) => { if (w > maxW) { maxW = w; maxIdx = i; } });
+    if (maxIdx >= 0) widths[maxIdx] -= (totalAfterBoost - 100);
+  }
+  const segs = segments.map((s, i) => {
     if (s.value === 0) {
-      // Hairline marker so the empty middle is visible, not silently missing
       return `<div class="histogram-segment" style="background:${s.color};width:2px;opacity:0.4" title="${s.label}: empty"></div>`;
     }
-    // Non-empty buckets get a minimum visible width so a 0.4% sliver
-    // (e.g. the lone "1000-2999" datapoint that proves bimodality) is
-    // still distinguishable from the empty hairline next to it.
-    const minPct = 100 * 12 / 800; // ~12px on a typical 800px container = ~1.5%
-    const effectiveW = Math.max(w, minPct);
-    if (w < 4) {
-      return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${effectiveW}%;color:${s.text}" title="${s.label}: ${s.value}"></div>`;
-    }
-    return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${w}%;color:${s.text}" title="${s.label}: ${s.value}">${s.value}</div>`;
+    const w = widths[i];
+    const rawPct = (s.value / total) * 100;
+    const showLabel = rawPct >= 4;
+    return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${w}%;color:${s.text}" title="${s.label}: ${s.value}">${showLabel ? s.value : ""}</div>`;
   }).join("");
   const legend = segments.map((s) => `<span><span class="histogram-legend-dot" style="background:${s.color}"></span>${s.label}</span>`).join("");
 
@@ -393,8 +418,8 @@ function renderPerformance(p) {
     ${zeroList.length ? `
       <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Operators stuck at zero blocks (≥${tenureDays} days in pool, last 7d)</div>
       <div class="audit-flag">
-        <div class="audit-flag-title">⚠ Possible queue-fairness question</div>
-        <strong>${zeroList.length}</strong> delegation-program operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. Plausible explanations: (a) the queue is long and their slot hasn't come up, (b) Foundation uses internal performance gates before promotion, (c) bias in the rotation algorithm. The list is not a verdict on operator quality — it's an observation worth raising with the Foundation.
+        <div class="audit-flag-title" style="color:var(--purple-light)">ℹ Queue-tenure observation</div>
+        <strong>${zeroList.length}</strong> delegation-program operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. This is an observation about queue dynamics, not a quality judgement of the operators. Plausible explanations include: (a) a long queue where their slot hasn't come up yet, (b) the Foundation's internal performance gates evaluate operators before active-set promotion, (c) variance in the rotation order. Worth surfacing in conversations with the Foundation, not actionable on its own.
         ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Additionally: ${recentCount} more operators are also at zero, but joined the pool less than ${tenureDays} days ago — not flagged as "stuck".</div>` : ""}
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,142,228,0.15);font-size:11px;color:var(--text-dim);line-height:1.6">
           <strong style="color:var(--text-mid)">Conflict-of-interest disclosure:</strong> the author of this page operates val_id 267 (<em>shadowoftime</em>) and is in the same rotation pool. The author's val_id appears in the same statistics; names below are shown without editorial selection.

@@ -143,10 +143,20 @@ def _aggregate_geo(network: str) -> dict:
         if len(anonymous) == len(members) and len(members) >= 3:
             anon_clusters.append(entry)
 
+    # For the "checked N" denominator on the anonymous-clusters empty-state.
+    # We checked every /24 subnet that holds ≥2 registered validators (i.e.
+    # the candidate set for a cluster). Single-validator subnets and the
+    # `peers_only` peer crawl are NOT in scope — the anon-cluster check is
+    # specifically about co-located groups.
+    total_subnets_inspected = len(shared24)
+    total_distinct_subnets = len(n24)
+
     return {
         "total_with_geo": n,  # registered validators with geo data
         "registered_count": n,
         "peers_only_count": peers_only,
+        "subnets_inspected_for_anon": total_subnets_inspected,
+        "distinct_subnets_total": total_distinct_subnets,
         "datacenter_count": dc,
         "datacenter_pct": round(dc / n * 100, 1),
         "country_top": [{"country": c, "count": k, "pct": round(k / n * 100, 1)} for c, k in countries.most_common(10)],
@@ -182,12 +192,19 @@ async def _enrich_geo_with_stake_hhi(pool, network: str, geo: dict) -> dict:
         )
         if current_epoch is None:
             return geo
+        # Stake-weighted HHI must reflect VOTING stake. A validator rotated
+        # out of the active set has consensus_stake=0 (their MON doesn't vote
+        # this epoch); we must exclude them, otherwise stake-HHI counts MON
+        # that has no consensus weight. Pre-migration rows where the column
+        # is NULL fall back to total_stake (transitional, expected to phase
+        # out as old epochs roll off).
         rows = await conn.fetch(
             """
             SELECT val_id,
                    COALESCE(consensus_stake, total_stake)::numeric AS stake
             FROM validator_stake_history
             WHERE network = $1 AND epoch = $2 AND val_id = ANY($3::int[])
+              AND (consensus_stake IS NULL OR consensus_stake > 0)
             """,
             network, current_epoch, val_ids,
         )
@@ -375,7 +392,11 @@ async def _aggregate_performance(pool, network: str) -> dict:
             """,
             network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
         )
-        # Tenure = days since first Foundation delegate to this val_id (across full DB)
+        # Tenure = days since the FIRST Foundation delegate of any amount.
+        # This catches the initial 10.9M onboarding event AND every subsequent
+        # rotation move. MIN over all delegates is monotonic — re-delegation
+        # after a full undelegate cycle does NOT reset the clock (the original
+        # earliest timestamp is preserved).
         first_delegate_rows = await conn.fetch(
             """
             SELECT validator_id::int AS val_id, MIN(timestamp) AS first_delegate
@@ -383,10 +404,9 @@ async def _aggregate_performance(pool, network: str) -> dict:
             WHERE network = $1
               AND lower(delegator) = $2
               AND event_type = 'delegate'
-              AND amount::numeric BETWEEN $3 AND $4
             GROUP BY val_id
             """,
-            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
+            network, FOUNDATION_ADDR,
         )
         first_delegate_by_vid = {int(r["val_id"]): r["first_delegate"] for r in first_delegate_rows}
         rotation_vids = [int(r["val_id"]) for r in rotation_rows]
