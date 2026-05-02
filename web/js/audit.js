@@ -65,13 +65,14 @@ function renderVerdict(d) {
   else tone = { color: "#FF8EE4", label: "High concentration" };
 
   const stuck = (p.zero_blocks_named || []).length;
-  const stuckSentence = p.applicable && stuck > 0
-    ? `<strong>${stuck} delegation-program operators</strong> have been in the rotation pool for 14+ days yet produced zero blocks in the last 7 — could be queue order or an algorithm bias worth raising.`
-    : "";
   const subnets = g.shared24_count || 0;
-  const subnetSentence = subnets
-    ? `<strong>${g.shared24_validators}</strong> validators share data-center racks with at least one peer (${subnets} co-located /24 subnets).`
-    : "";
+  const noteItems = [];
+  if (subnets) {
+    noteItems.push(`<strong>${g.shared24_validators}</strong> validators share data-center racks with at least one peer (${subnets} co-located /24 subnets)`);
+  }
+  if (p.applicable && stuck > 0) {
+    noteItems.push(`<strong>${stuck} delegation-program operators</strong> have sat in the rotation pool for 14+ days without producing a block in the last 7`);
+  }
 
   return `
   <section class="audit-section verdict-band">
@@ -80,7 +81,7 @@ function renderVerdict(d) {
       <p class="verdict-text">
         Monad <strong>${network === "mainnet" ? "mainnet" : "testnet"}</strong> spans <strong>${g.registered_count || 0}</strong> registered validators across <strong>${g.country_total || 0}</strong> countries and <strong>${g.asn_total || 0}</strong> network operators. <strong>${dcPct}%</strong> of nodes sit in commercial datacenters.
       </p>
-      ${subnetSentence || stuckSentence ? `<p class="verdict-text" style="margin-top:8px">${subnetSentence}${subnetSentence && stuckSentence ? " " : ""}${stuckSentence}</p>` : ""}
+      ${noteItems.length ? `<ul class="verdict-list">${noteItems.map((s) => `<li>${s}</li>`).join("")}</ul>` : ""}
     </div>
   </section>
   `;
@@ -106,9 +107,13 @@ function renderHero(d) {
         ${(() => {
           if (!g.stake_country_hhi) return "";
           const delta = g.stake_country_hhi - HHI;
-          const deltaColor = Math.abs(delta) < 50 ? '#4ade80' : delta > 0 ? '#FFAE45' : '#85E6FF';
-          const sign = delta > 0 ? '+' : (delta < 0 ? '' : '±');
-          return `<div class="audit-stat-sub" title="Same index but each validator is weighted by current consensus stake. A positive delta means heavy stake concentrates more than validator counts suggest.">stake-weighted: <strong>${g.stake_country_hhi}</strong> <span style="color:${deltaColor}">(${sign}${delta})</span></div>`;
+          // Sign-aware: positive (more concentration) → orange,
+          // negative (more diversification) → cyan, near-zero → green.
+          // Magnitude reads at a glance — sign always shown.
+          const deltaColor = delta > 30 ? '#FFAE45' : delta < -30 ? '#85E6FF' : '#4ade80';
+          const sign = delta > 0 ? '+' : delta < 0 ? '−' : '±';
+          const absDelta = Math.abs(delta);
+          return `<div class="audit-stat-sub" title="Same index but each validator is weighted by current consensus stake. Positive delta = heavy stake concentrates more than validator counts; negative = stake diversifies wider than counts; near-zero = consistent.">stake-weighted: <strong>${g.stake_country_hhi}</strong> <span style="color:${deltaColor}">(${sign}${absDelta} vs count)</span></div>`;
         })()}
       </div>
       <div class="audit-stat">
@@ -119,9 +124,10 @@ function renderHero(d) {
           const cntAsn = g.asn_hhi || 0;
           if (!g.stake_asn_hhi) return "";
           const delta = g.stake_asn_hhi - cntAsn;
-          const deltaColor = Math.abs(delta) < 50 ? '#4ade80' : delta > 0 ? '#FFAE45' : '#85E6FF';
-          const sign = delta > 0 ? '+' : (delta < 0 ? '' : '±');
-          return `<div class="audit-stat-sub" title="Same index but weighted by current consensus stake. A positive delta surfaces hidden hosting concentration when one provider holds the heaviest validators.">stake-weighted: <strong>${g.stake_asn_hhi}</strong> <span style="color:${deltaColor}">(${sign}${delta})</span></div>`;
+          const deltaColor = delta > 30 ? '#FFAE45' : delta < -30 ? '#85E6FF' : '#4ade80';
+          const sign = delta > 0 ? '+' : delta < 0 ? '−' : '±';
+          const absDelta = Math.abs(delta);
+          return `<div class="audit-stat-sub" title="Same index but weighted by current consensus stake. Positive delta surfaces hidden hosting concentration when one provider holds the heaviest validators; negative means heavy stake spreads wider than counts.">stake-weighted: <strong>${g.stake_asn_hhi}</strong> <span style="color:${deltaColor}">(${sign}${absDelta} vs count)</span></div>`;
         })()}
       </div>
       <div class="audit-stat">
@@ -364,25 +370,24 @@ function renderPerformance(p) {
     { label: "3000-4999", value: b["3000-4999"] || 0, color: "#85E6FF", text: "#08050F" },
     { label: "5000+", value: b["5000+"] || 0, color: "#4ade80", text: "#08050F" },
   ];
-  // Width math: non-empty buckets get a minimum visible width so a tiny
-  // sliver (e.g. the lone "1000-2999" bucket that proves bimodality) stays
-  // distinguishable from the empty hairline next to it. To keep the bar
-  // exactly 100%, we boost slivers up to minPct AND subtract the total
-  // boost from the largest segment.
-  const minPct = 100 * 12 / 800;  // ~12px on an 800px container ≈ 1.5%
-  const widths = segments.map((s) => (s.value === 0 ? 0 : Math.max((s.value / total) * 100, minPct)));
+  // Width math: every segment uses a percentage so the bar fills exactly 100%.
+  // Empty buckets get a fixed hairline percent (~0.3% ≈ 2-3px on a typical
+  // container). Non-empty slivers get a minimum visible width. Excess is
+  // trimmed from the largest segment so Σ widths = 100% — no overflow clip.
+  const hairlinePct = 0.3;
+  const minPct = 1.5;  // ~12px on 800px container
+  const widths = segments.map((s) => (s.value === 0 ? hairlinePct : Math.max((s.value / total) * 100, minPct)));
   const totalAfterBoost = widths.reduce((a, b) => a + b, 0);
   if (totalAfterBoost > 100) {
-    // Find the largest non-zero segment and trim it by the overflow
     let maxIdx = -1, maxW = 0;
     widths.forEach((w, i) => { if (w > maxW) { maxW = w; maxIdx = i; } });
     if (maxIdx >= 0) widths[maxIdx] -= (totalAfterBoost - 100);
   }
   const segs = segments.map((s, i) => {
-    if (s.value === 0) {
-      return `<div class="histogram-segment" style="background:${s.color};width:2px;opacity:0.4" title="${s.label}: empty"></div>`;
-    }
     const w = widths[i];
+    if (s.value === 0) {
+      return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${w}%;opacity:0.4" title="${s.label}: empty"></div>`;
+    }
     const rawPct = (s.value / total) * 100;
     const showLabel = rawPct >= 4;
     return `<div class="histogram-segment" style="background:${s.color};flex:0 0 ${w}%;color:${s.text}" title="${s.label}: ${s.value}">${showLabel ? s.value : ""}</div>`;
@@ -393,9 +398,17 @@ function renderPerformance(p) {
   const recentCount = p.zero_blocks_recent_count || 0;
   const tenureDays = p.tenure_threshold_days || 14;
 
+  // Tenure values are clipped to our stake_events history horizon (data
+  // doesn't go further back than ~horizonDays). Surface as ≥X for any
+  // value at the limit so a reader doesn't assume absolute days.
+  const horizonDays = p.stake_history_horizon_days;
   const zeroPills = zeroList.map((it) => {
-    const days = it.days_in_pool ? ` · ${it.days_in_pool}d in pool` : "";
-    return `<span class="pill pill-warn" title="val_id ${it.val_id}${days}">${esc(it.name)}</span>`;
+    let daysLabel = "";
+    if (it.days_in_pool != null) {
+      const atLimit = horizonDays && it.days_in_pool >= horizonDays - 1;
+      daysLabel = ` · ${atLimit ? "≥" : ""}${it.days_in_pool}d in pool`;
+    }
+    return `<span class="pill pill-warn" title="val_id ${it.val_id}${daysLabel}">${esc(it.name)}</span>`;
   }).join("");
 
   const top = (p.top_performers || []).slice(0, 8);
@@ -417,8 +430,8 @@ function renderPerformance(p) {
 
     ${zeroList.length ? `
       <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Operators stuck at zero blocks (≥${tenureDays} days in pool, last 7d)</div>
-      <div class="audit-flag">
-        <div class="audit-flag-title" style="color:var(--purple-light)">ℹ Queue-tenure observation</div>
+      <div class="audit-flag audit-flag-info">
+        <div class="audit-flag-title">ℹ Queue-tenure observation</div>
         <strong>${zeroList.length}</strong> delegation-program operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. This is an observation about queue dynamics, not a quality judgement of the operators. Plausible explanations include: (a) a long queue where their slot hasn't come up yet, (b) the Foundation's internal performance gates evaluate operators before active-set promotion, (c) variance in the rotation order. Worth surfacing in conversations with the Foundation, not actionable on its own.
         ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Additionally: ${recentCount} more operators are also at zero, but joined the pool less than ${tenureDays} days ago — not flagged as "stuck".</div>` : ""}
         <div style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,142,228,0.15);font-size:11px;color:var(--text-dim);line-height:1.6">
@@ -448,7 +461,7 @@ function renderMethodology(d) {
     <div><strong>Sources:</strong> peers.toml (P2P-signed peer registry from MonadPulse's own testnet validator and mainnet observer), staking precompile (on-chain stake events), <a href="https://ip-api.com" target="_blank" style="color:var(--purple-light)">ip-api.com</a> for GeoIP.</div>
     <div><strong>Accuracy:</strong> ip-api.com is ~85% country-accurate, ~55% city-accurate; the "datacenter" flag is a heuristic, not a strict criterion. ISP names are merged by ASN where possible, but variants of the same operator may still split.</div>
     <div><strong>Freshness:</strong> the GeoIP base is rebuilt hourly; on-chain metrics (stake, rotation, blocks) update in real time from local RPC; this page caches 5 minutes.</div>
-    <div><strong>Windows:</strong> blocks — 7 days; rotation — 14 days; pool tenure — measured from the first Foundation delegate to the val_id (full history).</div>
+    <div><strong>Windows:</strong> blocks — 7 days; rotation — 14 days; pool tenure — measured from the first Foundation delegate to the val_id, clipped to our stake_events history horizon${d.performance && d.performance.stake_history_horizon_days ? ` (~${d.performance.stake_history_horizon_days} days)` : ""}. Tenure values at the horizon edge are shown as "≥Nd" to signal the clip.</div>
     <div><strong>Conflict-of-interest disclosure:</strong> built by an independent validator (val_id 267, "shadowoftime"). The author is also in the rotation pool and appears in the same statistics. Names of competitor operators in the "stuck" list are shown without editorial choice and verified for ≥14d pool tenure before publication.</div>
     <div style="margin-top:8px;font-size:10px;color:var(--text-dim)">Generated ${new Date(d.generated_at).toLocaleString()}. Open source: <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank" style="color:var(--purple-light)">github.com/ShadowOfTime1/monadpulse</a></div>
   </section>

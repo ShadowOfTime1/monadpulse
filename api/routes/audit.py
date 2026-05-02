@@ -411,6 +411,14 @@ async def _aggregate_performance(pool, network: str) -> dict:
         first_delegate_by_vid = {int(r["val_id"]): r["first_delegate"] for r in first_delegate_rows}
         rotation_vids = [int(r["val_id"]) for r in rotation_rows]
 
+        # How far back our stake_events history actually reaches. Tenure
+        # values are clipped to this horizon; surface it so the page can
+        # disclose "≥X days" instead of the user assuming full history.
+        horizon_row = await conn.fetchrow(
+            "SELECT MIN(timestamp) AS earliest FROM stake_events WHERE network = $1",
+            network,
+        )
+
         proposed_rows = await conn.fetch(
             """
             SELECT lower(proposer_address) AS auth, COUNT(*) AS blocks_7d
@@ -454,9 +462,24 @@ async def _aggregate_performance(pool, network: str) -> dict:
             buckets["5000+"] += 1
 
     # Zero-block list requires both a name AND ≥14 days in the pool —
-    # so we never label a recent enrollee as "stuck".
-    zero_named = [it for it in items if it["blocks_7d"] == 0 and it["name"] and (it.get("days_in_pool") or 0) >= 14]
-    zero_recent = [it for it in items if it["blocks_7d"] == 0 and it["name"] and (it.get("days_in_pool") or 0) < 14]
+    # so we never label a recent enrollee as "stuck". Validators where
+    # days_in_pool is None (no Foundation delegate event reachable —
+    # theoretically self-bonded operator caught by the rotation pool
+    # filter via undelegate-only events) are surfaced separately rather
+    # than silently coerced to 0; this closes the "self-bonded blind
+    # spot" attack vector even though the current rotation_vids query
+    # already filters by Foundation delegations.
+    zero_named, zero_recent, zero_unknown_tenure = [], [], []
+    for it in items:
+        if it["blocks_7d"] != 0 or not it["name"]:
+            continue
+        d = it.get("days_in_pool")
+        if d is None:
+            zero_unknown_tenure.append(it)
+        elif d >= 14:
+            zero_named.append(it)
+        else:
+            zero_recent.append(it)
     top_performers = items[:10]
 
     return {
@@ -466,8 +489,14 @@ async def _aggregate_performance(pool, network: str) -> dict:
         "buckets": buckets,
         "zero_blocks_named": zero_named[:30],   # ≥14d in pool — defensible "stuck"
         "zero_blocks_recent_count": len(zero_recent),  # joined recently — separate
+        "zero_blocks_unknown_tenure_count": len(zero_unknown_tenure),  # tenure unresolvable
         "top_performers": top_performers,
         "tenure_threshold_days": 14,
+        "stake_history_horizon_days": (
+            int((now - (horizon_row["earliest"] if horizon_row["earliest"].tzinfo
+                       else horizon_row["earliest"].replace(tzinfo=timezone.utc))).total_seconds() / 86400)
+            if horizon_row and horizon_row["earliest"] else None
+        ),
     }
 
 
