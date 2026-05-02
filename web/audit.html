@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Audit — MonadPulse</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta name="description" content="Live decentralization audit of Monad validators — hosting, geography, stake clusters, VDP rotation pattern.">
+<meta name="author" content="shadowoftime">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Network Audit — MonadPulse">
+<meta property="og:description" content="Live decentralization audit of Monad validators — hosting, geography, stake clusters, VDP rotation pattern.">
+<meta property="og:image" content="https://monadpulse.xyz/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:url" content="https://monadpulse.xyz/audit.html">
+<meta property="og:site_name" content="MonadPulse">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Network Audit — MonadPulse">
+<meta name="twitter:description" content="Live decentralization audit of Monad validators.">
+<meta name="twitter:image" content="https://monadpulse.xyz/og-image.png">
+<link rel="stylesheet" href="/css/style.css?v=7bab0081">
+<style>
+  .audit-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 20px 0 32px; }
+  .audit-stat {
+    padding: 14px 16px; border-radius: 12px;
+    background: rgba(110,84,255,0.05);
+    border: 1px solid rgba(110,84,255,0.12);
+  }
+  .audit-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .audit-stat-value { font-size: 22px; font-weight: 600; color: var(--text); font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  .audit-stat-sub { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-family: var(--mono); font-size: 12px; }
+  .bar-label { min-width: 200px; color: var(--text); }
+  .bar-track { flex: 1; height: 8px; background: rgba(110,84,255,0.06); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: linear-gradient(90deg, #6E54FF, #DDD7FE); border-radius: 4px; }
+  .bar-value { min-width: 60px; text-align: right; color: var(--purple-light); font-variant-numeric: tabular-nums; }
+  .audit-flag {
+    padding: 10px 14px; margin: 12px 0;
+    background: rgba(255, 142, 228, 0.06);
+    border: 1px solid rgba(255, 142, 228, 0.2);
+    border-radius: 8px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .audit-flag-title { font-weight: 600; color: #FF8EE4; margin-bottom: 4px; font-size: 11px; letter-spacing: 0.5px; text-transform: uppercase; }
+  .cluster-card {
+    padding: 12px 14px; margin: 8px 0; border-radius: 8px;
+    background: rgba(110,84,255,0.04);
+    border: 1px solid rgba(110,84,255,0.1);
+    font-family: var(--mono); font-size: 12px;
+  }
+  .cluster-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .cluster-subnet { color: var(--text); font-weight: 600; }
+  .cluster-meta { color: var(--text-dim); font-size: 10px; }
+  .cluster-members { color: var(--text-mid); font-size: 11px; line-height: 1.6; }
+  .histogram-bar { display: flex; align-items: stretch; height: 32px; background: rgba(110,84,255,0.04); border-radius: 6px; overflow: hidden; margin: 12px 0; border: 1px solid rgba(110,84,255,0.08); }
+  .histogram-segment { display: flex; align-items: center; justify-content: center; color: white; font-size: 11px; font-weight: 600; font-family: var(--mono); transition: filter 0.15s; }
+  .histogram-segment:hover { filter: brightness(1.2); }
+  .histogram-legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; font-family: var(--mono); color: var(--text-mid); }
+  .histogram-legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  .audit-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 12px; }
+  .audit-table th { text-align: left; padding: 6px 8px; color: var(--text-dim); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; border-bottom: 1px solid rgba(110,84,255,0.1); }
+  .audit-table td { padding: 6px 8px; border-bottom: 1px solid rgba(110,84,255,0.04); color: var(--text-mid); }
+  .audit-table tr:last-child td { border-bottom: none; }
+  .audit-section { margin-bottom: 36px; }
+  .heatmap-row { display: flex; gap: 2px; flex-wrap: wrap; margin: 8px 0; }
+  .heatmap-cell { width: 24px; height: 16px; border-radius: 2px; background: rgba(110,84,255,0.1); }
+  .audit-loading { color: var(--text-dim); padding: 16px; font-size: 12px; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .pill { padding: 3px 10px; border-radius: 12px; background: rgba(110,84,255,0.1); border: 1px solid rgba(110,84,255,0.18); font-family: var(--mono); font-size: 11px; color: var(--text-mid); }
+  .pill strong { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="bg-canvas"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">MonadPulse
+      <svg class="heartbeat-line" viewBox="0 0 120 28" preserveAspectRatio="none">
+        <polyline class="hb-trace" points="0,14 18,14 26,14 30,2 34,26 38,8 42,18 46,14 120,14"/>
+      </svg>
+    </a>
+    <nav>
+      <a href="/">Dashboard</a>
+      <a href="/blocks.html">Blocks</a>
+      <a href="/validators.html">Validators</a>
+      <a href="/map.html">Map</a>
+      <a href="/audit.html" class="active">Audit</a>
+      <a href="/stake.html">Stake</a>
+      <a href="/graph.html">Graph</a>
+      <a href="/clusters.html">Clusters</a>
+      <a href="/gas.html">Gas</a>
+      <a href="/governance.html">Governance</a>
+    </nav>
+    <div class="net-switch">
+      <button class="net-btn active" data-net="testnet">Testnet</button>
+      <button class="net-btn" data-net="mainnet">Mainnet</button>
+    </div>
+  </div>
+</header>
+<main>
+  <div style="padding-top:48px">
+    <h1 class="page-title">Network Audit</h1>
+    <p class="page-desc">Live decentralization, hosting, stake-cluster, and VDP rotation analysis. <span style="color:var(--text-dim)">Updated every 5 min.</span></p>
+  </div>
+
+  <div id="audit-content"><div class="audit-loading">Loading audit data…</div></div>
+</main>
+<footer>
+  <div class="footer-inner-new">
+    <div class="footer-links"><a href="/about.html">About</a> · <a href="/changelog.html">Changelog</a> · <a href="https://t.me/monadpulse_alerts" target="_blank">Telegram</a> · <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank">GitHub</a> · <a href="https://x.com/RomanKarpenk" target="_blank">X</a> · <a href="https://shadowoftime1.github.io" target="_blank">Validator</a></div>
+    <div class="footer-copy">built by shadowoftime — independent Monad testnet validator, Sydney AU</div>
+  </div>
+</footer>
+<script src="/js/app.js?v=e63a7869"></script>
+<script src="/js/audit.js?v=14491b88"></script>
+</body>
+</html>

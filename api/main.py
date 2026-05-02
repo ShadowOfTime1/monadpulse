@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-from api.routes import dashboard, blocks, epochs, gas, alerts, validators, health, names, upgrades, stakeflow, analytics, governance
+from api.routes import dashboard, blocks, epochs, gas, alerts, validators, health, names, upgrades, stakeflow, analytics, governance, audit
 
 pool: asyncpg.Pool | None = None
 
@@ -45,6 +45,7 @@ app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(names.router, prefix="/names", tags=["names"])
 app.include_router(upgrades.router, prefix="/upgrades", tags=["upgrades"])
 app.include_router(stakeflow.router, prefix="/stake", tags=["stake"])
+app.include_router(audit.router, prefix="/audit", tags=["audit"])
 
 
 @app.get("/ping")
