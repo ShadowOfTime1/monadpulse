@@ -49,26 +49,25 @@ async function loadAndRender() {
 function renderVerdict(d) {
   const g = d.geo || {};
   const p = d.performance || {};
-  const r = d.rotation || {};
   const network = d.network || "testnet";
   const HHI = g.country_hhi || 0;
-  const tone = HHI < 1500 ? { color: "#4ade80", label: "Спокойная" }
-              : HHI < 2500 ? { color: "#FFAE45", label: "Умеренная" }
-              : { color: "#FF8EE4", label: "Высокая" };
+  const tone = HHI < 1500 ? { color: "#4ade80", label: "Healthy spread" }
+              : HHI < 2500 ? { color: "#FFAE45", label: "Moderate concentration" }
+              : { color: "#FF8EE4", label: "High concentration" };
 
   const stuck = (p.zero_blocks_named || []).length;
   const stuckSentence = p.applicable && stuck > 0
-    ? ` <strong>${stuck} операторов</strong> зарегистрированы в программе делегирования больше двух недель и не предложили ни одного блока за прошедшие 7 дней — это может быть очередь или баг алгоритма.`
+    ? ` <strong>${stuck} VDP-enrolled operators</strong> have been in the rotation pool for 14+ days yet produced zero blocks in the last 7 — could be queue order or an algorithm bias worth raising.`
     : "";
   const subnets = g.shared24_count || 0;
-  const subnetSentence = subnets ? ` <strong>${g.shared24_validators}</strong> валидаторов делят дата-центровые стойки с соседями (${subnets} «общих» подсетей /24).` : "";
+  const subnetSentence = subnets ? ` <strong>${g.shared24_validators}</strong> validators share data-center racks with at least one peer (${subnets} co-located /24 subnets).` : "";
 
   return `
   <section class="audit-section verdict-band">
     <div class="verdict-tone" style="border-color:${tone.color}33;background:${tone.color}0a">
-      <div class="verdict-label" style="color:${tone.color}">${tone.label} концентрация</div>
+      <div class="verdict-label" style="color:${tone.color}">${tone.label}</div>
       <div class="verdict-text">
-        Сеть <strong>${network === "mainnet" ? "mainnet" : "testnet"}</strong> Monad — <strong>${g.registered_count || 0}</strong> валидаторов в <strong>${g.country_total || 0}</strong> странах через <strong>${g.asn_total || 0}</strong> провайдеров.${subnetSentence}${stuckSentence}
+        Monad <strong>${network === "mainnet" ? "mainnet" : "testnet"}</strong> spans <strong>${g.registered_count || 0}</strong> registered validators across <strong>${g.country_total || 0}</strong> countries and <strong>${g.asn_total || 0}</strong> network operators.${subnetSentence}${stuckSentence}
       </div>
     </div>
   </section>
@@ -78,40 +77,40 @@ function renderVerdict(d) {
 function renderHero(d) {
   const g = d.geo || {};
   const HHI = g.country_hhi || 0;
-  const hhiLabel = HHI < 1500 ? "конкурентная" : HHI < 2500 ? "умеренная" : "концентрированная";
+  const hhiLabel = HHI < 1500 ? "competitive" : HHI < 2500 ? "moderate" : "concentrated";
   const hhiColor = HHI < 1500 ? "#4ade80" : HHI < 2500 ? "#FFAE45" : "#FF8EE4";
   return `
   <section class="audit-section">
     <div class="audit-grid">
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Валидаторы с прописанным val_id, зарегистрированные on-chain">Зарегистр. валидаторов</div>
+        <div class="audit-stat-label" title="Validators with an on-chain val_id (full nodes / RPC peers excluded)">Registered validators</div>
         <div class="audit-stat-value">${g.registered_count || 0}</div>
-        <div class="audit-stat-sub">+ ${g.peers_only_count || 0} незарегистр. P2P-узлов</div>
+        <div class="audit-stat-sub">+ ${g.peers_only_count || 0} unregistered P2P peers</div>
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Индекс Херфиндаля-Хиршмана: 0–1500 — здоровое распределение, 2500+ — высокая концентрация">Раскид по странам</div>
+        <div class="audit-stat-label" title="Herfindahl-Hirschman Index. 0–1500: healthy spread. 2500+: concentrated.">Country diversity (HHI)</div>
         <div class="audit-stat-value" style="color:${hhiColor}">${HHI}</div>
-        <div class="audit-stat-sub">${hhiLabel} · ${g.country_total || 0} стран</div>
+        <div class="audit-stat-sub">${hhiLabel} · ${g.country_total || 0} countries</div>
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Тот же индекс по уникальным сетевым операторам (ASN)">Раскид по провайдерам</div>
+        <div class="audit-stat-label" title="Same diversity index but over unique Autonomous System Numbers (network operators)">ASN diversity (HHI)</div>
         <div class="audit-stat-value">${g.asn_hhi || 0}</div>
-        <div class="audit-stat-sub">${g.asn_total || 0} уникальных ASN</div>
+        <div class="audit-stat-sub">${g.asn_total || 0} unique ASNs</div>
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Серверы в коммерческих дата-центрах vs остальное">Дата-центры</div>
+        <div class="audit-stat-label" title="Servers hosted in commercial datacenters vs other (residential, business ISP)">Datacenter share</div>
         <div class="audit-stat-value">${g.datacenter_pct || 0}%</div>
-        <div class="audit-stat-sub">${g.datacenter_count || 0} из ${g.registered_count || 0}</div>
+        <div class="audit-stat-sub">${g.datacenter_count || 0} of ${g.registered_count || 0}</div>
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Подсети /24 (≈256 IP) с двумя или более валидаторами">Общие подсети /24</div>
+        <div class="audit-stat-label" title="/24 subnets (≈256 IPs, typically one rack) holding two or more validators">Co-located /24 subnets</div>
         <div class="audit-stat-value">${g.shared24_count || 0}</div>
-        <div class="audit-stat-sub">${g.shared24_validators || 0} валидаторов в общих стойках</div>
+        <div class="audit-stat-sub">${g.shared24_validators || 0} validators sharing racks</div>
       </div>
       <div class="audit-stat">
-        <div class="audit-stat-label" title="Подсети /24, где ни один валидатор не идентифицирован в monad-developers/validator-info">Анонимные кластеры</div>
+        <div class="audit-stat-label" title="/24 subnets where every member has no public entry in monad-developers/validator-info">Anonymous clusters</div>
         <div class="audit-stat-value" style="color:${(g.anonymous_clusters||[]).length ? '#FF8EE4' : 'var(--text)'}">${(g.anonymous_clusters || []).length}</div>
-        <div class="audit-stat-sub">все участники без публичного имени</div>
+        <div class="audit-stat-sub">all members unidentified</div>
       </div>
     </div>
   </section>
@@ -131,8 +130,8 @@ function renderGeo(g) {
   }).join("");
   return `
   <section class="data-section audit-section">
-    <div class="section-title">География</div>
-    <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px">Top-10 стран по числу зарегистрированных валидаторов.</div>
+    <div class="section-title">Geographic distribution</div>
+    <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px">Top-10 countries by registered-validator count.</div>
     <div style="margin-top:10px">${rows}</div>
   </section>
   `;
@@ -154,10 +153,10 @@ function renderHosting(g) {
   const asnPills = asns.map((a) => `<span class="pill"><strong>${esc(a.asn)}</strong> ${a.count} (${a.pct}%)</span>`).join("");
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Концентрация хостинга</div>
-    <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px">Где физически живут серверы валидаторов. Имена ISP объединены по ASN, чтобы «Limestone Networks» и «Limestone Networks, Inc.» считались одним провайдером.</div>
+    <div class="section-title">Hosting concentration</div>
+    <div style="font-size:12px;color:var(--text-mid);margin-bottom:6px">Where validator servers physically live. ISP names are merged by ASN, so "Limestone Networks" and "Limestone Networks, Inc." count as one provider.</div>
     <div style="margin:10px 0 16px">${ispRows}</div>
-    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Top ASN (автономных систем)</div>
+    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Top ASNs (autonomous systems)</div>
     <div class="pill-row">${asnPills}</div>
   </section>
   `;
@@ -170,11 +169,11 @@ function renderSubnets(g) {
   const rows = top.map((s) => {
     // Anon flag is now ALWAYS in the subnet column (mobile-safe)
     const anonDot = s.anonymous === s.count
-      ? '<span style="color:#FF8EE4;margin-right:6px" title="все участники анонимны">●</span>'
-      : (s.anonymous > 0 ? `<span style="color:#FFAE45;margin-right:6px" title="${s.anonymous} из ${s.count} анонимны">◐</span>` : '');
+      ? '<span style="color:#FF8EE4;margin-right:6px" title="all members anonymous">●</span>'
+      : (s.anonymous > 0 ? `<span style="color:#FFAE45;margin-right:6px" title="${s.anonymous} of ${s.count} anonymous">◐</span>` : '');
     return `<tr>
       <td>${anonDot}<strong style="color:var(--text);font-family:var(--mono)">${esc(s.subnet)}</strong></td>
-      <td>${s.count} валидаторов</td>
+      <td>${s.count} validators</td>
       <td>${esc(truncate(s.isp || '?', 24))}</td>
       <td>${esc(s.city || '?')}, ${esc(s.country || '?')}</td>
     </tr>`;
@@ -182,16 +181,16 @@ function renderSubnets(g) {
   const hint16 = (g.shared16_top || []).slice(0, 5).map((s) => `<span class="pill"><strong>${esc(s.subnet)}</strong> ${s.count}</span>`).join("");
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Совместное размещение валидаторов (/24 подсети)</div>
-    <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">/24 — подсеть из ≈256 IP-адресов, обычно одна стойка или один провайдер. Несколько валидаторов в одной подсети = общий риск отказа железа.</div>
+    <div class="section-title">Co-located validators (/24 subnets)</div>
+    <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">/24 = a subnet of ≈256 IPs, typically one rack or one provider segment. Multiple validators in the same /24 share hardware-failure risk.</div>
     <div style="overflow-x:auto;margin-top:10px">
       <table class="audit-table">
-        <thead><tr><th>Подсеть</th><th>Кол-во</th><th>Провайдер</th><th>Локация</th></tr></thead>
+        <thead><tr><th>Subnet</th><th>Members</th><th>ISP</th><th>Location</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
     </div>
-    ${hint16 ? `<div style="margin-top:14px;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">/16 «горячие точки» (≈65k адресов)</div><div class="pill-row">${hint16}</div>` : ""}
-    <div style="font-size:10px;color:var(--text-dim);margin-top:10px;line-height:1.5">● = все участники подсети без публичного имени · ◐ = часть анонимна</div>
+    ${hint16 ? `<div style="margin-top:14px;font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">/16 hotspots (≈65k addresses)</div><div class="pill-row">${hint16}</div>` : ""}
+    <div style="font-size:10px;color:var(--text-dim);margin-top:10px;line-height:1.5">● = every member of the subnet is unidentified · ◐ = some members anonymous</div>
   </section>
   `;
 }
@@ -202,7 +201,7 @@ function renderAnonClusters(g) {
   const cards = clusters.map((c) => `
     <div class="cluster-card" style="border-color:rgba(255,142,228,0.25);background:rgba(255,142,228,0.04)">
       <div class="cluster-head">
-        <span class="cluster-subnet">${esc(c.subnet)} → ${c.count} анонимных</span>
+        <span class="cluster-subnet">${esc(c.subnet)} → ${c.count} anonymous</span>
         <span class="cluster-meta">${esc(truncate(c.isp || '?', 30))} · ${esc(c.city || '?')}, ${esc(c.country || '?')}</span>
       </div>
       <div class="cluster-members">${c.members.map((m) => esc(m.ip)).join(" · ")}</div>
@@ -210,10 +209,10 @@ function renderAnonClusters(g) {
   `).join("");
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Кластеры без идентификации</div>
+    <div class="section-title">Unidentified clusters</div>
     <div class="audit-flag" style="background:rgba(110,84,255,0.05);border-color:rgba(110,84,255,0.18)">
-      <div class="audit-flag-title" style="color:var(--purple-light)">ℹ Что это значит</div>
-      Подсеть, где ни у одного из участников нет записи в <code>monad-developers/validator-info</code>. Возможные объяснения: (1) единый оператор с несколькими валидаторами под анонимностью, (2) внутренняя инфраструктура Monad Foundation / Category Labs (резервные ноды, тестовые стенды), (3) операторы, которые просто не подавали PR в публичный реестр. <strong>Это не доказательство sybil-атаки</strong> — это сигнал, который стоит прокомментировать публично.
+      <div class="audit-flag-title" style="color:var(--purple-light)">ℹ What this means</div>
+      Subnets where none of the members has an entry in <code>monad-developers/validator-info</code>. Plausible explanations: (1) one operator running multiple validators under anonymity, (2) Monad Foundation / Category Labs internal infrastructure (backup nodes, test rigs), (3) operators who simply haven't filed a PR to the public registry. <strong>This is not proof of a Sybil pattern</strong> — just a signal worth public clarification.
     </div>
     ${cards}
   </section>
@@ -226,16 +225,16 @@ function renderStakeClusters(s) {
   const cards = clusters.map((c) => `
     <div class="cluster-card">
       <div class="cluster-head">
-        <span class="cluster-subnet">${esc(shortAddr ? shortAddr(c.auth) : c.auth)} — ${c.val_count} валидаторов</span>
-        <span class="cluster-meta">всего ${fmtNum ? fmtNum(c.total_stake_mon) : c.total_stake_mon} MON</span>
+        <span class="cluster-subnet">${esc(shortAddr ? shortAddr(c.auth) : c.auth)} — ${c.val_count} validators</span>
+        <span class="cluster-meta">total ${fmtNum ? fmtNum(c.total_stake_mon) : c.total_stake_mon} MON</span>
       </div>
       <div class="cluster-members">${c.members.map((m) => `val#${m.val_id} ${m.name ? '(' + esc(m.name) + ')' : ''} — ${fmtNum ? fmtNum(m.stake_mon) : m.stake_mon} MON`).join(" · ")}</div>
     </div>
   `).join("");
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Операторы с несколькими валидаторами под одним кошельком</div>
-    <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">Один и тот же auth-кошелёк зарегистрирован для нескольких val_id. Информация публичная (читается с blockchain), но большинство explorer'ов её не агрегируют. Например, Category Labs — это ядро команды Monad, и их совместная регистрация задокументирована в реестре validator-info; это не скрытая sybil-схема.</div>
+    <div class="section-title">Operators with multiple validators under one wallet</div>
+    <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">The same auth wallet is registered for multiple val_ids. The information is public on-chain, but most explorers don't aggregate it. Category Labs, for example, is the core Monad team and their joint registration is documented in validator-info — this is not hidden Sybil behavior.</div>
     ${cards}
   </section>
   `;
@@ -246,9 +245,9 @@ function renderRotation(r) {
     if (r && r.applicable === false) {
       return `
       <section class="data-section audit-section">
-        <div class="section-title">Ротация делегирования (VDP)</div>
+        <div class="section-title">Delegation rotation cadence (VDP)</div>
         <div class="audit-empty">
-          <strong>Mainnet</strong>: программы ротации Foundation на этой сети нет — выбор валидаторов работает по другим правилам. Этот раздел показывается только для testnet.
+          <strong>Mainnet</strong>: Foundation rotation does not apply on mainnet — validator selection follows different rules. This section is shown for testnet only.
         </div>
       </section>`;
     }
@@ -267,7 +266,7 @@ function renderRotation(r) {
         <span style="background:#4ade80;height:100%;width:${wIn / 2}%;border-radius:2px 0 0 2px"></span>
         <span style="background:#FF8EE4;height:100%;width:${wOut / 2}%;border-radius:0 2px 2px 0"></span>
       </span>
-      <span style="color:var(--text-dim);min-width:60px;text-align:right">${d.distinct_vals} val_id</span>
+      <span style="color:var(--text-dim);min-width:60px;text-align:right">${d.distinct_vals} val_ids</span>
     </div>`;
   }).join("");
 
@@ -277,21 +276,21 @@ function renderRotation(r) {
     const ev = hourly.find((x) => x.hour === h)?.events || 0;
     const intensity = ev / maxHour;
     const bg = intensity > 0 ? `rgba(110,84,255,${0.15 + intensity * 0.8})` : "rgba(110,84,255,0.04)";
-    return `<div style="flex:1;text-align:center;padding:6px 0;background:${bg};border-radius:3px;font-size:9px;color:${intensity > 0.5 ? '#fff' : 'var(--text-dim)'};font-family:var(--mono);min-width:18px" title="${h}:00 UTC — ${ev} событий">${h}</div>`;
+    return `<div style="flex:1;text-align:center;padding:6px 0;background:${bg};border-radius:3px;font-size:9px;color:${intensity > 0.5 ? '#fff' : 'var(--text-dim)'};font-family:var(--mono);min-width:18px" title="${h}:00 UTC — ${ev} events">${h}</div>`;
   }).join("");
 
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Ритм ротации делегирования (testnet)</div>
+    <div class="section-title">Rhythm of delegation rotation (testnet)</div>
     <div style="font-size:12px;color:var(--text-mid);margin-bottom:14px">
-      Monad Foundation периодически переводит делегации (~2M MON каждая) между валидаторами в очереди. Резервный список (пул): <strong>${r.rotation_pool_size}</strong> валидаторов. Все события публичные, читаются с blockchain — это просто визуализация on-chain активности, не «расшифровка» внутренней логики.
-      <span style="color:#4ade80">+ зашёл в активный набор</span> · <span style="color:#FF8EE4">− вышел</span>
+      Monad Foundation periodically moves delegations (~2M MON each) between validators in the queue. Reserve list (pool): <strong>${r.rotation_pool_size}</strong> validators. All events are public on-chain — this is just a visualization, not reverse-engineering.
+      <span style="color:#4ade80">+ entered active set</span> · <span style="color:#FF8EE4">− exited</span>
     </div>
-    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Заходы/выходы за последние 14 дней</div>
+    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px">Daily ins/outs over the last 14 days</div>
     ${dailyBars}
-    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Распределение по часам UTC</div>
+    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">UTC hour distribution</div>
     <div style="display:flex;gap:2px;align-items:stretch">${hourCells}</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-top:8px">Каждая ячейка = 1 час UTC. Темнее = больше событий ротации в этот час за 14 дней.</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-top:8px">Each cell = 1 UTC hour. Darker = more rotation events fired in that hour over the 14-day window.</div>
   </section>
   `;
 }
@@ -301,9 +300,9 @@ function renderPerformance(p) {
     if (p && p.applicable === false) {
       return `
       <section class="data-section audit-section">
-        <div class="section-title">Производство блоков в пуле ротации</div>
+        <div class="section-title">Block production within the rotation pool</div>
         <div class="audit-empty">
-          <strong>Mainnet</strong>: пул VDP-ротации существует только на testnet. На mainnet раздел не отображается.
+          <strong>Mainnet</strong>: the VDP rotation pool exists only on testnet. This section is hidden on mainnet.
         </div>
       </section>`;
     }
@@ -313,7 +312,7 @@ function renderPerformance(p) {
   const total = Object.values(b).reduce((a, v) => a + v, 0) || 1;
   // Severity gradient — pink (idle) → orange → washed-purple (middle) → cyan → green (active)
   const segments = [
-    { label: "0 блоков", value: b["0"] || 0, color: "#FF8EE4", text: "#08050F" },
+    { label: "0 blocks", value: b["0"] || 0, color: "#FF8EE4", text: "#08050F" },
     { label: "1-999", value: b["1-999"] || 0, color: "#FFAE45", text: "#08050F" },
     { label: "1000-2999", value: b["1000-2999"] || 0, color: "#c4b5fd", text: "#08050F" },
     { label: "3000-4999", value: b["3000-4999"] || 0, color: "#85E6FF", text: "#08050F" },
@@ -323,7 +322,7 @@ function renderPerformance(p) {
     const w = (s.value / total) * 100;
     if (s.value === 0) {
       // Hairline marker so the empty middle is visible, not silently missing
-      return `<div class="histogram-segment" style="background:${s.color};width:2px;opacity:0.4" title="${s.label}: пусто"></div>`;
+      return `<div class="histogram-segment" style="background:${s.color};width:2px;opacity:0.4" title="${s.label}: empty"></div>`;
     }
     if (w < 1.5) {
       return `<div class="histogram-segment" style="background:${s.color};width:${w}%;color:${s.text}" title="${s.label}: ${s.value}"></div>`;
@@ -337,7 +336,7 @@ function renderPerformance(p) {
   const tenureDays = p.tenure_threshold_days || 14;
 
   const zeroPills = zeroList.map((it) => {
-    const days = it.days_in_pool ? ` · ${it.days_in_pool}д в пуле` : "";
+    const days = it.days_in_pool ? ` · ${it.days_in_pool}d in pool` : "";
     return `<span class="pill pill-warn" title="val_id ${it.val_id}${days}">${esc(it.name)}</span>`;
   }).join("");
 
@@ -350,27 +349,27 @@ function renderPerformance(p) {
 
   return `
   <section class="data-section audit-section">
-    <div class="section-title">Производство блоков в пуле ротации (за 7 дней)</div>
+    <div class="section-title">Block production within the rotation pool (last 7 days)</div>
     <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">
-      Размер пула <strong>${p.pool_size}</strong> валидаторов. Распределение <strong>бимодальное</strong>: либо в активном наборе и ты делаешь тысячи блоков, либо вообще никаких. Середина почти пустая.
+      Pool size <strong>${p.pool_size}</strong> validators. Distribution is <strong>bimodal</strong>: validators are either in the active set producing thousands of blocks, or completely idle. The middle is nearly empty.
     </div>
     <div class="histogram-bar">${segs}</div>
     <div class="histogram-legend">${legend}</div>
-    <div style="font-size:10px;color:var(--text-dim);margin-top:6px">← простой · активные →</div>
+    <div style="font-size:10px;color:var(--text-dim);margin-top:6px">← idle · active →</div>
 
     ${zeroList.length ? `
-      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Именованные операторы с нулём блоков (≥${tenureDays} дней в пуле, последние 7 дней)</div>
+      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Named operators stuck at zero blocks (≥${tenureDays} days in pool, last 7d)</div>
       <div class="audit-flag">
-        <div class="audit-flag-title">⚠ Возможный вопрос к справедливости очереди</div>
-        ${zeroList.length} VDP-операторов больше двух недель находятся в пуле ротации, но ни одного блока за прошедшую неделю не выпустили. Возможные объяснения: (а) очередь длинная и до них пока не дошло, (б) Foundation использует внутренние критерии оценки до промоушена, (в) баг в алгоритме ротации. Список не утверждает, что это недостаток операторов — это наблюдаемый паттерн, который стоит обсудить с Foundation.
-        ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Дополнительно: ещё ${recentCount} операторов также с нулём блоков, но они вошли в пул менее ${tenureDays} дней назад — их пока не считаем «застрявшими».</div>` : ""}
+        <div class="audit-flag-title">⚠ Possible queue-fairness question</div>
+        ${zeroList.length} VDP-enrolled operators have been in the rotation pool for over two weeks but produced zero blocks in the last 7 days. Plausible explanations: (a) the queue is long and their slot hasn't come up, (b) Foundation uses internal performance gates before promotion, (c) bias in the rotation algorithm. The list is not a verdict on operator quality — it's an observation worth raising with the Foundation.
+        ${recentCount ? `<div style="margin-top:8px;font-size:11px;color:var(--text-dim)">Additionally: ${recentCount} more operators are also at zero, but joined the pool less than ${tenureDays} days ago — not flagged as "stuck".</div>` : ""}
       </div>
       <div class="pill-row" style="margin-top:10px">${zeroPills}</div>
     ` : ""}
 
     ${topRows ? `
-      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Top-8 по числу блоков</div>
-      <div style="overflow-x:auto"><table class="audit-table"><thead><tr><th>Валидатор</th><th>val_id</th><th style="text-align:right">Блоков (7д)</th></tr></thead><tbody>${topRows}</tbody></table></div>
+      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin:24px 0 8px">Top-8 by block count</div>
+      <div style="overflow-x:auto"><table class="audit-table"><thead><tr><th>Validator</th><th>val_id</th><th style="text-align:right">Blocks (7d)</th></tr></thead><tbody>${topRows}</tbody></table></div>
     ` : ""}
   </section>
   `;
@@ -379,13 +378,13 @@ function renderPerformance(p) {
 function renderMethodology(d) {
   return `
   <section class="audit-section" style="padding-top:20px;border-top:1px solid rgba(110,84,255,0.08);font-size:12px;color:var(--text-mid);font-family:var(--mono);line-height:1.7">
-    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Методология и ограничения</div>
-    <div><strong>Источники данных:</strong> peers.toml (P2P-подписанный реестр пиров от обоих узлов MonadPulse), staking precompile (on-chain stake events), <a href="https://ip-api.com" target="_blank" style="color:var(--purple-light)">ip-api.com</a> для GeoIP.</div>
-    <div><strong>Точность:</strong> ip-api.com даёт ~85% точности по странам, ~55% по городам; флаг «дата-центр» — эвристика, не строгий критерий. Названия ISP объединены по ASN, но варианты у одного оператора всё равно возможны.</div>
-    <div><strong>Свежесть:</strong> геолокационная база перестраивается раз в час; on-chain метрики (ставки, ротация, блоки) обновляются в реальном времени с локальных RPC; страница кэшируется 5 минут.</div>
-    <div><strong>Окна:</strong> блоки — 7 дней; ротация — 14 дней; продолжительность в пуле — с момента первого делегирования от Foundation (полная история).</div>
-    <div><strong>Раскрытие интересов:</strong> страница построена независимым валидатором (val_id 267, «shadowoftime»). Я тоже в пуле ротации и попадаю в общую статистику. Имена конкурентов в списке «застрявших» приведены без редакторских правок и проверены на возраст в пуле перед публикацией.</div>
-    <div style="margin-top:8px;font-size:10px;color:var(--text-dim)">Сгенерировано ${new Date(d.generated_at).toLocaleString("ru-RU")}. Открытый исходный код: <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank" style="color:var(--purple-light)">github.com/ShadowOfTime1/monadpulse</a></div>
+    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Methodology &amp; limitations</div>
+    <div><strong>Sources:</strong> peers.toml (P2P-signed peer registry from MonadPulse's own testnet validator and mainnet observer), staking precompile (on-chain stake events), <a href="https://ip-api.com" target="_blank" style="color:var(--purple-light)">ip-api.com</a> for GeoIP.</div>
+    <div><strong>Accuracy:</strong> ip-api.com is ~85% country-accurate, ~55% city-accurate; the "datacenter" flag is a heuristic, not a strict criterion. ISP names are merged by ASN where possible, but variants of the same operator may still split.</div>
+    <div><strong>Freshness:</strong> the GeoIP base is rebuilt hourly; on-chain metrics (stake, rotation, blocks) update in real time from local RPC; this page caches 5 minutes.</div>
+    <div><strong>Windows:</strong> blocks — 7 days; rotation — 14 days; pool tenure — measured from the first Foundation delegate to the val_id (full history).</div>
+    <div><strong>Conflict-of-interest disclosure:</strong> built by an independent validator (val_id 267, "shadowoftime"). The author is also in the rotation pool and appears in the same statistics. Names of competitor operators in the "stuck" list are shown without editorial choice and verified for ≥14d pool tenure before publication.</div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text-dim)">Generated ${new Date(d.generated_at).toLocaleString()}. Open source: <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank" style="color:var(--purple-light)">github.com/ShadowOfTime1/monadpulse</a></div>
   </section>
   `;
 }
