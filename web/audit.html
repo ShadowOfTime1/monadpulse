@@ -24,11 +24,36 @@
 <style>
   .audit-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 20px 0 32px; }
   .audit-stat {
-    padding: 14px 16px; border-radius: 12px;
-    background: rgba(110,84,255,0.05);
-    border: 1px solid rgba(110,84,255,0.12);
+    padding: 14px 18px; border-radius: 14px;
+    background: linear-gradient(135deg, rgba(110,84,255,0.04), rgba(110,84,255,0));
+    position: relative;
   }
-  .audit-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+  .audit-stat::before {
+    content: ""; position: absolute; left: 0; top: 12px; bottom: 12px;
+    width: 2px; border-radius: 2px;
+    background: linear-gradient(180deg, transparent, var(--purple, #6E54FF), transparent);
+  }
+  .verdict-band { margin-top: 20px; }
+  .verdict-tone {
+    padding: 18px 22px;
+    border-left: 3px solid;
+    border-radius: 4px 14px 14px 4px;
+  }
+  .verdict-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 6px; }
+  .verdict-text { font-size: 14px; color: var(--text); line-height: 1.7; }
+  .verdict-text strong { color: var(--purple-light); }
+  .audit-empty {
+    padding: 16px 20px; border-radius: 10px;
+    background: rgba(110,84,255,0.03);
+    border: 1px dashed rgba(110,84,255,0.15);
+    color: var(--text-mid); font-size: 13px; line-height: 1.6;
+  }
+  .pill-warn {
+    background: rgba(255,142,228,0.06) !important;
+    border: 1px solid rgba(255,142,228,0.28) !important;
+    color: #FF8EE4 !important;
+  }
+  .audit-stat-label { font-size: 10px; color: var(--text-dim); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; cursor: help; }
   .audit-stat-value { font-size: 22px; font-weight: 600; color: var(--text); font-family: var(--mono); font-variant-numeric: tabular-nums; }
   .audit-stat-sub { font-size: 11px; color: var(--text-mid); margin-top: 4px; }
   .bar-row { display: flex; align-items: center; gap: 10px; padding: 4px 0; font-family: var(--mono); font-size: 12px; }
@@ -102,8 +127,8 @@
 </header>
 <main>
   <div style="padding-top:48px">
-    <h1 class="page-title">Network Audit</h1>
-    <p class="page-desc">Live decentralization, hosting, stake-cluster, and VDP rotation analysis. <span style="color:var(--text-dim)">Updated every 5 min.</span></p>
+    <h1 class="page-title">Аудит сети</h1>
+    <p class="page-desc">Анализ децентрализации, хостинга, концентрации стейка и ротации VDP в реальном времени. <span style="color:var(--text-dim)">Кэш — 5 минут.</span></p>
   </div>
 
   <div id="audit-content"><div class="audit-loading">Loading audit data…</div></div>
@@ -115,6 +140,6 @@
   </div>
 </footer>
 <script src="/js/app.js?v=e63a7869"></script>
-<script src="/js/audit.js?v=14491b88"></script>
+<script src="/js/audit.js?v=07b435cd"></script>
 </body>
 </html>

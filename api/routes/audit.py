@@ -56,22 +56,57 @@ def _hhi(counts: dict) -> int:
     return int(sum((n / total * 100) ** 2 for n in counts.values()))
 
 
+def _normalize_isp(name: str) -> str:
+    """Strip corporate suffixes so 'Limestone Networks Inc.' and 'Limestone Networks'
+    don't fragment into separate buckets. ASN-grouping is the proper fix for the
+    final HHI; this normalization is the fallback for the visible top-N table."""
+    if not name:
+        return name
+    s = name.strip()
+    for suffix in (", Inc.", " Inc.", ", LLC", " LLC", ", Ltd.", " Ltd.", " Limited",
+                   " GmbH", " S.A.", " SAS", " sp. z o.o.", " UAB", " s.r.o.", " AG",
+                   " Co.", " B.V.", " Pty Ltd", " AB", " Oy"):
+        if s.endswith(suffix):
+            s = s[: -len(suffix)].rstrip(",").rstrip()
+    return s
+
+
 def _aggregate_geo(network: str) -> dict:
     vs = _load_geo(network)
     if not vs:
         return {"total": 0}
 
-    countries = Counter(v.get("country") for v in vs if v.get("country"))
-    isps = Counter(v.get("isp") for v in vs if v.get("isp"))
-    asns = Counter(v.get("asn") for v in vs if v.get("asn"))
+    # Split: registered validators (have val_id) vs unidentified P2P peers.
+    # Hosting/geo claims should be made about the validator set, not the
+    # full peer crawl which includes RPC nodes, sentries, etc.
+    registered = [v for v in vs if v.get("val_id") is not None]
+    peers_only = len(vs) - len(registered)
 
-    n = len(vs)
-    dc = sum(1 for v in vs if v.get("datacenter"))
+    # Build ASN→canonical-ISP map and merge by ASN where ASN is known.
+    # Where ASN is missing, fall back to suffix-stripped ISP name.
+    asn_to_isp_canonical: dict[str, str] = {}
+    for v in registered:
+        asn, isp = v.get("asn"), v.get("isp")
+        if asn and isp and asn not in asn_to_isp_canonical:
+            asn_to_isp_canonical[asn] = _normalize_isp(isp)
 
-    # Subnet analysis
+    def canonical_isp(v):
+        asn = v.get("asn")
+        if asn and asn in asn_to_isp_canonical:
+            return asn_to_isp_canonical[asn]
+        return _normalize_isp(v.get("isp")) if v.get("isp") else None
+
+    countries = Counter(v.get("country") for v in registered if v.get("country"))
+    isps = Counter(canonical_isp(v) for v in registered if canonical_isp(v))
+    asns = Counter(v.get("asn") for v in registered if v.get("asn"))
+
+    n = len(registered)
+    dc = sum(1 for v in registered if v.get("datacenter"))
+
+    # Subnet analysis (over registered validators only)
     n24 = defaultdict(list)
     n16 = Counter()
-    for v in vs:
+    for v in registered:
         ip = v.get("ip")
         if not ip:
             continue
@@ -109,7 +144,9 @@ def _aggregate_geo(network: str) -> dict:
             anon_clusters.append(entry)
 
     return {
-        "total_with_geo": n,
+        "total_with_geo": n,  # registered validators with geo data
+        "registered_count": n,
+        "peers_only_count": peers_only,
         "datacenter_count": dc,
         "datacenter_pct": round(dc / n * 100, 1),
         "country_top": [{"country": c, "count": k, "pct": round(k / n * 100, 1)} for c, k in countries.most_common(10)],
@@ -168,8 +205,18 @@ async def _aggregate_stake_clusters(pool, network: str) -> dict:
     return {"clusters": out_clusters}
 
 
+FOUNDATION_ADDR = "0xf235ab9b2f80a9569079c0d62aab91024f4dd61e"
+ROTATION_AMOUNT_MIN = 1_900_000 * 10**18   # ≥1.9M MON: rotation move
+ROTATION_AMOUNT_MAX = 2_500_000 * 10**18   # ≤2.5M MON: still rotation, not 10.9M onboarding
+
+
 async def _aggregate_rotation(pool, network: str) -> dict:
-    """Foundation rotation pattern — meaningful only on testnet (mainnet has no VDP rotation)."""
+    """Foundation rotation pattern — meaningful only on testnet (mainnet has no VDP rotation).
+
+    Rotation moves are ~2M MON. Onboarding events (initial 10.9M Foundation
+    delegate to a new validator) used to slip through the prior ≥1.9M filter
+    and inflated the daily counts on onboarding-batch days. Capping at 2.5M
+    excludes onboardings while keeping every real rotation move."""
     if network != "testnet":
         return {"network": network, "applicable": False}
     async with pool.acquire() as conn:
@@ -181,38 +228,38 @@ async def _aggregate_rotation(pool, network: str) -> dict:
                    COUNT(DISTINCT validator_id) AS distinct_vals
             FROM stake_events
             WHERE network = $1
-              AND delegator ILIKE '0xf235ab9b%'
-              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND lower(delegator) = $2
+              AND amount::numeric BETWEEN $3 AND $4
               AND timestamp > NOW() - INTERVAL '14 days'
             GROUP BY d
             ORDER BY d ASC
             """,
-            network,
+            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
         )
         hourly = await conn.fetch(
             """
             SELECT EXTRACT(hour FROM timestamp)::int AS h, COUNT(*) AS n
             FROM stake_events
             WHERE network = $1
-              AND delegator ILIKE '0xf235ab9b%'
+              AND lower(delegator) = $2
               AND event_type IN ('delegate','undelegate')
-              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND amount::numeric BETWEEN $3 AND $4
               AND timestamp > NOW() - INTERVAL '14 days'
             GROUP BY h ORDER BY h
             """,
-            network,
+            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
         )
         pool_size_row = await conn.fetchrow(
             """
             SELECT COUNT(DISTINCT validator_id) AS pool_size
             FROM stake_events
             WHERE network = $1
-              AND delegator ILIKE '0xf235ab9b%'
+              AND lower(delegator) = $2
               AND event_type='delegate'
-              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
+              AND amount::numeric BETWEEN $3 AND $4
               AND timestamp > NOW() - INTERVAL '30 days'
             """,
-            network,
+            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
         )
 
     return {
@@ -228,26 +275,59 @@ async def _aggregate_rotation(pool, network: str) -> dict:
 
 
 async def _aggregate_performance(pool, network: str) -> dict:
-    """VDP rotation pool: blocks-produced distribution + named zero-block list (testnet only)."""
+    """VDP rotation pool: blocks-produced distribution + named zero-block list (testnet only).
+
+    Zero-block flag requires ≥14 days in the rotation pool (i.e. first
+    Foundation delegate to that val_id was at least 14d ago). Without this
+    gate, a validator who joined rotation 3 days ago and hasn't been picked
+    yet would be falsely flagged as 'stuck'."""
     if network != "testnet":
         return {"network": network, "applicable": False}
     directory = _load_directory(network)
-    vid_to_name = {int(e["val_id"]): e.get("name") for e in directory if e.get("val_id") is not None}
-    auth_to_vid = {(e.get("auth") or "").lower(): int(e["val_id"]) for e in directory if e.get("val_id") is not None and e.get("auth")}
+    # Build val_id → auth direct (avoids the lossy reverse-from-auth-dict
+    # collapse for shared-auth clusters like Category Labs val 8/9/10/12).
+    vid_to_name: dict[int, str] = {}
+    vid_to_auth: dict[int, str] = {}
+    for e in directory:
+        if e.get("val_id") is None:
+            continue
+        vid = int(e["val_id"])
+        vid_to_name[vid] = e.get("name")
+        if e.get("auth"):
+            vid_to_auth[vid] = e["auth"].lower()
+
     async with pool.acquire() as conn:
         rotation_rows = await conn.fetch(
             """
-            SELECT DISTINCT validator_id::int AS val_id
+            SELECT validator_id::int AS val_id,
+                   MIN(timestamp) FILTER (WHERE event_type='delegate') AS first_delegate
             FROM stake_events
             WHERE network = $1
-              AND delegator ILIKE '0xf235ab9b%'
+              AND lower(delegator) = $2
               AND event_type IN ('delegate','undelegate')
-              AND amount::numeric >= 1900000::numeric * 1000000000000000000::numeric
-              AND timestamp > NOW() - INTERVAL '14 days'
+              AND amount::numeric BETWEEN $3 AND $4
+              AND timestamp > NOW() - INTERVAL '30 days'
+            GROUP BY val_id
+            HAVING MAX(timestamp) > NOW() - INTERVAL '14 days'
             """,
-            network,
+            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
         )
+        # Tenure = days since first Foundation delegate to this val_id (across full DB)
+        first_delegate_rows = await conn.fetch(
+            """
+            SELECT validator_id::int AS val_id, MIN(timestamp) AS first_delegate
+            FROM stake_events
+            WHERE network = $1
+              AND lower(delegator) = $2
+              AND event_type = 'delegate'
+              AND amount::numeric BETWEEN $3 AND $4
+            GROUP BY val_id
+            """,
+            network, FOUNDATION_ADDR, str(ROTATION_AMOUNT_MIN), str(ROTATION_AMOUNT_MAX),
+        )
+        first_delegate_by_vid = {int(r["val_id"]): r["first_delegate"] for r in first_delegate_rows}
         rotation_vids = [int(r["val_id"]) for r in rotation_rows]
+
         proposed_rows = await conn.fetch(
             """
             SELECT lower(proposer_address) AS auth, COUNT(*) AS blocks_7d
@@ -257,15 +337,22 @@ async def _aggregate_performance(pool, network: str) -> dict:
             network,
         )
         blocks_by_auth = {r["auth"]: int(r["blocks_7d"]) for r in proposed_rows}
-    # Reverse: val_id → auth from directory, then look up blocks
-    vid_to_auth = {v: k for k, v in auth_to_vid.items()}
+
+    now = datetime.now(timezone.utc)
     items = []
     for vid in rotation_vids:
         auth = vid_to_auth.get(vid)
+        first_delegate = first_delegate_by_vid.get(vid)
+        days_in_pool = None
+        if first_delegate:
+            if first_delegate.tzinfo is None:
+                first_delegate = first_delegate.replace(tzinfo=timezone.utc)
+            days_in_pool = int((now - first_delegate).total_seconds() / 86400)
         items.append({
             "val_id": vid,
             "name": vid_to_name.get(vid),
             "blocks_7d": blocks_by_auth.get(auth, 0),
+            "days_in_pool": days_in_pool,
         })
     items.sort(key=lambda x: (-x["blocks_7d"], x["val_id"]))
 
@@ -283,7 +370,10 @@ async def _aggregate_performance(pool, network: str) -> dict:
         else:
             buckets["5000+"] += 1
 
-    zero_named = [it for it in items if it["blocks_7d"] == 0 and it["name"]]
+    # Zero-block list requires both a name AND ≥14 days in the pool —
+    # so we never label a recent enrollee as "stuck".
+    zero_named = [it for it in items if it["blocks_7d"] == 0 and it["name"] and (it.get("days_in_pool") or 0) >= 14]
+    zero_recent = [it for it in items if it["blocks_7d"] == 0 and it["name"] and (it.get("days_in_pool") or 0) < 14]
     top_performers = items[:10]
 
     return {
@@ -291,8 +381,10 @@ async def _aggregate_performance(pool, network: str) -> dict:
         "applicable": True,
         "pool_size": len(items),
         "buckets": buckets,
-        "zero_blocks_named": zero_named[:30],
+        "zero_blocks_named": zero_named[:30],   # ≥14d in pool — defensible "stuck"
+        "zero_blocks_recent_count": len(zero_recent),  # joined recently — separate
         "top_performers": top_performers,
+        "tenure_threshold_days": 14,
     }
 
 
