@@ -24,8 +24,16 @@ async def summary(request: Request, network: str = Query("testnet")):
             WHERE network = $1 AND timestamp > NOW() - INTERVAL '24 hours'
         """, network)
         epoch = await conn.fetchrow("""
-            SELECT epoch_number, boundary_block, validator_count
+            SELECT epoch_number, boundary_block, validator_count, timestamp
             FROM epochs WHERE network = $1 ORDER BY epoch_number DESC LIMIT 1
+        """, network)
+        # Recent epoch durations — used to estimate progress through the
+        # CURRENT epoch since durations vary on Monad (no fixed block count
+        # per epoch).
+        recent_epochs = await conn.fetch("""
+            SELECT epoch_number, timestamp
+            FROM epochs WHERE network = $1
+            ORDER BY epoch_number DESC LIMIT 10
         """, network)
 
     result = {
@@ -66,26 +74,57 @@ async def summary(request: Request, network: str = Query("testnet")):
             "validator_count": epoch["validator_count"],
         }
 
-    # Compute epoch progress from latest block
-    if latest:
+    # Compute epoch progress using the actual recorded epoch transition
+    # timestamp + a median of recent epoch durations. Block-number
+    # arithmetic doesn't work — epoch length on Monad is not a fixed block
+    # count.
+    if latest and epoch:
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
         bn = latest["block_number"]
-        # Prefer the collector-recorded epoch number (via staking precompile
-        # getEpoch()) over block-number arithmetic. The two can disagree for
-        # a few seconds around a boundary — epoch.number is authoritative.
-        current_epoch = epoch["epoch_number"] if epoch else bn // 50000
-        progress_blocks = bn % 50000
-        progress_pct = round(progress_blocks / 50000 * 100, 1)
-        remaining = 50000 - progress_blocks
-        # Reuse throughput-derived bt if available
+        current_epoch = epoch["epoch_number"]
+        epoch_started = epoch["timestamp"]
+        if epoch_started and epoch_started.tzinfo is None:
+            epoch_started = epoch_started.replace(tzinfo=timezone.utc)
+        elapsed_s = int((now - epoch_started).total_seconds()) if epoch_started else 0
+
+        # Median duration over the last few transitions (resilient to one
+        # weirdly long/short epoch). Need ≥2 rows ordered DESC to compute gaps.
+        ts_list = [r["timestamp"] for r in recent_epochs if r["timestamp"]]
+        for i, t in enumerate(ts_list):
+            if t.tzinfo is None:
+                ts_list[i] = t.replace(tzinfo=timezone.utc)
+        gaps_s = [int((ts_list[i] - ts_list[i + 1]).total_seconds())
+                  for i in range(len(ts_list) - 1)]
+        gaps_s = [g for g in gaps_s if g > 0]
+        if gaps_s:
+            gaps_sorted = sorted(gaps_s)
+            median_duration_s = gaps_sorted[len(gaps_sorted) // 2]
+        else:
+            median_duration_s = 0
+
+        progress_pct = round(elapsed_s / median_duration_s * 100, 1) if median_duration_s else 0
+        # Cap visible progress at 100 — if elapsed > median, show 100% with
+        # a flag rather than over-extending.
+        progress_pct_capped = min(progress_pct, 100.0)
+        eta_seconds = max(median_duration_s - elapsed_s, 0) if median_duration_s else 0
+
+        # Approximate "blocks since boundary" using throughput-derived block
+        # time. This is a UI hint, not authoritative — the duration is what
+        # actually matters for the progress bar.
         avg_bt = result["stats_24h"]["avg_block_time_ms"] if result.get("stats_24h") else 400
         if not avg_bt:
             avg_bt = 400
-        eta_seconds = int(remaining * avg_bt / 1000) if avg_bt > 0 else 0
+        progress_blocks = int(elapsed_s * 1000 / avg_bt) if avg_bt > 0 else 0
+        remaining_blocks = int(eta_seconds * 1000 / avg_bt) if avg_bt > 0 else 0
+
         result["epoch_progress"] = {
             "current_epoch": current_epoch,
-            "progress_pct": progress_pct,
+            "progress_pct": progress_pct_capped,
+            "elapsed_seconds": elapsed_s,
+            "median_duration_seconds": median_duration_s,
             "progress_blocks": progress_blocks,
-            "remaining_blocks": remaining,
+            "remaining_blocks": remaining_blocks,
             "eta_seconds": eta_seconds,
         }
 

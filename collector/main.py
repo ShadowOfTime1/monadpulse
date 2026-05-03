@@ -135,7 +135,14 @@ async def aggregate_hourly(pool):
 
 
 async def track_epoch(rpc: MonadRPC, pool):
-    """Track current epoch + post a detailed summary of the PREVIOUS epoch."""
+    """Track current epoch + post a detailed summary of the PREVIOUS epoch.
+
+    Epoch boundaries on Monad are NOT aligned to block-number multiples —
+    the consensus epoch number ticks based on validator-set rotation logic
+    independent of block height. We therefore use the chain head observed
+    AT the moment of transition as the canonical boundary block of the new
+    epoch, and the previous epoch's recorded boundary as the lower bound
+    for the summary range."""
     epoch_num = await rpc.get_epoch()
     if epoch_num is None:
         return
@@ -147,35 +154,58 @@ async def track_epoch(rpc: MonadRPC, pool):
         if existing:
             return
 
-        boundary = epoch_num * 50_000
-        prev_lo = max(0, boundary - 50_000)
+        # Capture chain head AT transition. This block (and all blocks before
+        # the previous epoch's boundary) belonged to the now-ended epoch.
+        chain_head = await rpc.get_block_number()
+        if chain_head is None:
+            log.warning(f"track_epoch: chain head unavailable, deferring epoch {epoch_num}")
+            return
 
-        # Summary of the PREVIOUS (just-ended) epoch
-        summary = await conn.fetchrow("""
-            SELECT COUNT(*) AS blocks,
-                   COALESCE(SUM(tx_count), 0) AS txs,
-                   COALESCE(AVG(block_time_ms), 0)::INT AS avg_bt,
-                   COUNT(DISTINCT proposer_address) FILTER (
-                       WHERE proposer_address != '0x0000000000000000000000000000000000000000'
-                   ) AS val_count,
-                   COUNT(*) FILTER (
-                       WHERE proposer_address = '0x0000000000000000000000000000000000000000'
-                   ) AS null_blocks,
-                   COALESCE(AVG(base_fee), 0)::BIGINT AS avg_base_fee,
-                   MIN(timestamp) AS started,
-                   MAX(timestamp) AS ended
-            FROM blocks
-            WHERE block_number >= $1 AND block_number < $2 AND network = $3
-        """, prev_lo, boundary, NETWORK)
+        # Find previous epoch to bound the summary range.
+        prev = await conn.fetchrow(
+            "SELECT epoch_number, boundary_block, timestamp FROM epochs "
+            "WHERE network = $1 AND epoch_number < $2 "
+            "ORDER BY epoch_number DESC LIMIT 1",
+            NETWORK, epoch_num,
+        )
+
+        # Sanity check: chain head should be ahead of the previous boundary.
+        # If not (clock skew, RPC race), refuse to record — wait for next tick.
+        if prev and chain_head <= (prev["boundary_block"] or 0):
+            log.warning(
+                f"track_epoch: chain_head {chain_head} <= prev boundary "
+                f"{prev['boundary_block']} for epoch {epoch_num}; deferring"
+            )
+            return
+
+        # Summary of previous epoch — REAL block range, not a guess.
+        summary = None
+        if prev and prev["boundary_block"]:
+            summary = await conn.fetchrow("""
+                SELECT COUNT(*) AS blocks,
+                       COALESCE(SUM(tx_count), 0) AS txs,
+                       COALESCE(AVG(block_time_ms), 0)::INT AS avg_bt,
+                       COUNT(DISTINCT proposer_address) FILTER (
+                           WHERE proposer_address != '0x0000000000000000000000000000000000000000'
+                       ) AS val_count,
+                       COUNT(*) FILTER (
+                           WHERE proposer_address = '0x0000000000000000000000000000000000000000'
+                       ) AS null_blocks,
+                       COALESCE(AVG(base_fee), 0)::BIGINT AS avg_base_fee,
+                       MIN(timestamp) AS started,
+                       MAX(timestamp) AS ended
+                FROM blocks
+                WHERE block_number >= $1 AND block_number < $2 AND network = $3
+            """, prev["boundary_block"], chain_head, NETWORK)
 
         val_count = summary["val_count"] if summary else 0
 
         await conn.execute(
             "INSERT INTO epochs (epoch_number, boundary_block, timestamp, validator_count, network) "
             "VALUES ($1, $2, NOW(), $3, $4) ON CONFLICT DO NOTHING",
-            epoch_num, boundary, val_count or 0, NETWORK,
+            epoch_num, chain_head, val_count or 0, NETWORK,
         )
-        log.info(f"Epoch {epoch_num} recorded, boundary={boundary}, validators={val_count}")
+        log.info(f"Epoch {epoch_num} recorded, boundary_block={chain_head}, validators={val_count}")
 
         # Epoch summary (previous epoch just ended at this boundary)
         if summary and summary["blocks"]:
@@ -186,6 +216,13 @@ async def track_epoch(rpc: MonadRPC, pool):
             null_pct = (null_n * 100 / blocks_n) if blocks_n else 0
             base_fee_gwei = int(summary["avg_base_fee"] or 0) // 10**9
             duration_s = int((summary["ended"] - summary["started"]).total_seconds()) if summary["started"] and summary["ended"] else 0
+            # Sanity check: testnet epochs are typically 5-7h; mainnet differs but
+            # any epoch <30 min or >12h likely indicates an indexing gap or RPC race.
+            if duration_s and (duration_s < 1800 or duration_s > 43200):
+                log.warning(
+                    f"Epoch {epoch_num - 1} summary duration {duration_s}s outside "
+                    f"plausible range; blocks={blocks_n} range=[{prev['boundary_block']},{chain_head})"
+                )
             dur_h, rem = divmod(duration_s, 3600)
             dur_m = rem // 60
             tps = txs_n / duration_s if duration_s > 0 else 0
@@ -217,17 +254,17 @@ async def track_epoch(rpc: MonadRPC, pool):
             await tg_send("epoch_summary", "info", "Epoch summary", tg_epoch_desc)
 
         # Short "epoch changed" ping (keeps existing behavior)
-        alert_title = f"New epoch {epoch_num} started at block {boundary}"
+        alert_title = f"New epoch {epoch_num} started at block {chain_head}"
         alert_desc_db = f"Active validators: {val_count}"
         await insert_alert(
             conn, alert_type="new_epoch", severity="info",
             title=alert_title, description=alert_desc_db,
-            data_json={"epoch": epoch_num, "boundary_block": boundary, "validator_count": val_count},
+            data_json={"epoch": epoch_num, "boundary_block": chain_head, "validator_count": val_count},
             network=NETWORK,
         )
         tg_new_epoch_desc = (
             f"<blockquote><b>Epoch {epoch_num}</b>  started\n"
-            f"at block <b>#{boundary:,}</b>\n"
+            f"at block <b>#{chain_head:,}</b>\n"
             f"active validators: <b>{val_count}</b></blockquote>"
         )
         await tg_send("new_epoch", "info", "New epoch", tg_new_epoch_desc)
@@ -237,6 +274,7 @@ async def track_epoch(rpc: MonadRPC, pool):
 
 
 _SEEN_VAL_IDS: set[int] | None = None
+_LAST_KNOWN_EPOCH: int | None = None  # cached so live indexer can detect transitions cheaply
 
 
 async def detect_new_validators(rpc: MonadRPC, pool, epoch_num: int):
@@ -1814,13 +1852,19 @@ async def run():
                     db_head = chain_head - 1
 
                 if chain_head > db_head:
-                    # Detect epoch boundary crossing: any block in [db_head+1..chain_head]
-                    # that is a multiple of 50000 → trigger immediate epoch refresh.
+                    # Detect epoch transition by polling staking precompile.
+                    # Block-number arithmetic doesn't work — Monad epoch numbers
+                    # tick on validator-set rotation logic, not block multiples.
+                    global _LAST_KNOWN_EPOCH
                     epoch_boundary_crossed = False
-                    for bn in range(db_head + 1, chain_head + 1):
-                        if bn % 50_000 == 0:
-                            epoch_boundary_crossed = True
-                            break
+                    try:
+                        cur_epoch = await rpc.get_epoch()
+                        if cur_epoch is not None:
+                            if _LAST_KNOWN_EPOCH is not None and cur_epoch > _LAST_KNOWN_EPOCH:
+                                epoch_boundary_crossed = True
+                            _LAST_KNOWN_EPOCH = cur_epoch
+                    except Exception:
+                        pass
 
                     for batch_start in range(db_head + 1, chain_head + 1, batch_size):
                         if shutdown_event.is_set():
@@ -1832,7 +1876,7 @@ async def run():
                             async with pool.acquire() as conn:
                                 await upsert_collector_state(conn, "last_block", str(batch_end), NETWORK)
 
-                    # Refresh epoch state immediately on boundary crossing
+                    # Refresh epoch state immediately on epoch change
                     if epoch_boundary_crossed:
                         log.info(f"Epoch boundary crossed — refreshing epoch state [{NETWORK}]")
                         await track_epoch(rpc, pool)
