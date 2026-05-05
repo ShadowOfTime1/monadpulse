@@ -12,6 +12,8 @@ Cached 5 min — these aggregates are heavy to compute and don't change minute-t
 """
 from __future__ import annotations
 
+import csv
+import io
 import ipaddress
 import json
 import time
@@ -20,6 +22,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Query, Request
+from fastapi.responses import PlainTextResponse
 
 router = APIRouter()
 
@@ -525,3 +528,184 @@ async def network_audit(request: Request, network: str = Query("testnet")):
     }
     _CACHE[cache_key] = (now, result)
     return result
+
+
+@router.get("/history")
+async def audit_history(request: Request,
+                        network: str = Query("testnet"),
+                        days: int = Query(30, ge=1, le=365)):
+    """Time-series of concentration metrics from audit_snapshots.
+
+    Concentration columns (country_hhi, asn_hhi, stake_*_hhi, datacenter_pct)
+    only go back to first snapshot install — series_start_at lets the UI
+    annotate that. Validator-count columns can be filled retroactively from
+    validator_stake_history if we ever want to backfill.
+    """
+    pool = request.app.state.pool
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT captured_at,
+                   total_validators, active_validators,
+                   country_count, isp_count, asn_count,
+                   country_hhi, asn_hhi,
+                   stake_country_hhi, stake_asn_hhi,
+                   datacenter_pct, datacenter_count, distinct_subnets_total
+            FROM audit_snapshots
+            WHERE network = $1
+              AND captured_at > NOW() - ($2 || ' days')::INTERVAL
+            ORDER BY captured_at
+        """, network, str(days))
+        first_row = await conn.fetchrow("""
+            SELECT MIN(captured_at) AS first_at FROM audit_snapshots WHERE network = $1
+        """, network)
+
+    series = [
+        {
+            "captured_at": r["captured_at"].isoformat(),
+            "total_validators": r["total_validators"],
+            "active_validators": r["active_validators"],
+            "country_count": r["country_count"],
+            "isp_count": r["isp_count"],
+            "asn_count": r["asn_count"],
+            "country_hhi": r["country_hhi"],
+            "asn_hhi": r["asn_hhi"],
+            "stake_country_hhi": r["stake_country_hhi"],
+            "stake_asn_hhi": r["stake_asn_hhi"],
+            "datacenter_pct": float(r["datacenter_pct"]) if r["datacenter_pct"] is not None else None,
+            "datacenter_count": r["datacenter_count"],
+            "distinct_subnets_total": r["distinct_subnets_total"],
+        }
+        for r in rows
+    ]
+    return {
+        "network": network,
+        "days": days,
+        "series_start_at": first_row["first_at"].isoformat() if first_row and first_row["first_at"] else None,
+        "points": series,
+    }
+
+
+@router.get("/new-entries")
+async def audit_new_entries(request: Request,
+                            network: str = Query("testnet"),
+                            days: int = Query(30, ge=1, le=180),
+                            limit: int = Query(20, ge=1, le=100)):
+    """Validators whose first observed epoch falls inside the window.
+
+    First-seen is computed from validator_stake_history (MIN(epoch) per
+    val_id). The accompanying epoch timestamp pins it to a real date.
+    Geo/name fields are joined from validator_geo + the directory file.
+    """
+    pool = request.app.state.pool
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            WITH first_seen AS (
+                SELECT val_id, validator_id, MIN(epoch) AS first_epoch
+                FROM validator_stake_history
+                WHERE network = $1
+                GROUP BY val_id, validator_id
+            )
+            SELECT fs.val_id,
+                   fs.validator_id,
+                   fs.first_epoch,
+                   e.timestamp AS first_seen_at,
+                   vsh.total_stake AS first_stake,
+                   vg.name, vg.country, vg.city, vg.provider, vg.lat, vg.lon
+            FROM first_seen fs
+            JOIN epochs e
+              ON e.network = $1 AND e.epoch_number = fs.first_epoch
+            JOIN validator_stake_history vsh
+              ON vsh.network = $1 AND vsh.val_id = fs.val_id AND vsh.epoch = fs.first_epoch
+            LEFT JOIN validator_geo vg
+              ON vg.network = $1 AND vg.validator_id = fs.validator_id
+            WHERE e.timestamp > NOW() - ($2 || ' days')::INTERVAL
+            ORDER BY e.timestamp DESC
+            LIMIT $3
+        """, network, str(days), limit)
+
+    # geo file keys validators by `auth` (lowercase 0x address) — match
+    # against validator_id from stake_history. val_id is also keyed for
+    # validators where two entries share the same auth.
+    geo_records = _load_geo(network)
+    geo_by_auth = {v.get("auth", "").lower(): v for v in geo_records if v.get("auth")}
+    geo_by_valid = {v.get("val_id"): v for v in geo_records if v.get("val_id") is not None}
+
+    items = []
+    for r in rows:
+        geo = geo_by_valid.get(r["val_id"]) or geo_by_auth.get((r["validator_id"] or "").lower()) or {}
+        items.append({
+            "val_id": r["val_id"],
+            "validator_id": r["validator_id"],
+            "first_epoch": r["first_epoch"],
+            "first_seen_at": r["first_seen_at"].isoformat() if r["first_seen_at"] else None,
+            "first_stake": str(r["first_stake"]) if r["first_stake"] is not None else None,
+            "name": r["name"] or geo.get("name"),
+            "country": r["country"] or geo.get("country"),
+            "city": r["city"] or geo.get("city"),
+            "isp": geo.get("isp") or r["provider"],
+            "asn": geo.get("asn"),
+        })
+    return {"network": network, "days": days, "count": len(items), "entries": items}
+
+
+@router.get("/validators.csv", response_class=PlainTextResponse)
+async def audit_validators_csv(request: Request,
+                               network: str = Query("testnet")):
+    """CSV export of registered validators with current geo + stake.
+
+    Columns are stable so external scripts can pin column names. Stake is
+    in raw wei (NUMERIC) — let the consumer divide by 1e18.
+    """
+    pool = request.app.state.pool
+    async with pool.acquire() as conn:
+        latest_epoch = await conn.fetchval(
+            "SELECT MAX(epoch) FROM validator_stake_history WHERE network = $1", network
+        )
+        rows = await conn.fetch("""
+            SELECT vsh.val_id, vsh.validator_id, vsh.total_stake, vsh.consensus_stake, vsh.delegator_count,
+                   vg.name, vg.country, vg.city, vg.provider
+            FROM validator_stake_history vsh
+            LEFT JOIN validator_geo vg
+              ON vg.network = $1 AND vg.validator_id = vsh.validator_id
+            WHERE vsh.network = $1 AND vsh.epoch = $2
+            ORDER BY vsh.total_stake DESC NULLS LAST
+        """, network, latest_epoch)
+
+    geo_records = _load_geo(network)
+    geo_by_auth = {v.get("auth", "").lower(): v for v in geo_records if v.get("auth")}
+    geo_by_valid = {v.get("val_id"): v for v in geo_records if v.get("val_id") is not None}
+
+    buf = io.StringIO()
+    w = csv.writer(buf)
+    w.writerow([
+        "val_id", "validator_id", "name",
+        "country", "city", "isp", "asn",
+        "total_stake_wei", "consensus_stake_wei", "delegator_count",
+        "is_active", "epoch", "network",
+    ])
+    for r in rows:
+        geo = geo_by_valid.get(r["val_id"]) or geo_by_auth.get((r["validator_id"] or "").lower()) or {}
+        is_active = (r["consensus_stake"] is not None and r["consensus_stake"] > 0)
+        w.writerow([
+            r["val_id"],
+            r["validator_id"],
+            r["name"] or geo.get("name") or "",
+            r["country"] or geo.get("country") or "",
+            r["city"] or geo.get("city") or "",
+            geo.get("isp") or r["provider"] or "",
+            geo.get("asn") or "",
+            r["total_stake"] if r["total_stake"] is not None else "",
+            r["consensus_stake"] if r["consensus_stake"] is not None else "",
+            r["delegator_count"] or 0,
+            "1" if is_active else "0",
+            latest_epoch,
+            network,
+        ])
+
+    csv_text = buf.getvalue()
+    fname = f"monadpulse-validators-{network}-epoch{latest_epoch}.csv"
+    return PlainTextResponse(
+        csv_text,
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{fname}"'},
+    )

@@ -22,16 +22,20 @@ async function loadAndRender() {
   const root = document.getElementById("audit-content");
   if (!root) return;
   root.innerHTML = '<div class="audit-loading">Loading audit data…</div>';
-  const data = await apiFetch("/audit/network");
+  const [data, history, newEntries] = await Promise.all([
+    apiFetch("/audit/network"),
+    apiFetch("/audit/history?days=30"),
+    apiFetch("/audit/new-entries?days=30&limit=10"),
+  ]);
   if (!data) {
     root.innerHTML = '<div class="audit-loading" style="color:var(--pink)">Failed to load audit data.</div>';
     return;
   }
   // Order: verdict → hero stats (the "what is this network" baseline) →
   // performance (the lead finding) → geo → hosting → subnets → anon →
-  // stake clusters → rotation → methodology footer.
-  // Hero before performance: a reader hits the histogram with context for
-  // "what pool is this", not from cold.
+  // stake clusters → rotation → history-trend → new-entries → methodology.
+  // History/new-entries go near the bottom because they're useful but
+  // secondary to the structural concentration view above.
   const html = [
     renderVerdict(data),
     renderHero(data),
@@ -42,6 +46,8 @@ async function loadAndRender() {
     renderAnonClusters(data.geo),
     renderStakeClusters(data.stake_clusters),
     renderRotation(data.rotation),
+    renderHistory(history),
+    renderNewEntries(newEntries),
     renderMethodology(data),
   ].join("");
   root.innerHTML = html;
@@ -457,9 +463,14 @@ function renderPerformance(p) {
 }
 
 function renderMethodology(d) {
+  const network = d.network || "testnet";
+  const csvHref = `/api/audit/validators.csv?network=${encodeURIComponent(network)}`;
   return `
   <section class="audit-section" style="padding-top:20px;border-top:1px solid rgba(110,84,255,0.08);font-size:12px;color:var(--text-mid);font-family:var(--mono);line-height:1.7">
-    <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Methodology &amp; limitations</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px">Methodology &amp; limitations</div>
+      <a href="${csvHref}" download style="font-size:11px;color:var(--purple-light);text-decoration:none;border:1px solid rgba(110,84,255,0.3);padding:4px 10px;border-radius:6px">⬇ Download validators CSV (${network})</a>
+    </div>
     <div><strong>Sources:</strong> peers.toml (P2P-signed peer registry from MonadPulse's own testnet validator and mainnet observer), staking precompile (on-chain stake events), <a href="https://ip-api.com" target="_blank" style="color:var(--purple-light)">ip-api.com</a> for GeoIP.</div>
     <div><strong>Accuracy:</strong> ip-api.com is ~85% country-accurate, ~55% city-accurate; the "datacenter" flag is a heuristic, not a strict criterion. ISP names are merged by ASN where possible, but variants of the same operator may still split.</div>
     <div><strong>Freshness:</strong> the GeoIP base is rebuilt hourly; on-chain metrics (stake, rotation, blocks) update in real time from local RPC; this page caches 5 minutes.</div>
@@ -468,6 +479,117 @@ function renderMethodology(d) {
     <div style="margin-top:8px;font-size:10px;color:var(--text-dim)">Generated ${new Date(d.generated_at).toLocaleString()}. Open source: <a href="https://github.com/ShadowOfTime1/monadpulse" target="_blank" style="color:var(--purple-light)">github.com/ShadowOfTime1/monadpulse</a></div>
   </section>
   `;
+}
+
+function renderHistory(h) {
+  if (!h) {
+    return `
+      <section class="data-section audit-section">
+        <div class="section-title">Concentration over time</div>
+        <div class="audit-empty">History endpoint unavailable.</div>
+      </section>`;
+  }
+  const points = (h.points || []);
+  // Single-point case: show stat strip + note about series length.
+  if (points.length < 2) {
+    const startNote = h.series_start_at
+      ? `Series started <strong>${new Date(h.series_start_at).toLocaleDateString()}</strong>; the chart will fill in as daily snapshots accumulate.`
+      : `No snapshots captured yet — first one runs at 06:05 UTC daily.`;
+    return `
+      <section class="data-section audit-section">
+        <div class="section-title">Concentration over time</div>
+        <div class="audit-empty">${startNote}</div>
+      </section>`;
+  }
+
+  // Series we plot: count-HHI vs stake-HHI for country, plus validator count
+  const xs = points.map((p) => new Date(p.captured_at).getTime());
+  const x0 = xs[0], x1 = xs[xs.length - 1];
+  const xspan = Math.max(x1 - x0, 1);
+  const W = 760, H = 200, P = { l: 44, r: 16, t: 12, b: 26 };
+  const plotW = W - P.l - P.r, plotH = H - P.t - P.b;
+
+  function makeLine(field, color, label) {
+    const ys = points.map((p) => p[field]).filter((v) => v != null);
+    if (!ys.length) return { line: "", legend: "" };
+    const ymin = Math.min(...ys), ymax = Math.max(...ys);
+    const yspan = Math.max(ymax - ymin, 1);
+    const path = points.map((p, i) => {
+      const x = P.l + ((xs[i] - x0) / xspan) * plotW;
+      const v = p[field];
+      if (v == null) return null;
+      const y = P.t + plotH - ((v - ymin) / yspan) * plotH;
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).filter(Boolean).join(" ");
+    const last = ys[ys.length - 1];
+    return {
+      line: `<path d="${path}" stroke="${color}" stroke-width="1.6" fill="none" />`,
+      legend: `<span style="display:inline-flex;align-items:center;gap:6px;margin-right:14px"><span style="width:10px;height:2px;background:${color};display:inline-block"></span>${label}: <strong style="color:var(--text)">${last}</strong></span>`,
+    };
+  }
+
+  const lines = [
+    makeLine("country_hhi", "#6E54FF", "Country HHI (count)"),
+    makeLine("stake_country_hhi", "#85E6FF", "Country HHI (stake-weighted)"),
+    makeLine("asn_hhi", "#FFAE45", "ASN HHI (count)"),
+  ];
+
+  // x-axis ticks
+  const ticks = points.length <= 7 ? points.map((_, i) => i) : [0, Math.floor(points.length / 2), points.length - 1];
+  const tickLabels = ticks.map((i) => {
+    const x = P.l + ((xs[i] - x0) / xspan) * plotW;
+    const dt = new Date(xs[i]);
+    const lbl = `${dt.getMonth() + 1}/${dt.getDate()}`;
+    return `<text x="${x.toFixed(1)}" y="${H - 8}" fill="var(--text-dim)" font-size="10" text-anchor="middle">${lbl}</text>`;
+  }).join("");
+
+  return `
+    <section class="data-section audit-section">
+      <div class="section-title">Concentration over time</div>
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">
+        ${points.length} daily snapshot${points.length === 1 ? "" : "s"} since <strong>${new Date(h.series_start_at).toLocaleDateString()}</strong>. HHI lines auto-scale; lower is more diverse.
+      </div>
+      <div style="overflow-x:auto"><svg viewBox="0 0 ${W} ${H}" width="100%" style="max-width:${W}px;display:block">
+        <rect x="${P.l}" y="${P.t}" width="${plotW}" height="${plotH}" fill="rgba(110,84,255,0.04)" stroke="rgba(110,84,255,0.1)" />
+        ${lines.map((l) => l.line).join("")}
+        ${tickLabels}
+      </svg></div>
+      <div style="font-size:11px;font-family:var(--mono);color:var(--text-mid);margin-top:8px">${lines.map((l) => l.legend).join("")}</div>
+    </section>`;
+}
+
+function renderNewEntries(n) {
+  if (!n) return "";
+  const entries = n.entries || [];
+  if (!entries.length) {
+    return `
+      <section class="data-section audit-section">
+        <div class="section-title">New validator entries (last ${n.days || 30} days)</div>
+        <div class="audit-empty">No new validators in this window.</div>
+      </section>`;
+  }
+  const rows = entries.map((e) => {
+    const date = e.first_seen_at ? new Date(e.first_seen_at).toLocaleDateString() : "—";
+    const stakeMon = e.first_stake ? Math.round(Number(e.first_stake) / 1e18).toLocaleString() : "—";
+    const where = [e.country, e.city].filter(Boolean).join(" · ") || "—";
+    return `<tr>
+      <td style="color:var(--text-dim)">${date}</td>
+      <td><strong style="color:var(--text)">${esc(e.name || `val#${e.val_id}`)}</strong></td>
+      <td>${esc(where)}</td>
+      <td style="color:var(--text-mid)">${esc(e.isp || "—")}</td>
+      <td style="text-align:right;color:var(--purple-light)">${stakeMon} MON</td>
+    </tr>`;
+  }).join("");
+  return `
+    <section class="data-section audit-section">
+      <div class="section-title">New validator entries (last ${n.days} days)</div>
+      <div style="font-size:12px;color:var(--text-mid);margin-bottom:10px">
+        Validators whose first observed epoch fell in this window. First-stake is the snapshot at registration.
+      </div>
+      <div style="overflow-x:auto"><table class="audit-table"><thead><tr>
+        <th>First seen</th><th>Validator</th><th>Country · City</th><th>Hosting</th><th style="text-align:right">First stake</th>
+      </tr></thead><tbody>${rows}</tbody></table></div>
+    </section>`;
 }
 
 function truncate(s, n) {
