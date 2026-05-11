@@ -1609,6 +1609,27 @@ async def detect_offline_validators(pool):
             if count > 0:
                 continue
 
+            # Rotation-gap filter. VDP rotation pulls 2M MON from a 11M-staked
+            # validator → 9M < active_validator_stake floor (10M) → validator
+            # drops out of consensus_valset at the next epoch boundary →
+            # stops producing blocks. Foundation re-delegates the 2M chunk
+            # 1-3 days later. The full silence window is observed at 48-60h
+            # (between undelegate and consensus_valset refresh after the
+            # re-delegate). Empirically 72h covers worst-case where the
+            # alert checker fires near the end of the gap. NOT an outage.
+            rotation_undelegate = await conn.fetchval("""
+                SELECT 1 FROM stake_events
+                WHERE network = $1
+                  AND validator_id = $2
+                  AND event_type = 'undelegate'
+                  AND amount > 1e24
+                  AND timestamp > NOW() - INTERVAL '72 hours'
+                LIMIT 1
+            """, NETWORK, str(vid))
+            if rotation_undelegate:
+                log.info(f"offline-detect skip vid={vid} ({name}): recent >1M MON undelegate — VDP rotation, not outage")
+                continue
+
             # (Ghost filter happens at top of loop via active_producers set —
             # if we got this far, this validator IS a recent producer that
             # has now gone silent. Real signal.)
