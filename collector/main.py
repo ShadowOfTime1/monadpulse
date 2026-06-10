@@ -2024,16 +2024,25 @@ async def run():
 
     except Exception as e:
         log.error(f"Collector fatal error: {e}", exc_info=True)
+        # Non-zero exit so systemd Restart=on-failure kicks in
+        # (e.g. RPC not yet up after a libssl-triggered service restart storm)
+        global _fatal
+        _fatal = True
     finally:
         await rpc.close()
         await close_pool()
         log.info("Collector stopped")
 
 
+_fatal = False
+
+
 def main():
     signal.signal(signal.SIGTERM, handle_signal)
     signal.signal(signal.SIGINT, handle_signal)
     asyncio.run(run())
+    if _fatal:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
