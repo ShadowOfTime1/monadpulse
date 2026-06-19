@@ -70,23 +70,3 @@ async def gas_heatmap(request: Request, network: str = Query("testnet")):
         {"dow": r["dow"], "hour": r["hour"], "avg_gas": r["avg_gas"], "avg_tx": r["avg_tx"]}
         for r in rows
     ]
-
-
-@router.get("/top-contracts")
-async def top_contracts(request: Request, limit: int = Query(20, le=100), network: str = Query("testnet")):
-    pool = request.app.state.pool
-    async with pool.acquire() as conn:
-        rows = await conn.fetch(
-            "SELECT contract_address, total_gas_used, tx_count, first_seen "
-            "FROM top_contracts WHERE network = $1 ORDER BY total_gas_used DESC LIMIT $2",
-            network, limit,
-        )
-    return [
-        {
-            "address": r["contract_address"],
-            "total_gas": r["total_gas_used"],
-            "tx_count": r["tx_count"],
-            "first_seen": r["first_seen"].isoformat() if r["first_seen"] else None,
-        }
-        for r in rows
-    ]

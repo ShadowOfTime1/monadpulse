@@ -225,18 +225,6 @@ ALTER SEQUENCE public.stake_events_id_seq OWNED BY public.stake_events.id;
 
 
 --
--- Name: top_contracts; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.top_contracts (
-    contract_address text NOT NULL,
-    total_gas_used bigint DEFAULT 0 NOT NULL,
-    tx_count integer DEFAULT 0 NOT NULL,
-    first_seen timestamp with time zone
-);
-
-
---
 -- Name: upgrade_events; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -396,14 +384,6 @@ ALTER TABLE ONLY public.hourly_gas_stats
 
 ALTER TABLE ONLY public.stake_events
     ADD CONSTRAINT stake_events_pkey PRIMARY KEY (id);
-
-
---
--- Name: top_contracts top_contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.top_contracts
-    ADD CONSTRAINT top_contracts_pkey PRIMARY KEY (contract_address);
 
 
 --
